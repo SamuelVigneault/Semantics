@@ -1,0 +1,17 @@
+
+interface AA {
+int lol(string lol);
+}
+
+class A implements AA {
+int lol(string hey) {}
+int loli;
+}
+class B extends A {
+int lol;
+}
+class C	extends B {}
+class D extends C {}
+class E extends D {}
+
+int lol1( lol hey) {}

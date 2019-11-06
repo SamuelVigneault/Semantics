@@ -1,0 +1,357 @@
+%token T_Void 1
+%token T_Int 2
+%token T_Double 3
+%token T_Bool 4
+%token T_String 5
+%token T_Class 6
+%token T_Interface 7
+%token T_Null 8
+%token T_This 9
+%token T_Extends 10
+%token T_Implements 11
+%token T_For 12
+%token T_While 13
+%token T_If 14
+%token T_Else 15
+%token T_Return 16
+%token T_Break 17
+%token T_New 18
+%token T_NewArray 19
+%token T_Print 20
+%token T_ReadInteger 21
+%token T_ReadLine 22
+  /* 2 Identifiers */
+%token T_Identifier 23
+%token T_TypeIdentifier 24
+  /* The 4 kinds of constants (literals) */
+%token T_IntConstant 25
+%token T_BoolConstant 26
+%token T_DoubleConstant 27
+%token T_StringConstant 28
+  /* The 24 other tokens 
+     + - * / % < <= > >= = == != && || ! ; , . [ ] ( ) { } */
+%token T_Plus 29
+%token T_Minus 30
+%token T_Times 31
+%token T_Div 32
+%token T_Mod 33
+%token T_Less 34
+%token T_LessEqual 35
+%token T_Greater 36       
+%token T_GreaterEqual 37
+%token T_Assign 38
+%token T_Equal 39
+%token T_NotEqual 40
+%token T_And 41
+%token T_Or 42
+%token T_Not 43
+%token T_Semicolon 44
+%token T_Comma 45
+%token T_Dot 46
+%token T_LBracket 47
+%token T_RBracket 48
+%token T_LParen 49
+%token T_RParen 50
+%token T_LBrace 51
+%token T_RBrace 52
+
+    
+%{
+#include <vector>
+#include <iostream>
+#include <cstdlib>
+#include <cstdio>
+#include <stack>
+#include "tokentype.h" 
+#include "parsetree.h"
+
+  /* we are building parse trees */
+#define YYSTYPE ParseTree *
+
+using namespace std;
+
+ 
+ extern Token *myTok;
+ extern int yylineno;
+ int yylex();
+ ParseTree *top;
+ ParseTree *tempo;
+
+ /* stack<Token *> opstack;  // used this last time.  Might not need this time?
+    Token *optok; */
+ 
+ %}
+
+%%
+
+
+
+Program: Decl { top = $$ = $1;}
+
+Decl: Decl1 { $$ = new ParseTree("program", $1); }
+| Decl Decl1   {$1->addChild($2); }
+
+Decl1: VarDec
+|FuncDec
+|ClassDec
+|InterfaceDec
+			
+/* ----------------------------------------------------------------------- */
+
+VarDec: Var T_Semicolon
+
+Var: Type Ident {$$ = new ParseTree("variable", $1, $2); }
+
+Type: Type T_LBracket T_RBracket { $$ = new ParseTree("arraytype", $1); }
+| Int { $$ = new ParseTree("primtype", $1); }
+| Double { $$ = new ParseTree("primtype", $1); }
+| Bool { $$ = new ParseTree("primtype", $1); }
+| String { $$ = new ParseTree("primtype", $1); }
+| TIdent { $$ = new ParseTree("usertype", $1); }
+     
+/* ----------------------------------------------------------------------- */
+
+FuncDec: Type Ident T_LParen Formals T_RParen StmtBlock { $$ = new ParseTree("functiondecl", $1, $2, $4, $6); }
+| Void Ident T_LParen Formals T_RParen StmtBlock { $$ = new ParseTree("functiondecl", $1, $2, $4, $6); }
+
+Formals: Formals1
+| { $$ = new ParseTree("formals"); }
+        
+Formals1: Var { $$ = new ParseTree("formals", $1); }
+| Formals1 T_Comma Var {$1->addChild($3); }
+
+StmtBlock: T_LBrace VarDecSt StmtSt T_RBrace { $$ = new ParseTree("stmtblock", $2, $3); }
+
+VarDecSt: { $$ = new ParseTree("vardecls"); }
+| VarDecSt VarDec { $1->addChild($2); }
+
+StmtSt: { $$ = new ParseTree("stmts"); }
+| StmtSt Stmt   { $1->addChild($2); }
+
+/* ----------------------------------------------------------------------- */
+
+ClassDec: T_Class Idents Extend Implem T_LBrace Field1 T_RBrace { $$ = new ParseTree("class", $2, $3, $4, $6); }
+
+Extend: { $$ = nullptr; }
+| T_Extends Idents { $$ = new ParseTree("extends", $2); }
+
+Implem: { $$ = nullptr; }
+| Implem1
+
+Implem1: T_Implements Ident { $$ = new ParseTree("implements", $2); }
+| Implem1 T_Comma Ident { $1->addChild($3); }
+
+Field1: { $$ = new ParseTree("fields"); }
+| Field1 Field { $1->addChild($2); }
+
+Field: VarDec
+| FuncDec
+
+Idents: Ident
+|TIdent
+
+/* ----------------------------------------------------------------------- */
+
+InterfaceDec: Interface T_RBrace 
+
+Interface: T_Interface Ident T_LBrace { $$ = new ParseTree("interface", $2); }
+| Interface Prototype T_Semicolon { $1->addChild($2); }
+
+Prototype: Type Ident T_LParen Formals T_RParen { $$ = new ParseTree("prototype", $1, $2, $4); }
+| Void Ident T_LParen Formals T_RParen { $$ = new ParseTree("prototype", $1, $2, $4); }
+
+/* ----------------------------------------------------------------------- */
+
+Stmt: Open
+| Matched
+
+Matched: StmtBlock
+| Expr15
+| T_Semicolon { $$ = new ParseTree("nullstmt"); }
+| ReturnStmt
+| PrintStmt
+| BreakStmt
+| WhileStmt
+| ForStmt
+| MatchedIfStmt
+
+ReturnStmt: Return T_Semicolon { $$ = new ParseTree("return", $1); }
+| Return Expr15 { $$ = new ParseTree("return", $1, $2); }
+
+PrintStmt: Print ActualsPrint T_Semicolon { $$ = new ParseTree("print", $1, $2); }
+
+BreakStmt: Break T_Semicolon { $$ = new ParseTree("break", $1); }
+
+ForStmt: ForHeader Stmt { $1->addChild($2); }
+
+ForHeader: T_For T_LParen Expr15 Expr15 Expr14 T_RParen { $$ = new ParseTree("for", $3, $4, $5); }
+| T_For T_LParen T_Semicolon Expr15 Expr14 T_RParen { $$ = new ParseTree("for", nullptr, $4, $5); }
+| T_For T_LParen Expr15 Expr15 T_RParen { $$ = new ParseTree("for", $3, $4, nullptr); }
+| T_For T_LParen T_Semicolon Expr15 T_RParen { $$ = new ParseTree("for", nullptr, $4, nullptr); }
+
+WhileStmt: WhileHeader Stmt { $1->addChild($2); }
+
+WhileHeader: T_While Expr16 { $$ = new ParseTree("while", $2); }
+
+/* ----------------------------------------------------------------------- */
+
+Open: IfHeader Stmt { $1->addChild($2); }
+| IfHeader Matched T_Else Open {$1->addChild($2, $4);}
+
+MatchedIfStmt: IfHeader Matched T_Else Matched { $1->addChild($2, $4); }
+
+IfHeader: T_If Expr16 { $$ = new ParseTree("if", $2); }
+
+/* ----------------------------------------------------------------------- */
+
+ActualsPrint: T_LParen Actuals1 T_RParen {$$ = $2; }
+
+ActualsCall: T_LParen Actuals T_RParen {$$ = $2; }
+
+Actuals: { $$ = new ParseTree("actuals");  }
+| Actuals1
+	
+Actuals1: Expr14 { $$ = new ParseTree("actuals", $1);  }
+| Actuals1 T_Comma Expr14 { $1->addChild($3); }
+
+Expr16: T_LParen Expr14 T_RParen { $$ = $2; }
+
+Expr15: Expr14 T_Semicolon
+
+Expr14: LValue Assign Expr14 { $$ = new ParseTree("binop", $1, $2, $3); }
+| Expr13
+
+Expr13: Expr11
+| Expr12
+		
+Expr12: Expr12 Or Expr11 { $$ = new ParseTree("binop", $1, $2, $3); }
+| Expr11 Or Expr11 { $$ = new ParseTree("binop", $1, $2, $3); }
+
+Expr11: Expr10
+| Expr9
+		
+Expr10: Expr10 And Expr9 { $$ = new ParseTree("binop", $1, $2, $3); }
+| Expr9 And Expr9 { $$ = new ParseTree("binop", $1, $2, $3); }
+     
+     
+Expr9: Expr8
+| Expr71
+
+Expr8: Expr8 Equal Expr71 { $$ = new ParseTree("binop", $1, $2, $3); }
+| Expr8 NotEqual Expr71 { $$ = new ParseTree("binop", $1, $2, $3); }
+| Expr71 Equal Expr71 { $$ = new ParseTree("binop", $1, $2, $3); }
+| Expr71 NotEqual Expr71 { $$ = new ParseTree("binop", $1, $2, $3); }
+
+Expr71: Expr7
+| Expr6
+
+Expr7: Expr7 LessEqual Expr6 { $$ = new ParseTree("binop", $1, $2, $3); }
+| Expr7 Less Expr6 { $$ = new ParseTree("binop", $1, $2, $3); }
+| Expr7 GreaterEqual Expr6 { $$ = new ParseTree("binop", $1, $2, $3); }
+| Expr7 Greater Expr6 { $$ = new ParseTree("binop", $1, $2, $3); }
+| Expr6 LessEqual Expr6 { $$ = new ParseTree("binop", $1, $2, $3); }
+| Expr6 Less Expr6 { $$ = new ParseTree("binop", $1, $2, $3); }
+| Expr6 GreaterEqual Expr6 { $$ = new ParseTree("binop", $1, $2, $3); }
+| Expr6 Greater Expr6 { $$ = new ParseTree("binop", $1, $2, $3); }
+     
+Expr6: Expr4
+| Expr5
+
+Expr5: Expr5 Plus Expr4 { $$ = new ParseTree("binop", $1, $2, $3); }
+| Expr5 Negat Expr4 { $$ = new ParseTree("binop", $1, $2, $3); }
+| Expr4 Plus Expr4 { $$ = new ParseTree("binop", $1, $2, $3); }
+| Expr4 Negat Expr4 { $$ = new ParseTree("binop", $1, $2, $3); }
+
+Expr4: Expr3
+| Expr2 
+
+Expr3: Expr3 Mult Expr2 { $$ = new ParseTree("binop", $1, $2, $3); }
+| Expr3 Div Expr2 { $$ = new ParseTree("binop", $1, $2, $3); }
+| Expr3 Mod Expr2 { $$ = new ParseTree("binop", $1, $2, $3); }
+| Expr2 Mult Expr2 { $$ = new ParseTree("binop", $1, $2, $3); }
+| Expr2 Div Expr2 { $$ = new ParseTree("binop", $1, $2, $3); }
+| Expr2 Mod Expr2 { $$ = new ParseTree("binop", $1, $2, $3); }
+
+Expr2: Negat Expr2 { $$ = new ParseTree("uop", $1, $2); }
+| Excla Expr2 { $$ = new ParseTree("uop", $1, $2); }
+| Expr1
+
+Expr1: LValue
+| Call
+| Expr
+			
+Expr: Constant 	
+| This 			
+| T_LParen Expr14 T_RParen { $$ = $2; }
+| T_New T_LParen Ident T_RParen { $$ = new ParseTree("new", $3); }
+| T_NewArray T_LParen Expr14 T_Comma NewArrayType T_RParen { $$ = new ParseTree("newarray", $3, $5); }
+| T_ReadLine T_LParen T_RParen{ $$ = new ParseTree("readline"); }
+| T_ReadInteger T_LParen T_RParen{ $$ = new ParseTree("readinteger"); }
+
+NewArrayType: Type 
+| NewArrayHack
+
+NewArrayHack: Ident { $$  = new ParseTree("usertype", $1); }
+
+LValue: Ident
+| FieldA
+| Expr1 T_LBracket Expr14 T_RBracket { $$ = new ParseTree("aref", $1, $3); }
+		
+Call: Ident ActualsCall { $$ = new ParseTree("call", $1, $2); }
+| FieldA ActualsCall { $$ = new ParseTree("call", $1, $2); }
+		
+FieldA: Expr1 T_Dot Ident { $$ = new ParseTree("field_access", $1, $3); }
+
+Constant: IntC
+| DoubleC
+| BoolC
+| StringC
+| Null
+
+/* ----------------------------------------------------------------------- */
+
+Print: T_Print { $$ = new ParseTree(myTok); }
+Break: T_Break { $$ = new ParseTree(myTok); }
+Return : T_Return { $$ = new ParseTree(myTok); }
+Less: T_Less { $$ = new ParseTree(myTok); }
+LessEqual: T_LessEqual { $$ = new ParseTree(myTok); }
+Greater: T_Greater { $$ = new ParseTree(myTok); }
+GreaterEqual: T_GreaterEqual { $$ = new ParseTree(myTok); }
+Assign: T_Assign { $$ = new ParseTree(myTok); }
+Equal: T_Equal { $$ = new ParseTree(myTok); }
+NotEqual: T_NotEqual { $$ = new ParseTree(myTok); }
+And: T_And { $$ = new ParseTree(myTok); }
+Or: T_Or { $$ = new ParseTree(myTok); }
+Plus: T_Plus { $$ = new ParseTree(myTok); }
+Div: T_Div { $$ = new ParseTree(myTok); }
+Mult: T_Times { $$ = new ParseTree(myTok); }
+Mod: T_Mod	 { $$ = new ParseTree(myTok); }
+Excla: T_Not { $$ = new ParseTree(myTok); }
+Negat: T_Minus { $$ = new ParseTree(myTok); }
+Null: T_Null { $$ = new ParseTree(myTok); }
+This: T_This { $$ = new ParseTree(myTok); }
+Void: T_Void { $$ = new ParseTree(myTok); }
+Int:  T_Int { $$ = new ParseTree(myTok); }
+Double: T_Double { $$ = new ParseTree(myTok); }
+Bool: T_Bool { $$ = new ParseTree(myTok); }
+String: T_String { $$ = new ParseTree(myTok); }
+IntC:  T_IntConstant { $$ = new ParseTree(myTok); }
+DoubleC: T_DoubleConstant { $$ = new ParseTree(myTok); }
+BoolC: T_BoolConstant { $$ = new ParseTree(myTok); }
+StringC: T_StringConstant { $$ = new ParseTree(myTok); }
+Ident: T_Identifier { $$ = new ParseTree(myTok); }
+TIdent: T_TypeIdentifier { $$ = new ParseTree(myTok); }
+          
+/* ----------------------------------------------------------------------- */
+
+
+%%
+      /* |  IfStmt { $$ = $1; } 
+	 IfStmt: T_If T_LParen Expr T_RParen StmtBlock T_Else StmtBlock { $$ = new ParseTree("IFSTMT", $3, $5, $7); }
+      */
+
+int yyerror(const char * s)
+{
+  fprintf(stderr, "%s\n", s);
+  return 0;
+}
