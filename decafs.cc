@@ -296,10 +296,12 @@ if (tree->description == "functiondecl") {
 if (tree->description == "class") {
 	cout << "5555555" << endl;
 	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { // looping through top scope
-    	if (dynamic_cast<S_class *>(it->second) && it->first ==tree->children[0]->token->text) {
+    	if (dynamic_cast<S_class *>(it->second) && it->first == tree->children[0]->token->text) {
     		currentClass = dynamic_cast<S_class *>(it->second); 
     		currentSS = tree->symtab; }}
+    cout << "5555555" << endl;
     for (size_t i=0; i < tree->children.size(); i++) {
+    	cout << "5555555" << endl;
     	if (tree->children[i]->description == "functiondecl") {
     		if (dynamic_cast<S_function *>(currentSS->local_lookup(tree->children[i]->children[1]->token->text))) {
     			currentFunc = dynamic_cast<S_function *>(currentSS->local_lookup(tree->children[i]->children[1]->token->text));

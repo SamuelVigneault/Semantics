@@ -306,7 +306,7 @@ if (tree->description == "class") {
 				currentSS = tree->children[i]->symtab;
 				functionhandler();
 }
-else cout << "WTFFFF" << endl; }}}
+else cout << "WTFFFF" << endl; }}}}
     		
 int main(int argc, char **argv) { 
   /* Make sure there's a given file name */
