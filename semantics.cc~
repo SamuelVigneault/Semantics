@@ -8,15 +8,18 @@ using namespace std;
 #include "semantics.h"
 #include "parsetree.h"
 
-vector<string> usertype;
-vector<Symtab*> class_inter_scopes;
+vector<string> usertypes;
+vector<S_interface *> interfaces;
+vector<S_class *> classes;
+vector<S_function *> global_funcs;
+
 Symtab *topSS = nullptr;
 Symtab *currentSS = nullptr;
-S_interface* currentInterface = nullptr;
+ParseTree * topTT = nullptr;
+ParseTree * currentTT = nullptr;
+
+S_function* currentFunc = nullptr;
 S_class* currentClass = nullptr;
-vector<S_type *> usertypes;
-ParseTree * topTT;
-ParseTree * currentTT;
 
 void semantic_error(string msg, int line)
 {
@@ -100,18 +103,11 @@ void Symtab::outputer() {
   for (std::map<string, semantics *>::iterator it=dict.begin(); it!=dict.end(); ++it)
     cout << it->first << " => " << it->second << '\n';
 }
-void openscope(string desc) {
+void openscope() {
   currentSS = new Symtab(currentSS);
-  ParseTree * newest = new ParseTree(desc);
-  newest->symtab = currentSS;
-  if (currentTT) {
-    currentTT->addChild(newest);
-    newest->parent = currentTT;
-  }
-  currentTT = newest;
 }
+
 void closescope() {
-  currentSS= currentSS->parent;
-  currentTT = currentTT->parent;
+  currentSS = currentSS->parent;
 }
 

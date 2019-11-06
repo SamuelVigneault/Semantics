@@ -18,7 +18,7 @@ Symtab *currentSS = nullptr;
 ParseTree * topTT = nullptr;
 ParseTree * currentTT = nullptr;
 
-S_interface* currentInterface = nullptr;
+S_function* currentFunc = nullptr;
 S_class* currentClass = nullptr;
 
 void semantic_error(string msg, int line)

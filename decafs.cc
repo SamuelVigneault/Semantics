@@ -25,8 +25,8 @@ extern vector<S_function *> global_funcs;
 extern Symtab *topSS;
 extern Symtab *currentSS;
 
-extern S_interface* currentInterface;
 extern S_class* currentClass;
+extern S_function * currentFunc;
 
 ParseTree * parse_decaf(FILE *);
 
@@ -236,7 +236,6 @@ void check_implements2(ParseTree * tree) {
 	    if (dynamic_cast<S_function *>(it1->second)) {
 	      if(dynamic_cast<S_function *>(it1->second)->name == FI->name) {
 	        S_function * FUNC = dynamic_cast<S_function *>(it1->second);
-	         cout << "HEYYY5 " << endl;
 	        if (check_type_signature(FUNC, FI)) { found1 = true; }
 	        break;
 	      }}}
@@ -246,49 +245,36 @@ void check_implements2(ParseTree * tree) {
 
 void check_parents2(ParseTree * tree) {
   vector<string> done;
-  for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) {
+  for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { // looping through top scope
     if (dynamic_cast<S_class *>(it->second)) {
       S_class * A = dynamic_cast<S_class *>(it->second);
       S_class * B = dynamic_cast<S_class *>(it->second);
       Symtab * currenttab;
       Symtab * othertab;
-      for (size_t i=0; i < tree->children.size(); i++) {
-	if (tree->children[i]->description == "class") {
-	  if (tree->children[i]->children[0]->token->text == A->name) {
-	    currenttab = tree->children[i]->symtab;
-	    break;
-	  }}}
+      for (size_t i=0; i < tree->children.size(); i++) { // looping through the children of top (topscope)
+		if (tree->children[i]->description == "class") { 
+	 		if (tree->children[i]->children[0]->token->text == A->name) {
+	    		currenttab = tree->children[i]->symtab;
+	    		break;
+	  		}}}
       while (true) {
 	if (A != B) {
 	  for (std::map<string, semantics *>::iterator it2=othertab->dict.begin(); it2!=othertab->dict.end(); ++it2) {
+	  	// looping through the non completed parent class scope
 	    if (currenttab->dict.count(it2->first) == 1) {
 	      if (dynamic_cast<S_function*>(currenttab->dict[it2->first]) && dynamic_cast<S_function*>(it2->second)) {
-		S_function * FUNC1 = dynamic_cast<S_function*>(currenttab->dict[it2->first]);
-		S_function * FUNC2 = dynamic_cast<S_function*>(it2->second);
-		if (!check_type_signature(FUNC1, FUNC2))
-		  semantic_error("Subclass "+A->name+" cannot overwrite a function from the '"+B->name+"' class", yylineno);
-	      }
-	      else
-		semantic_error("Subclass "+A->name+" cannot overwrite a variable from the '"+B->name+"' class", yylineno);
-	    }
-	    else currenttab->insert(it2->first, it2->second);
-	  }}
-	if (B->parentClass == "") {
-	  done.push_back(A->name);
-	  break;
-	}
+				S_function * FUNC1 = dynamic_cast<S_function*>(currenttab->dict[it2->first]);
+				S_function * FUNC2 = dynamic_cast<S_function*>(it2->second);
+				if (!check_type_signature(FUNC1, FUNC2)) {semantic_error("Subclass "+A->name+" cannot overwrite a function from the '"+B->name+"' class", yylineno); }}
+	      	else { semantic_error("Subclass "+A->name+" cannot overwrite a variable from the '"+B->name+"' class", yylineno); }}
+	    else currenttab->insert(it2->first, it2->second); }}
+	if (B->parentClass == "") { done.push_back(A->name); break; }
 	bool found = false;
-	for (unsigned int i = 0; i < done.size(); i++) {
-	  if (B->name == done[i]) {
-	    done.push_back(A->name);
-	    found = true;
-	  }}
-	if (found)
-	  break;
+	for (unsigned int i = 0; i < done.size(); i++) { if (B->name == done[i]) { done.push_back(A->name); found = true; }}
+	if (found) { break; }
 	for (std::map<string, semantics *>::iterator it1=topSS->dict.begin(); it1!=topSS->dict.end(); ++it1) {
 	  if (dynamic_cast<S_class *>(it1->second) && dynamic_cast<S_class*>(it1->second)->name == B->parentClass)
-	    B = dynamic_cast<S_class*>(it1->second);
-	}
+	    B = dynamic_cast<S_class*>(it1->second); }
 	for (size_t i=0; i < tree->children.size(); i++) {
 	  if (tree->children[i]->description == "class") {
 	    if (tree->children[i]->children[0]->token->text == B->name) {
@@ -297,6 +283,26 @@ void check_parents2(ParseTree * tree) {
 	    }}}
       }}}}
   
+void functionhandler(ParseTree * tree) { return;}
+
+void traversing2(ParseTree * tree) {
+if (tree->description == "interface" || tree->description == "variable") {return;}
+if (tree->description == "functiondecl") {
+	currentFunc = dynamic_cast<S_function *>(topSS.local_lookup(tree->children[1]->token->text);
+	currentSS = tree->symtab;
+	functionhandler(tree);
+}
+if (tree->description == "class") {
+	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { // looping through top scope
+    	if (dynamic_cast<S_class *>(it->second) && dynamic_cast<S_class *>(it->first) ==tree->children[0]->token->text) {
+    		currentClass = dynamic_cast<S_class *>(it->second); 
+    		currentSS = tree->symtab; }}
+    for (size_t i=0; i < tree->children.size(); i++) {
+    	if (tree->children[i]->description == "functiondecl") {
+    		currentFunc = dynamic_cast<S_function *>(currentSS.local_lookup(tree->children[i]->children[1]->token->text);
+			currentSS = tree->children[i]->symtab;
+			functionhandler(tree->children[i]);}}}}
+    		
 int main(int argc, char **argv) { 
   /* Make sure there's a given file name */
   if (argc != 2) {
@@ -331,8 +337,8 @@ int main(int argc, char **argv) {
   check_parents2(top); 				// modifies each class scope to include its parents' objects
   check_implements(); 					// makes sure every class' interfaces are declared
   check_implements2(top);			// makes sure every class' interfaces' functions are defined in the class scope
-  //for (size_t i=0; i < top->children.size(); i++)
-    //traversing2(top->children[i]);
+  for (size_t i=0; i < top->children.size(); i++)
+    traversing2(top->children[i]);
   //traverseTree(top, 0, 1);
   return 0;
 #endif
