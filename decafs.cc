@@ -186,7 +186,6 @@ void check_loops() {
 	  }}
       }}}}
 
-  
 void check_implements() {
   for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) {
     if (dynamic_cast<S_class *>(it->second)) {
@@ -240,11 +239,14 @@ void check_implements2(ParseTree * tree) {
 	  S_function * FI =  inter1->functions[k];
 	  cout << "HEYYY5 " << endl;
 	  for (std::map<string, semantics *>::iterator it1=currenttab->dict.begin(); it1!=currenttab->dict.end(); ++it1) {
+	  	 cout << "HEYYY5 " << endl;
 	    if (dynamic_cast<S_function *>(it1->second)) {
+	    	 cout << "HEYYY5 " << endl;
 	      if(dynamic_cast<S_function *>(it1->second)->name == FI->name) {
+	      	 cout << "HEYYY5 " << endl;
 	        S_function * FUNC = dynamic_cast<S_function *>(it1->second);
-	        if (check_type_signature(FUNC, FI))
-		  found1 = true;
+	         cout << "HEYYY5 " << endl;
+	        if (check_type_signature(FUNC, FI)) { found1 = true; }
 	        break;
 	      }}}
 	  if (!found1)
