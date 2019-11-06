@@ -288,11 +288,13 @@ void functionhandler() { return;}
 void traversing2(ParseTree * tree) {
 if (tree->description == "interface" || tree->description == "variable") {return;}
 if (tree->description == "functiondecl") {
+	cout << "LOOOL" << endl;
 	currentFunc = dynamic_cast<S_function *>(topSS->local_lookup(tree->children[1]->token->text));
 	currentSS = tree->symtab;
 	functionhandler();
 }
 if (tree->description == "class") {
+	cout << "5555555" << endl;
 	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { // looping through top scope
     	if (dynamic_cast<S_class *>(it->second) && it->first ==tree->children[0]->token->text) {
     		currentClass = dynamic_cast<S_class *>(it->second); 
