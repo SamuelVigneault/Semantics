@@ -248,7 +248,7 @@ void check_implements2(ParseTree * tree) {
 	        break;
 	      }}}
 	  if (!found1)
-	    semantic_error("Class "+C->name+" does not implement all methods of the '"+I->name+ "' interface", yylineno);
+	    semantic_error("Class "+C->name+" does not implement all methods of the '"+inter1->name+ "' interface", yylineno);
 	}}}}}
 
 void check_parents2(ParseTree * tree) {
