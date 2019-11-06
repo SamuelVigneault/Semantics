@@ -301,9 +301,12 @@ if (tree->description == "class") {
     		currentSS = tree->symtab; }}
     for (size_t i=0; i < tree->children.size(); i++) {
     	if (tree->children[i]->description == "functiondecl") {
-    		currentFunc = dynamic_cast<S_function *>(currentSS->local_lookup(tree->children[i]->children[1]->token->text));
-			currentSS = tree->children[i]->symtab;
-			functionhandler();}}}}
+    		if (dynamic_cast<S_function *>(currentSS->local_lookup(tree->children[i]->children[1]->token->text))) {
+    			currentFunc = dynamic_cast<S_function *>(currentSS->local_lookup(tree->children[i]->children[1]->token->text));
+				currentSS = tree->children[i]->symtab;
+				functionhandler();
+}
+else cout << "WTFFFF" << endl; }}}
     		
 int main(int argc, char **argv) { 
   /* Make sure there's a given file name */
@@ -340,8 +343,11 @@ int main(int argc, char **argv) {
   check_implements(); 					// makes sure every class' interfaces are declared
   check_implements2(top);			// makes sure every class' interfaces' functions are defined in the class scope
   cout << "SECOND TRAVERSE" << endl;
-  for (size_t i=0; i < top->children.size(); i++)
-    traversing2(top->children[i]);
+  for (size_t i=0; i < top->children.size(); i++) {
+  	currentClass = nullptr;
+  	currentFunc = nullptr;
+  	traversing2(top->children[i]);
+  }
   //traverseTree(top, 0, 1);
   return 0;
 #endif
