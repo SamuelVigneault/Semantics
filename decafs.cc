@@ -217,28 +217,23 @@ void check_implements2(ParseTree * tree) {
     if (dynamic_cast<S_class *>(it->second)){
       S_class * C = dynamic_cast<S_class *>(it->second);
       for (unsigned int i=0; i < C->interfaces.size(); i++) {
-	cout << "HEYYY1 " << endl;
 	S_interface* inter1;
 	for (std::map<string, semantics *>::iterator it1=topSS->dict.begin(); it1!=topSS->dict.end(); ++it1) {
-	  if (dynamic_cast<S_interface *>(it1->second) && it->first == C->interfaces[i])
+	  if (dynamic_cast<S_interface *>(it1->second) && it1->first == C->interfaces[i])
 	    inter1 = dynamic_cast<S_interface*>(it1->second);
 	}
-	cout << "HEYYY2 " << endl;
-        Symtab * currenttab;
+    Symtab * currenttab;
 	for (size_t j=0; j < tree->children.size(); j++) {
 	  if (tree->children[j]->description == "class") {
 	    if (tree->children[j]->children[0]->token->text == C->name) {
 		currenttab = tree->children[j]->symtab;
 		break;
 	      }}}
-	cout << "HEYYY3 " << endl;
 	for (unsigned int k=0; k <  inter1->functions.size(); k++) {
-	  cout << "HEYYY " << endl;
 	  bool found1 = false;
-	  cout << "HEYYY " << endl;
 	  S_function * FI =  inter1->functions[k];
 	  cout << "HEYYY5 " << endl;
-	  for (std::map<string, semantics *>::iterator it1=currenttab->dict.begin(); it1!=currenttab->dict.end(); ++it1) {
+	  for (map<string, semantics *>::iterator it1=currenttab->dict.begin(); it1!=currenttab->dict.end(); ++it1) {
 	  	 cout << "HEYYY5 " << endl;
 	    if (dynamic_cast<S_function *>(it1->second)) {
 	    	 cout << "HEYYY5 " << endl;
