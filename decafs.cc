@@ -283,25 +283,25 @@ void check_parents2(ParseTree * tree) {
 	    }}}
       }}}}
   
-void functionhandler(ParseTree * tree) { return;}
+void functionhandler() { return;}
 
 void traversing2(ParseTree * tree) {
 if (tree->description == "interface" || tree->description == "variable") {return;}
 if (tree->description == "functiondecl") {
-	currentFunc = dynamic_cast<S_function *>(topSS.local_lookup(tree->children[1]->token->text);
+	currentFunc = dynamic_cast<S_function *>(topSS->local_lookup(tree->children[1]->token->text));
 	currentSS = tree->symtab;
-	functionhandler(tree);
+	functionhandler();
 }
 if (tree->description == "class") {
 	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { // looping through top scope
-    	if (dynamic_cast<S_class *>(it->second) && dynamic_cast<S_class *>(it->first) ==tree->children[0]->token->text) {
+    	if (dynamic_cast<S_class *>(it->second) && it->first ==tree->children[0]->token->text) {
     		currentClass = dynamic_cast<S_class *>(it->second); 
     		currentSS = tree->symtab; }}
     for (size_t i=0; i < tree->children.size(); i++) {
     	if (tree->children[i]->description == "functiondecl") {
-    		currentFunc = dynamic_cast<S_function *>(currentSS.local_lookup(tree->children[i]->children[1]->token->text);
+    		currentFunc = dynamic_cast<S_function *>(currentSS->local_lookup(tree->children[i]->children[1]->token->text));
 			currentSS = tree->children[i]->symtab;
-			functionhandler(tree->children[i]);}}}}
+			functionhandler();}}}}
     		
 int main(int argc, char **argv) { 
   /* Make sure there's a given file name */
