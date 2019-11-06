@@ -303,12 +303,9 @@ else if (tree->description == "class") {
     for (size_t i=0; i < tree->children[3]->children.size(); i++) {
     	cout << "5555555" << endl;
     	if (tree->children[3]->children[i]->description == "functiondecl") {
-    		if (dynamic_cast<S_function *>(currentSS->local_lookup(tree->children[3]->children[i]->children[1]->token->text))) {
     			currentFunc = dynamic_cast<S_function *>(currentSS->local_lookup(tree->children[3]->children[i]->children[1]->token->text));
 				currentSS = tree->children[i]->symtab;
-				functionhandler();
-}
-else cout << "WTFFFF" << endl; }}}}
+				functionhandler();}}}}
     		
 int main(int argc, char **argv) { 
   /* Make sure there's a given file name */
