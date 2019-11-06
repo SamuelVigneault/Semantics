@@ -337,6 +337,7 @@ int main(int argc, char **argv) {
   check_parents2(top); 				// modifies each class scope to include its parents' objects
   check_implements(); 					// makes sure every class' interfaces are declared
   check_implements2(top);			// makes sure every class' interfaces' functions are defined in the class scope
+  cout << "SECOND TRAVERSE" << endl;
   for (size_t i=0; i < top->children.size(); i++)
     traversing2(top->children[i]);
   //traverseTree(top, 0, 1);
