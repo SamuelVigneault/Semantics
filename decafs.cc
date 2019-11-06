@@ -232,13 +232,9 @@ void check_implements2(ParseTree * tree) {
 	for (unsigned int k=0; k <  inter1->functions.size(); k++) {
 	  bool found1 = false;
 	  S_function * FI =  inter1->functions[k];
-	  cout << "HEYYY5 " << endl;
 	  for (map<string, semantics *>::iterator it1=currenttab->dict.begin(); it1!=currenttab->dict.end(); ++it1) {
-	  	 cout << "HEYYY5 " << endl;
 	    if (dynamic_cast<S_function *>(it1->second)) {
-	    	 cout << "HEYYY5 " << endl;
 	      if(dynamic_cast<S_function *>(it1->second)->name == FI->name) {
-	      	 cout << "HEYYY5 " << endl;
 	        S_function * FUNC = dynamic_cast<S_function *>(it1->second);
 	         cout << "HEYYY5 " << endl;
 	        if (check_type_signature(FUNC, FI)) { found1 = true; }

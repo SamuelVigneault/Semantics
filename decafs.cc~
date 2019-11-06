@@ -219,7 +219,7 @@ void check_implements2(ParseTree * tree) {
       for (unsigned int i=0; i < C->interfaces.size(); i++) {
 	S_interface* inter1;
 	for (std::map<string, semantics *>::iterator it1=topSS->dict.begin(); it1!=topSS->dict.end(); ++it1) {
-	  if (dynamic_cast<S_interface *>(it1->second) && it->first == C->interfaces[i])
+	  if (dynamic_cast<S_interface *>(it1->second) && it1->first == C->interfaces[i])
 	    inter1 = dynamic_cast<S_interface*>(it1->second);
 	}
     Symtab * currenttab;
@@ -233,7 +233,7 @@ void check_implements2(ParseTree * tree) {
 	  bool found1 = false;
 	  S_function * FI =  inter1->functions[k];
 	  cout << "HEYYY5 " << endl;
-	  for (std::map<string, semantics *>::iterator it1=currenttab->dict.begin(); it1!=currenttab->dict.end(); ++it1) {
+	  for (map<string, semantics *>::iterator it1=currenttab->dict.begin(); it1!=currenttab->dict.end(); ++it1) {
 	  	 cout << "HEYYY5 " << endl;
 	    if (dynamic_cast<S_function *>(it1->second)) {
 	    	 cout << "HEYYY5 " << endl;
