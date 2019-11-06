@@ -219,10 +219,10 @@ void check_implements2(ParseTree * tree) {
       S_class * C = dynamic_cast<S_class *>(it->second);
       for (unsigned int i=0; i < C->interfaces.size(); i++) {
 	cout << "HEYYY1 " << endl;
-	S_interface* I;
+	S_interface* inter1;
 	for (std::map<string, semantics *>::iterator it1=topSS->dict.begin(); it1!=topSS->dict.end(); ++it1) {
 	  if (dynamic_cast<S_interface *>(it1->second) && it->first == C->interfaces[i])
-	      I = dynamic_cast<S_interface*>(it1->second);
+	    inter1 = dynamic_cast<S_interface*>(it1->second);
 	}
 	cout << "HEYYY2 " << endl;
         Symtab * currenttab;
@@ -233,18 +233,16 @@ void check_implements2(ParseTree * tree) {
 		break;
 	      }}}
 	cout << "HEYYY3 " << endl;
-	for (unsigned int k=0; k < I->functions.size(); k++) {
+	for (unsigned int k=0; k <  inter1->functions.size(); k++) {
 	  cout << "HEYYY " << endl;
 	  bool found1 = false;
 	  cout << "HEYYY " << endl;
-	  S_function * FI = I->functions[k];
+	  S_function * FI =  inter1->functions[k];
 	  cout << "HEYYY5 " << endl;
 	  for (std::map<string, semantics *>::iterator it1=currenttab->dict.begin(); it1!=currenttab->dict.end(); ++it1) {
-	    cout << "HEYYY6 " << endl;
 	    if (dynamic_cast<S_function *>(it1->second)) {
 	      if(dynamic_cast<S_function *>(it1->second)->name == FI->name) {
 	        S_function * FUNC = dynamic_cast<S_function *>(it1->second);
-		cout << "HEYYY7 " << endl;
 	        if (check_type_signature(FUNC, FI))
 		  found1 = true;
 	        break;
@@ -335,15 +333,13 @@ int main(int argc, char **argv) {
   top->symtab = topSS;
   for (size_t i=0; i < top->children.size(); i++)
     traversing1(top->children[i]);
-  cout << "HEYYY " << endl;
-  check_parents(); // makes sure every classes' parent is declared
-  cout << "HEYYY " << endl;
-  check_loops(); // makes sure no class is a subclass of itself
-  cout << "HEYYY " << endl;
-  check_parents2(top);
-  check_implements(); //
-  cout << "HEYYY " << endl;
-  check_implements2(top);
+  check_parents(); 							// makes sure every class' parent is declared
+  check_loops(); 								// makes sure no class is a subclass of itself
+  check_parents2(top); 				// modifies each class scope to include its parents' objects
+  check_implements(); 					// makes sure every class' interfaces are declared
+  check_implements2(top);			// makes sure every class' interfaces' functions are defined in the class scope
+  //for (size_t i=0; i < top->children.size(); i++)
+    //traversing2(top->children[i]);
   //traverseTree(top, 0, 1);
   return 0;
 #endif
