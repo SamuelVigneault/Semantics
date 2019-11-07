@@ -939,7 +939,7 @@ while (0)
 
 # define YYDPRINTF(Args)                        \
 do {                                            \
-  if (yydebug)                                  \
+  if (yydebug&& false)                                  \
     YYFPRINTF Args;                             \
 } while (0)
 
@@ -951,7 +951,7 @@ do {                                            \
 
 # define YY_SYMBOL_PRINT(Title, Type, Value, Location)                    \
 do {                                                                      \
-  if (yydebug)                                                            \
+  if (yydebug&& false)                                                            \
     {                                                                     \
       YYFPRINTF (stderr, "%s ", Title);                                   \
       yy_symbol_print (stderr,                                            \
@@ -1013,7 +1013,7 @@ yy_stack_print (yytype_int16 *yybottom, yytype_int16 *yytop)
 
 # define YY_STACK_PRINT(Bottom, Top)                            \
 do {                                                            \
-  if (yydebug)                                                  \
+  if (yydebug && false)                                                  \
     yy_stack_print ((Bottom), (Top));                           \
 } while (0)
 
@@ -1044,7 +1044,7 @@ yy_reduce_print (yytype_int16 *yyssp, YYSTYPE *yyvsp, int yyrule)
 
 # define YY_REDUCE_PRINT(Rule)          \
 do {                                    \
-  if (yydebug)                          \
+  if (yydebug&& false)                          \
     yy_reduce_print (yyssp, yyvsp, Rule); \
 } while (0)
 
