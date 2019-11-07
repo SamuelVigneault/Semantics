@@ -283,15 +283,40 @@ void check_parents2(ParseTree * tree) {
 	    }}}
       }}}}
   
-void functionhandler() { return;}
+  
+void statement_handler(ParseTree* tree) {
+	if (tree->description == "print") {}
+	if (tree->description == "while") {
+	}
+	if (tree->description == "for") {}
+	if (tree->description == "break") {}
+	if (tree->description == "return") {}
+	if (tree->description == "if") {}
+	if (tree->description == "stmtblock") {
+		blockhandler(tree);
+	}
+	else  {}
+}
+void blockhandler(ParseTree* block) { 
+	openscope();
+	tree->symtab = currentSS;
+	for (size_t i=0; i < tree->children[0]->children.size(); i++) {
+		S_variable * vari;
+      vari = new S_variable();
+      vari->name = tree->children[0]->children[i]->children[1]->token->text;
+      vari->type = basetype(tree->children[0]->children[i]->children[0]);
+      if (currentSS->dict.count(vari->name) == 1) { semantic_error("Variable redefined in the statement block", yylineno);  }
+      currentSS->insert(vari->name, vari);}
+	for (size_t i=0; i < tree->children[1]->children.size(); i++) { statement_handler(tree->children[1]->children[i]); }
+	closescope;
+}
 
 void traversing2(ParseTree * tree) {
 if (tree->description == "interface" || tree->description == "variable") {return;}
 else if (tree->description == "functiondecl") {
 	currentFunc = dynamic_cast<S_function *>(topSS->local_lookup(tree->children[1]->token->text));
 	currentSS = tree->symtab;
-	functionhandler();
-}
+	functionhandler(tree->children[3]);}
 else if (tree->description == "class") {
 	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { // looping through top scope
     	if (dynamic_cast<S_class *>(it->second) && it->first == tree->children[0]->token->text) {
@@ -301,7 +326,7 @@ else if (tree->description == "class") {
     	if (tree->children[3]->children[i]->description == "functiondecl") {
     			currentFunc = dynamic_cast<S_function *>(currentSS->local_lookup(tree->children[3]->children[i]->children[1]->token->text));
 				currentSS = tree->children[i]->symtab;
-				functionhandler();}}}}
+				blockhandler(tree->children[3]->children[i]->children[3]);}}}}
     		
 int main(int argc, char **argv) { 
   /* Make sure there's a given file name */
