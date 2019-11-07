@@ -284,19 +284,6 @@ void check_parents2(ParseTree * tree) {
       }}}}
   
   
-void statement_handler(ParseTree* tree) {
-	if (tree->description == "print") {}
-	if (tree->description == "while") {
-	}
-	if (tree->description == "for") {}
-	if (tree->description == "break") {}
-	if (tree->description == "return") {}
-	if (tree->description == "if") {}
-	if (tree->description == "stmtblock") {
-		blockhandler(tree);
-	}
-	else  {}
-}
 void blockhandler(ParseTree* block) { 
 	openscope();
 	tree->symtab = currentSS;
@@ -307,7 +294,18 @@ void blockhandler(ParseTree* block) {
       vari->type = basetype(tree->children[0]->children[i]->children[0]);
       if (currentSS->dict.count(vari->name) == 1) { semantic_error("Variable redefined in the statement block", yylineno);  }
       currentSS->insert(vari->name, vari);}
-	for (size_t i=0; i < tree->children[1]->children.size(); i++) { statement_handler(tree->children[1]->children[i]); }
+	for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
+	if (tree->description == "print") {}
+	if (tree->description == "while") {
+	}
+	if (tree->description == "for") {}
+	if (tree->description == "break") {}
+	if (tree->description == "return") {}
+	if (tree->description == "if") {}
+	if (tree->description == "stmtblock") {
+		blockhandler(tree->children[1]->children[i]);
+	}
+	else  {} }
 	closescope;
 }
 
