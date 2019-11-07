@@ -60,7 +60,7 @@ S_function * functions_signature(ParseTree * tree){
     vari->name = tree->children[2]->children[i]->children[1]->token->text;
     vari->type = basetype(tree->children[2]->children[i]->children[0]);
     if (currentSS->dict.count(vari->name) == 1)
-      semantic_error("Identifier redefined in the scope", yylineno);
+      semantic_error("Identifier redefined in the scope", tree->children[2]->children[i]->children[1]->token->yylineno);
     func->formals.push_back(vari);
     currentSS->insert(vari->name, vari);
   }
@@ -292,7 +292,7 @@ void blockhandler(ParseTree* tree) {
       vari = new S_variable();
       vari->name = tree->children[0]->children[i]->children[1]->token->text;
       vari->type = basetype(tree->children[0]->children[i]->children[0]);
-      if (currentSS->dict.count(vari->name) == 1) { semantic_error("Variable redefined in the statement block", yylineno);  }
+      if (currentSS->dict.count(vari->name) == 1) { semantic_error("Variable redefined in the statement block", tree->children[0]->children[i]->children[1]->token->yylineno);  }
       currentSS->insert(vari->name, vari);}
 	for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
 	if (tree->description == "print") {}
@@ -365,7 +365,7 @@ int main(int argc, char **argv) {
   	currentFunc = nullptr;
   	traversing2(top->children[i]);
   }
-  //traverseTree(top, 0, 1);
+  traverseTree(top, 0, 1);
   return 0;
 #endif
 }
