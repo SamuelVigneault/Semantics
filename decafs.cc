@@ -284,7 +284,7 @@ void check_parents2(ParseTree * tree) {
       }}}}
   
   
-void blockhandler(ParseTree* block) { 
+void blockhandler(ParseTree* tree) { 
 	openscope();
 	tree->symtab = currentSS;
 	for (size_t i=0; i < tree->children[0]->children.size(); i++) {
@@ -306,7 +306,7 @@ void blockhandler(ParseTree* block) {
 		blockhandler(tree->children[1]->children[i]);
 	}
 	else  {} }
-	closescope;
+	closescope();
 }
 
 void traversing2(ParseTree * tree) {
@@ -314,7 +314,7 @@ if (tree->description == "interface" || tree->description == "variable") {return
 else if (tree->description == "functiondecl") {
 	currentFunc = dynamic_cast<S_function *>(topSS->local_lookup(tree->children[1]->token->text));
 	currentSS = tree->symtab;
-	functionhandler(tree->children[3]);}
+	blockhandler(tree->children[3]);}
 else if (tree->description == "class") {
 	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { // looping through top scope
     	if (dynamic_cast<S_class *>(it->second) && it->first == tree->children[0]->token->text) {
