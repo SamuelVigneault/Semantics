@@ -5,7 +5,7 @@ int lol1(int hey);
 }
 
 class A {
-int lol(string hey) {int a; int b; {int a; int b; {int a; int a;}}}
+int lol(string hey) {int a; int b; {int a; int b; {int a; int c;}}}
 int loli;
 }
 class B extends A implements AA {
