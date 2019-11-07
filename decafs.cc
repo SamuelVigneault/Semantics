@@ -340,7 +340,7 @@ int main(int argc, char **argv) {
     exit(1);
   }
 
-  yydebug = 0;
+  //yydebug = 0;
 #ifdef Tokens
   int tok;
   while ((tok=yylex()) != -1) {
