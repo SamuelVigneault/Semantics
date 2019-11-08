@@ -27,7 +27,8 @@ extern Symtab *currentSS;
 
 extern S_class* currentClass;
 extern S_function * currentFunc;
-
+ 
+int loops = 0;
 ParseTree * parse_decaf(FILE *);
 
 
@@ -171,7 +172,7 @@ void check_parents() {
       }}}}
 
 void check_loops() {
-  for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) {
+  for (map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) {
     if (dynamic_cast<S_class *>(it->second)) {
       S_class * A = dynamic_cast<S_class *>(it->second);
       S_class * B = dynamic_cast<S_class *>(it->second);
@@ -213,12 +214,12 @@ bool check_type_signature(S_function * father, S_function * son) {
 }
 
 void check_implements2(ParseTree * tree) {
-  for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) {
+  for (map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) {
     if (dynamic_cast<S_class *>(it->second)){
       S_class * C = dynamic_cast<S_class *>(it->second);
       for (unsigned int i=0; i < C->interfaces.size(); i++) {
 	S_interface* inter1;
-	for (std::map<string, semantics *>::iterator it1=topSS->dict.begin(); it1!=topSS->dict.end(); ++it1) {
+	for (map<string, semantics *>::iterator it1=topSS->dict.begin(); it1!=topSS->dict.end(); ++it1) {
 	  if (dynamic_cast<S_interface *>(it1->second) && it1->first == C->interfaces[i])
 	    inter1 = dynamic_cast<S_interface*>(it1->second);
 	}
@@ -245,7 +246,7 @@ void check_implements2(ParseTree * tree) {
 
 void check_parents2(ParseTree * tree) {
   vector<string> done;
-  for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { // looping through top scope
+  for (map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { // looping through top scope
     if (dynamic_cast<S_class *>(it->second)) {
       S_class * A = dynamic_cast<S_class *>(it->second);
       S_class * B = dynamic_cast<S_class *>(it->second);
@@ -283,30 +284,43 @@ void check_parents2(ParseTree * tree) {
 	    }}}
       }}}}
   
+S_type * expressionhandler(ParseTree * tree) {}
   
-void blockhandler(ParseTree* tree) { 
-	openscope();
-	tree->symtab = currentSS;
-	for (size_t i=0; i < tree->children[0]->children.size(); i++) {
-		S_variable * vari;
-      vari = new S_variable();
-      vari->name = tree->children[0]->children[i]->children[1]->token->text;
-      vari->type = basetype(tree->children[0]->children[i]->children[0]);
-      if (currentSS->dict.count(vari->name) == 1) { semantic_error("Variable redefined in the statement block", tree->children[0]->children[i]->children[1]->token->line);  }
-      currentSS->insert(vari->name, vari);}
-	for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
+void stmthandler(ParseTree * tree) {
 	if (tree->description == "print") {}
-	if (tree->description == "while") {
+	else if (tree->description == "while") {}
+	else if (tree->description == "for") {
+		loop++;
+		expressionhandler(tree->children[0]); 
+		S_type * mustbool = expressionhandler(tree->children[1]); 
+		expressionhandler(tree->children[2]); 
+		stmthandler(tree->children[3]); 
+		loop--;
 	}
-	if (tree->description == "for") {}
-	if (tree->description == "break") {}
-	if (tree->description == "return") {}
-	if (tree->description == "if") {}
-	if (tree->description == "stmtblock") {
-		blockhandler(tree->children[1]->children[i]);
+	else if (tree->description == "break") {
+	if (}
+	else if (tree->description == "return") {
+		if (tree->children.size() == 1) {
+			else if (!(currentFunc->returnType)) {
+				int line1 = tree->children[0]->token->line;
+				semantic_error("Type of return statement does not match function return type", line1); }}
+		else { expressionhandler(tree); }
 	}
-	else  {} }
-	closescope();
+	else if (tree->description == "if") {}
+	else if (tree->description == "stmtblock") { 
+		openscope();
+		tree->symtab = currentSS;
+		for (size_t i=0; i < tree->children[0]->children.size(); i++) {
+			S_variable * vari;
+      		vari = new S_variable();
+      		vari->name = tree->children[0]->children[i]->children[1]->token->text;
+      		vari->type = basetype(tree->children[0]->children[i]->children[0]);
+      		int line1 = tree->children[0]->children[i]->children[1]->token->line;
+      		if (currentSS->dict.count(vari->name) == 1) { semantic_error("Variable redefined in the statement block", line1);  }
+      		currentSS->insert(vari->name, vari);}
+      	for (size_t i=0; i < tree->children[1]->children.size(); i++) { stmthandler(tree->children[1]->children[i]); }
+      }
+	else  { expressionhandler(); }
 }
 
 void traversing2(ParseTree * tree) {
@@ -314,7 +328,7 @@ if (tree->description == "interface" || tree->description == "variable") {return
 else if (tree->description == "functiondecl") {
 	currentFunc = dynamic_cast<S_function *>(topSS->local_lookup(tree->children[1]->token->text));
 	currentSS = tree->symtab;
-	blockhandler(tree->children[3]);}
+	stmthandler(tree->children[3]);}
 else if (tree->description == "class") {
 	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { // looping through top scope
     	if (dynamic_cast<S_class *>(it->second) && it->first == tree->children[0]->token->text) {
@@ -324,7 +338,7 @@ else if (tree->description == "class") {
     	if (tree->children[3]->children[i]->description == "functiondecl") {
     			currentFunc = dynamic_cast<S_function *>(currentSS->local_lookup(tree->children[3]->children[i]->children[1]->token->text));
 				currentSS = tree->children[i]->symtab;
-				blockhandler(tree->children[3]->children[i]->children[3]);}}}}
+				stmthandler(tree->children[3]->children[i]->children[3]);}}}}
     		
 int main(int argc, char **argv) { 
   /* Make sure there's a given file name */
