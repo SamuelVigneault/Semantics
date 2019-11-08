@@ -28,7 +28,7 @@ extern Symtab *currentSS;
 extern S_class* currentClass;
 extern S_function * currentFunc;
  
-int loops = 0;
+int looper = 0;
 ParseTree * parse_decaf(FILE *);
 
 
@@ -294,15 +294,15 @@ void stmthandler(ParseTree * tree) {
 	if (tree->description == "print") {}
 	else if (tree->description == "while") {}
 	else if (tree->description == "for") {
-		loop++;
+		looper++;
 		expressionhandler(tree->children[0]); 
-		S_type * mustbool = expressionhandler(tree->children[1]); 
+		//S_type * mustbool = expressionhandler(tree->children[1]); 
 		expressionhandler(tree->children[2]); 
 		stmthandler(tree->children[3]); 
-		loop--;
+		looper--;
 	}
 	else if (tree->description == "break") {
-	if (loop == 0){
+	if (looper == 0){
 		int line1 = tree->children[0]->token->line;
 		semantic_error("Type of return statement does not match function return type", line1); }}
 	else if (tree->description == "return") {
