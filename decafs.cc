@@ -287,7 +287,7 @@ void check_parents2(ParseTree * tree) {
 S_type * expressionhandler(ParseTree * tree) { 
 S_type * loli = nullptr;
 if (tree) { cout << "LOLOLOL" << endl; }
-return nullptr;
+return loli;
 }
   
 void stmthandler(ParseTree * tree) {
@@ -302,12 +302,12 @@ void stmthandler(ParseTree * tree) {
 		looper--;
 	}
 	else if (tree->description == "break") {
-	if (looper == 0){
-		int line1 = tree->children[0]->token->line;
-		semantic_error("Type of return statement does not match function return type", line1); }}
+		if (looper == 0){
+			int line1 = tree->children[0]->token->line;
+			semantic_error("Type of return statement does not match function return type", line1); }}
 	else if (tree->description == "return") {
 		if (tree->children.size() == 1) {
-			else if (!(currentFunc->returnType)) {
+			if (!(currentFunc->returnType == NULL)) {
 				int line1 = tree->children[0]->token->line;
 				semantic_error("Type of return statement does not match function return type", line1); }}
 		else { expressionhandler(tree); }
