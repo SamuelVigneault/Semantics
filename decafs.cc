@@ -326,7 +326,7 @@ void stmthandler(ParseTree * tree) {
       		currentSS->insert(vari->name, vari);}
       	for (size_t i=0; i < tree->children[1]->children.size(); i++) { stmthandler(tree->children[1]->children[i]); }
       }
-	else  { expressionhandler(tree->children[0]); }
+	else  { expressionhandler(tree); }
 }
 
 void traversing2(ParseTree * tree) {
@@ -383,6 +383,7 @@ int main(int argc, char **argv) {
   for (size_t i=0; i < top->children.size(); i++) {
   	currentClass = nullptr;
   	currentFunc = nullptr;
+  	cout << "LOLOLOL" << endl;
   	traversing2(top->children[i]);
   }
   traverseTree(top, 0, 1);
