@@ -17,4 +17,5 @@ class D extends C {}
 class E extends D {}
 
 int lol1( lol hey) {
-for (;true;) {;} }
+lol = 1;
+ {;} ; ; ; }
