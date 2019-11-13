@@ -287,10 +287,15 @@ void check_parents2(ParseTree * tree) {
 	    }}}
       }}}}
   
-S_type * expressionhandler(ParseTree * tree) { 
-S_type * loli = new S_type;
-if (tree) { cout << "LOLOLOL" << endl; }
-return loli;
+S_type * expressionhandler(ParseTree * tree) {
+	S_type * one = new S_type;
+	if (tree->description == "binop") {
+		cout << tree->children[1]->token->type << endl;
+		if (tree->children[1]->token->type == 38) { cout << "HEYY THERE" << endl; }
+	}
+	else if (tree->description == "uop") {
+	}
+return one;
 }
   
 void stmthandler(ParseTree * tree) {

@@ -1,4 +1,4 @@
-
+/*
 interface AA {
 int lol(string lol);
 int lol1(int hey);
@@ -15,7 +15,9 @@ class C	extends B {}
 class D extends C {}
 
 class E extends D {}
+*/
 
 int lol1( lol hey) {
 lol = 1;
+false || false || false || false || true || false;
  {;} ; ; ; }

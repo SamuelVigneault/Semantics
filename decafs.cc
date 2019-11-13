@@ -290,10 +290,27 @@ void check_parents2(ParseTree * tree) {
 S_type * expressionhandler(ParseTree * tree) {
 	S_type * one = new S_type;
 	if (tree->description == "binop") {
-		cout << tree->children[1]->token->type << endl;
-		if (tree->children[1]->token->type == 38) { cout << "HEYY THERE" << endl; }
+		int type = tree->children[1]->token->type;
+		if (type == 38) { cout << "HEYY THERE" << endl; }
+		else if (type == 41 || type == 42) { 
+			S_type * L = expressionhandler(tree->children[0]);
+			S_type * R = expressionhandler(tree->children[2]);
+			if (L->name == "bool" && R->name == "bool" && L->array == 0 && R->array == 0) { return L; }
+			else { semantic_error("To be written", LN);}
+		}
+		else if (type == 41 || type == 42) { 
+			S_type * L = expressionhandler(tree->children[0]);
+			S_type * R = expressionhandler(tree->children[2]); 
+			if (L->name == R->name && L->array == R->array) { return L; }
+			else { semantic_error("To be written", LN);}
+		}
+		else if (tree->children[1]->token->type == 38) { cout << "HEYY THERE" << endl; }
 	}
 	else if (tree->description == "uop") {
+	}
+	else if (tree->token) {
+		if (tree->token->type == 38) {}
+		
 	}
 return one;
 }
