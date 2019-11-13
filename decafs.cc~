@@ -288,7 +288,7 @@ void check_parents2(ParseTree * tree) {
       }}}}
   
 S_type * expressionhandler(ParseTree * tree) { 
-S_type * loli = nullptr;
+S_type * loli = new S_type;
 if (tree) { cout << "LOLOLOL" << endl; }
 return loli;
 }

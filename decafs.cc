@@ -310,6 +310,7 @@ void stmthandler(ParseTree * tree) {
 	}
 	else if (tree->description == "for") {
 		looper++;
+		cout <<"TROLLL"<<endl;
 		expressionhandler(tree->children[0]); 
 		S_type * mustbool = expressionhandler(tree->children[1]); 
 		if (!(mustbool->name == "bool" && mustbool->array == 0)) {
