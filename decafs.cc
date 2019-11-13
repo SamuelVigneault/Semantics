@@ -38,7 +38,7 @@ string while1 = "Type of expression of 'while' loop is not 'boolean'";
 string for1 = "Type of middle expression of 'for' loop is not of boolean type";
 string return1 = "Type of return statement does not match function return type";
 string stmtblock1 = "Variable redefined in statement block";
-string classscope1 = "Identifier redefined in the class scope";
+string classcope1 = "Identifier redefined in the class scope";
 
 ParseTree * parse_decaf(FILE *);
 
@@ -51,7 +51,7 @@ S_type* basetype(ParseTree *type_tree, int arr = 0) {
     LN = type_tree->children[0]->token->line;
     typer->array = arr;
     return typer;}
-  else { semantic_error("Parsing error revealed in basetype", LN); }
+  else { semantic_error("Parsing error revealed in basetype", LN); return nullptr; }
 }
 
 S_function * functions_signature(ParseTree * tree){
@@ -68,9 +68,9 @@ S_function * functions_signature(ParseTree * tree){
     	V->name = tree->children[2]->children[i]->children[1]->token->text;
     	V->type = basetype(tree->children[2]->children[i]->children[0]);
     	LN = tree->children[2]->children[i]->children[1]->token->line;
-    	if (currentSS->dict.count(vari->name) == 1) { semantic_error(func1, LN); }
-    F->formals.push_back(vari);
-    currentSS->insert(vari->name, vari); }
+    	if (currentSS->dict.count(V->name) == 1) { semantic_error(func1, LN); }
+    F->formals.push_back(V);
+    currentSS->insert(V->name, V); }
   closescope();
   return F;
 }
@@ -340,8 +340,8 @@ void stmthandler(ParseTree * tree) {
       		V->name = tree->children[0]->children[i]->children[1]->token->text;
       		LN = tree->children[0]->children[i]->children[1]->token->line;
       		V->type = basetype(tree->children[0]->children[i]->children[0]);
-      		if (currentSS->dict.count(vari->name) == 1) { semantic_error(stmtblock1, LN);  }
-      		currentSS->insert(vari->name, vari); }
+      		if (currentSS->dict.count(V->name) == 1) { semantic_error(stmtblock1, LN);  }
+      		currentSS->insert(V->name, V); }
       	for (size_t i=0; i < tree->children[1]->children.size(); i++) { stmthandler(tree->children[1]->children[i]); }
       	closescope(); }
 	else  { expressionhandler(tree); }
