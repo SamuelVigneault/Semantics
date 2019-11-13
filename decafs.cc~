@@ -68,9 +68,9 @@ S_function * functions_signature(ParseTree * tree){
     	V->name = tree->children[2]->children[i]->children[1]->token->text;
     	V->type = basetype(tree->children[2]->children[i]->children[0]);
     	LN = tree->children[2]->children[i]->children[1]->token->line;
-    	if (currentSS->dict.count(vari->name) == 1) { semantic_error(func1, LN); }
-    F->formals.push_back(vari);
-    currentSS->insert(vari->name, vari); }
+    	if (currentSS->dict.count(V->name) == 1) { semantic_error(func1, LN); }
+    F->formals.push_back(V);
+    currentSS->insert(V->name, V); }
   closescope();
   return F;
 }
