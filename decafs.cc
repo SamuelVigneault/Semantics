@@ -429,7 +429,7 @@ S_type * expressionhandler(ParseTree * tree) {
     	if (name1 == currentClass->variables[k]->name) { return currentClass->variables[k]->type; }}
 	semantic_error("Variable undefined in the current class", LN);
 	}
-	else if (tree->token) {
+	else if (tree->token) {	
 		if (tree->token->type == 8) { return type_creator("null"); }
 		if (tree->token->type == 23) { 
 		if (currentSS->lookup(tree->token->text)){
@@ -448,6 +448,7 @@ S_type * expressionhandler(ParseTree * tree) {
 			else { semantic_error("To be written", LN);}
 			}
 	}
+	return one;
 }
   
 void stmthandler(ParseTree * tree) {
@@ -502,7 +503,6 @@ void stmthandler(ParseTree * tree) {
       	for (size_t i=0; i < tree->children[1]->children.size(); i++) { stmthandler(tree->children[1]->children[i]); }
       	closescope(); }
 	else  { expressionhandler(tree); }
-	return one;
 }
 
 void traversing2(ParseTree * tree) {
