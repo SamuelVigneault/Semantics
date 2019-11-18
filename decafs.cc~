@@ -218,10 +218,10 @@ void check_implements2(ParseTree * tree) {
     if (dynamic_cast<S_class *>(it->second)){
       S_class * C = dynamic_cast<S_class *>(it->second);
       for (unsigned int i=0; i < C->interfaces.size(); i++) {
-	S_interface* inter1;
+	S_interface* I;
 	for (map<string, semantics *>::iterator it1=topSS->dict.begin(); it1!=topSS->dict.end(); ++it1) {
 	  if (dynamic_cast<S_interface *>(it1->second) && it1->first == C->interfaces[i])
-	    inter1 = dynamic_cast<S_interface*>(it1->second);
+	    I = dynamic_cast<S_interface*>(it1->second);
 	}
     Symtab * currenttab;
 	for (size_t j=0; j < tree->children.size(); j++) {
@@ -230,9 +230,9 @@ void check_implements2(ParseTree * tree) {
 		currenttab = tree->children[j]->symtab;
 		break;
 	      }}}
-	for (unsigned int k=0; k <  inter1->functions.size(); k++) {
+	for (unsigned int k=0; k < I->functions.size(); k++) {
 	  bool found1 = false;
-	  S_function * FI =  inter1->functions[k];
+	  S_function * FI =  I->functions[k];
 	  for (map<string, semantics *>::iterator it1=currenttab->dict.begin(); it1!=currenttab->dict.end(); ++it1) {
 	    if (dynamic_cast<S_function *>(it1->second)) {
 	      if(dynamic_cast<S_function *>(it1->second)->name == FI->name) {
@@ -241,7 +241,7 @@ void check_implements2(ParseTree * tree) {
 	        break;
 	      }}}
 	  if (!found1)
-	    semantic_error("Class "+C->name+" does not implement all methods of the '"+inter1->name+ "' interface", yylineno);
+	    semantic_error("Class "+C->name+" does not implement all methods of the '"+I->name+ "' interface", yylineno);
 	}}}}}
 
 void check_parents2(ParseTree * tree) {
@@ -387,8 +387,8 @@ S_type * expressionhandler(ParseTree * tree) {
 	}
 	else if (tree->description == "newarray") {
 		S_type * L = expressionhandler(tree->children[0]);
-		if (!(L->name == "int" &&  L->array == 0)) { semantic_error("New", LN); }
-		S_type * R = basetype(tree->children[1]); 
+		if (!(L->name == "int" &&  L->array == 0)) { semantic_error("Newarray's first argument must be of type int", LN); }
+		S_type * R = basetype(tree->children[1]);
 		R->array++;
 		return R;
 	}
@@ -478,6 +478,47 @@ else if (tree->description == "class") {
 				currentSS = tree->children[3]->children[i]->symtab;
 				stmthandler(tree->children[3]->children[i]->children[3]);}}}}
     		
+    		
+bool ensure_type(S_type * T) {
+	if (!T) return true;
+	if (T->name == "int") return true;
+	if (T->name == "bool") return true;
+	if (T->name == "double") return true;
+	if (T->name == "string") return true;
+	for (size_t i=0; i < usertypes.size(); i++) {
+		if (T->name == usertypes[i]) { return true; }
+	}
+	return false;
+}
+
+void traversing3(ParseTree * tree) {
+	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) {
+    	if (dynamic_cast<S_class *>(it->second)) {
+    		S_class * C = dynamic_cast<S_class *>(it->second);
+    		for (unsigned int k=0; k <  C->functions.size(); k++) {
+    			if (!(ensure_type(C->functions[k]->returnType))) { semantic_error("Type undefined", C->functions[k]->line); }
+    			for (unsigned int i=0; k <  C->functions[k]->formals.size(); i++) {
+    				if (!(ensure_type(C->functions[k]->formals[i]->type))) { semantic_error("Type undefined", C->functions[k]->formals[i]->line); }}}
+    		for (unsigned int k=0; k <  C->variables.size(); k++) {
+    			if (!(ensure_type(C->variables[k]->type))) { semantic_error("Type undefined", C->variables[k]->line); }}}
+    			
+    	else if (dynamic_cast<S_interface *>(it->second)) {
+    		S_interface * I = dynamic_cast<S_interface *>(it->second);
+    		for (unsigned int k=0; k <  I->functions.size(); k++) {
+    			if (!(ensure_type(I->functions[k]->returnType))) { semantic_error("Type undefined", I->functions[k]->line); }
+    			for (unsigned int i=0; k <  I->functions[k]->formals.size(); i++) {
+    				if (!(ensure_type(I->functions[k]->formals[i]->type))) { semantic_error("Type undefined", I->functions[k]->formals[i]->line); }}}}
+    		
+    	else if (dynamic_cast<S_function *>(it->second)) {
+    		S_function * F = dynamic_cast<S_function *>(it->second);
+    		if (!(ensure_type(F->returnType))) { semantic_error("Type undefined", F->line); }
+    		for (unsigned int i=0; k <  F->formals.size(); i++) {
+    				if (!(ensure_type(F->formals[i]->type))) { semantic_error("Type undefined", F->formals[i]->line); }}}
+    	else  { 
+    		S_variable * V = dynamic_cast<S_variable *>(it->second); 
+    		if (!(ensure_type(V->type))) { semantic_error("Type undefined", V->line); }} 
+}}
+
 int main(int argc, char **argv) { 
   /* Make sure there's a given file name */
   if (argc != 2) {
@@ -512,6 +553,8 @@ int main(int argc, char **argv) {
   check_parents2(top); 				// modifies each class scope to include its parents' objects
   check_implements(); 					// makes sure every class' interfaces are declared
   check_implements2(top);			// makes sure every class' interfaces' functions are defined in the class scope
+  for (size_t i=0; i < top->children.size(); i++)
+    traversing3(top->children[i]);
   for (size_t i=0; i < top->children.size(); i++) {
   	currentClass = nullptr;
   	currentFunc = nullptr;
