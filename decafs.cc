@@ -45,9 +45,11 @@ string new1 = "Argument of 'New' must be the name of a defined class";
 string newarray1 = "Identifier redefined in the class scope";
 string typeerror1 = "Parsing error revealed in basetype";
 string global1 = " redefined in the global scope";
+string global2 = " is not defined in the global scope";
 string par1 = " is not a class type object";
 string par2 = " is not defined in this scope";
 string subclass1 = " cannot be a subclass of itself";
+string def1 = " does not match the definition";
 
 ParseTree * parse_decaf(FILE *);
 
@@ -159,7 +161,7 @@ void traversing1(ParseTree * tree) {
   }
   if (tree->description == "functiondecl"){
     S_function * F = functions_signature(tree);
-    if (currentSS->dict.count(F->name) == 1) { semantic_error("Identifier " + F->name + global1, C->line); }
+    if (currentSS->dict.count(F->name) == 1) { semantic_error("Identifier " + F->name + global1, F->line); }
     currentSS->insert(F->name, F);
   }
 }
@@ -332,23 +334,47 @@ S_type * expressionhandler(ParseTree * tree) {
 	else if (tree->description == "call"){
 		if (tree->children[0]->token) {
 			bool found = false;
+			string Fname = tree->children[0]->token->text;
+			LN = tree->children[0]->token->line;
+			S_function * F;
 			for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { // looping through top scope
-    			if (dynamic_cast<S_function *>(it->second) && it->first == tree->children[0]->token->text) {
-    				found = true; }}
-    	LN = tree->children[0]->token->line;
-    	if (! found) { semantic_error("To be written", LN); }
-    	for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
-			S_type * T = expressionhandler(tree->children[0]); 
-			if (!(T->array == 0)) { semantic_error(print1, LN); } 
-			if (!(T->name == "int" || T->name == "bool" || T->name == "string")) { semantic_error(print2, LN); } 
+    			if (dynamic_cast<S_function *>(it->second) && it->first == Fname) {
+    				found = true;
+    				F =  dynamic_cast<S_function *>(it->second); }}
+    		if (! found) { semantic_error("Function " + Fname + global2, LN); }
+    		if (tree->children[1]->children.size() != F->formals.size()) { semantic_error("Num. of arguments in function " + Fname + def1, LN) }
+    		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
+				S_type * T1 = expressionhandler(tree->children[1]->children[i]); 
+				S_type * T2 = F->formals[i]->type;
+				if (!(T1->array == T2->array)) { semantic_error("Type of the arguments of the function " + Fname + " don't match", LN); } 
+				if (!(T1->name == T2->name)) { semantic_error("Type of the arguments of the function " + Fname + " don't match", LN); } 
 		}
-		else  
-		S_type * L = expressionhandler(tree->children[0]);
-		S_type * R = expressionhandler(tree->children[2]); 
-		if (!(R->name == "int" && R->array == 0)) { semantic_error("To be written", LN); }
-		else if (!(L->array > 0)) { semantic_error("To be written", LN); }
-		else { L->array--; return L; }
-	} 
+		if (F->returnType) { return F->returnType; }
+		else { return type_creator("NULL"); }}
+		else  {
+			
+			S_type * T1 = expressionhandler(tree->children[0]->children[0]);
+			if (!(T1->array == 0)) { semantic_error("Arrays do not have methods ", LN); } 
+			else if (topSS->local_lookup(T1->name) && dynamic_cast<S_class *>(topSS->local_lookup(T1->name))) {
+				S_class * C = dynamic_cast<S_class *>(topSS->local_lookup(T1->name)); }
+			else { "Non-class typed objects do not have methods ", LN);  }
+			
+			string Fname = tree->children[0]->children[1]->token->text;
+			LN = tree->children[0]->children[1]->token->line;
+			S_function * F;
+			bool found = false;
+			for (size_t i=0; i < C->functions.size(); i++) { if (C->functions[i]->name == Fname) { F = C->functions[i]; found = true; }}
+    		if (! found1) { semantic_error("Method " + Fname + " is not defined in class " + C->name, LN); }
+    		if (tree->children[1]->children.size() != F->formals.size()) { semantic_error("Num. of arguments in method " + Fname + def1, LN) }
+    		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
+				S_type * T1 = expressionhandler(tree->children[1]->children[i]); 
+				S_type * T2 = F->formals[i]->type;
+				if (!(T1->array == T2->array)) { semantic_error("Type of the arguments of the method " + Fname + " don't match", LN); } 
+				if (!(T1->name == T2->name)) { semantic_error("Type of the arguments of the method " + Fname + " don't match", LN); } 
+		}
+		if (F->returnType) { return F->returnType; }
+		else { return type_creator("NULL"); }}
+		}
 	
 	else if (tree->description == "new") {
 		bool found = false;
@@ -399,13 +425,11 @@ void stmthandler(ParseTree * tree) {
 	}
 	else if (tree->description == "for") {
 		looper++;
-		cout <<"TROLLL"<<endl;
 		expressionhandler(tree->children[0]); 
 		S_type * mustbool = expressionhandler(tree->children[1]); 
-		if (!(mustbool->name == "bool" && mustbool->array == 0)) {
-			semantic_error(for1, LN); }
+		if (!(mustbool->name == "bool" && mustbool->array == 0)) {semantic_error(for1, LN); }
 		expressionhandler(tree->children[2]); 
-		stmthandler(tree->children[3]); 
+		stmthandler(tree->children[3]);
 		looper--;
 	}
 	else if (tree->description == "break") {
@@ -428,8 +452,8 @@ void stmthandler(ParseTree * tree) {
 			S_variable * V;
       		V = new S_variable();
       		V->name = tree->children[0]->children[i]->children[1]->token->text;
-      		LN = tree->children[0]->children[i]->children[1]->token->line;
       		V->type = basetype(tree->children[0]->children[i]->children[0]);
+      		LN = tree->children[0]->children[i]->children[1]->token->line;
       		if (currentSS->dict.count(V->name) == 1) { semantic_error(stmtblock1, LN);  }
       		currentSS->insert(V->name, V); }
       	for (size_t i=0; i < tree->children[1]->children.size(); i++) { stmthandler(tree->children[1]->children[i]); }
@@ -438,22 +462,20 @@ void stmthandler(ParseTree * tree) {
 }
 
 void traversing2(ParseTree * tree) {
-if (tree->description == "interface" || tree->description == "variable") {return;}
+if (tree->description == "interface" || tree->description == "variable") { return; }
 else if (tree->description == "functiondecl") {
 	currentFunc = dynamic_cast<S_function *>(topSS->local_lookup(tree->children[1]->token->text));
 	LN = tree->children[1]->token->line;
 	currentSS = tree->symtab;
 	stmthandler(tree->children[3]);}
 else if (tree->description == "class") {
-	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { // looping through top scope
-    	if (dynamic_cast<S_class *>(it->second) && it->first == tree->children[0]->token->text) {
-    		LN = tree->children[0]->token->line;
-    		currentClass = dynamic_cast<S_class *>(it->second); 
-    		currentSS = tree->symtab; }}
+	currentClass = dynamic_cast<S_class *>(topSS->local_lookup(tree->children[0]->token->text));
+   LN = tree->children[0]->token->line;
+   currentSS = tree->symtab;
     for (size_t i=0; i < tree->children[3]->children.size(); i++) {
     	if (tree->children[3]->children[i]->description == "functiondecl") {
     			currentFunc = dynamic_cast<S_function *>(currentSS->local_lookup(tree->children[3]->children[i]->children[1]->token->text));
-				currentSS = tree->children[i]->symtab;
+				currentSS = tree->children[3]->children[i]->symtab;
 				stmthandler(tree->children[3]->children[i]->children[3]);}}}}
     		
 int main(int argc, char **argv) { 
@@ -493,7 +515,6 @@ int main(int argc, char **argv) {
   for (size_t i=0; i < top->children.size(); i++) {
   	currentClass = nullptr;
   	currentFunc = nullptr;
-  	cout << "LOLOLOL" << endl;
   	traversing2(top->children[i]);
   }
   traverseTree(top, 0, 1);
