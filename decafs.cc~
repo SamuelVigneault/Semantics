@@ -29,6 +29,7 @@ extern S_function * currentFunc;
  
 vector < tuple <string, string>> compat;
 
+bool ass = false;
 int looper = 0;
 int LN = 0;
 
@@ -311,8 +312,9 @@ void check_compat() {
 bool prim(string S1) { return (S1 == "int" || S1 == "bool" ||S1 == "double"||S1 == "string" );}
 
 bool compare(S_type * T1, S_type * T2) {
-	return (!(T1->array != 0 || T2->array != 0 || prim(T1->name) || prim(T2->name)));
-	return (!(!T1 || !T2 || T2->name == "null"));
+	if (T1->array != 0 || T2->array != 0 || prim(T1->name) || prim(T2->name)) { return false; }
+	if (!T1 || !T2 || T2->name == "null") { return false; }
+	if (T1->name == "null") { return true; }
 	for (size_t i=0; i < compat.size(); i++) { 
 		cout <<get<0>(compat[i]) << T1->name << endl;
 		if (get<0>(compat[i]) == T1->name && get<1>(compat[i]) == T2->name)
@@ -332,11 +334,13 @@ S_type * expressionhandler(ParseTree * tree) {
 	S_type * one = new S_type;
 	if (tree->description == "binop") {
 		int type = tree->children[1]->token->type;
-		if (type == 38) { 
+		if (type == 38) {
+			ass =true;
 			S_type * L = expressionhandler(tree->children[0]);
+			if (!ass) { semantic_error("Cannot have New or NewArray on left side of assignment", LN); }
 			S_type * R = expressionhandler(tree->children[2]);
 			if (L->name == R->name && L->array == R->array) { return L; }
-			else if (compare(R, L)) {return L; }
+			else if (compare(R, L)) { return L; }
 			else { semantic_error("Assignment failed", LN); }
 		}
 		else if (type == 41 || type == 42) { 
@@ -349,7 +353,8 @@ S_type * expressionhandler(ParseTree * tree) {
 			S_type * L = expressionhandler(tree->children[0]);
 			S_type * R = expressionhandler(tree->children[2]); 
 			if (L->name == R->name && L->array == R->array) { return type_creator("bool"); }
-			 //TYPECOMPAT
+			else if (compare(R, L)) { return type_creator("bool"); }
+			else if (compare(L, R)) { return type_creator("bool"); }
 			else { semantic_error("comparaison == or !=", LN); }
 		}
 		else if (type > 33 && type < 38) { 
@@ -379,10 +384,10 @@ S_type * expressionhandler(ParseTree * tree) {
 	}
 	else if (tree->description == "aref"){
 		S_type * L = expressionhandler(tree->children[0]);
-		S_type * R = expressionhandler(tree->children[2]); 
+		S_type * R = expressionhandler(tree->children[1]); 
 		if (!(R->name == "int" && R->array == 0)) { semantic_error("Array ref arguments have to be integers", LN); }
 		else if (!(L->array > 0)) { semantic_error(aref1, LN); }
-		else { L->array--;cout << "hello"<<endl; return L; }} 
+		else { L->array--; cout << "hello"<<endl; return L; }} 
 	else if (tree->description == "call"){
 		if (tree->children[0]->token) {
 			bool found = false;
@@ -399,7 +404,7 @@ S_type * expressionhandler(ParseTree * tree) {
 				S_type * T1 = expressionhandler(tree->children[1]->children[i]); 
 				S_type * T2 = F->formals[i]->type;
 				if (!(T1->array == T2->array)) { semantic_error("Type of the arguments of the function " + Fname + " don't match", LN); } 
-				if (!(T1->name == T2->name)) { semantic_error("Type of the arguments of the function " + Fname + " don't match", LN); } 
+				if (T1->name != T2->name && (! compare(T2, T1))) { semantic_error("Type of the arguments of the function " + Fname + " don't match", LN); } 
 		}
 		if (F->returnType) { return F->returnType; }
 		else { return NULL; }}
@@ -422,25 +427,24 @@ S_type * expressionhandler(ParseTree * tree) {
 				S_type * T1 = expressionhandler(tree->children[1]->children[i]); 
 				S_type * T2 = F->formals[i]->type;
 				if (!(T1->array == T2->array)) { semantic_error("Type of the arguments of the method " + Fname + " don't match", LN); } 
-				if (!(T1->name == T2->name)) { semantic_error("Type of the arguments of the method " + Fname + " don't match", LN); } 
+				if (T1->name != T2->name && (! compare(T2, T1))) { semantic_error("Type of the arguments of the method " + Fname + " don't match", LN); } 
 		}
-		if (F->returnType) { cout << "HEY" << endl; return F->returnType; }
+		if (F->returnType) { return F->returnType; }
 		else { return NULL; }}
 		}
-
 	else if (tree->description == "new") {
-		bool found = false;
+		ass = false;
 		string name = tree->children[0]->token->text;
-		if (topSS->local_lookup(name) && dynamic_cast<S_class *>(topSS->local_lookup(name))) { found = true; }
-    	LN = tree->children[0]->token->line;
-    	if (! found) { semantic_error(new1, LN); }
-    	else { return type_creator(name); }
+		LN = tree->children[0]->token->line;
+		if (topSS->local_lookup(name) && dynamic_cast<S_class *>(topSS->local_lookup(name))) { return type_creator(name); }
+    	else { semantic_error(new1, LN); }
 	}
 	else if (tree->description == "newarray") {
+		ass = false;
 		S_type * L = expressionhandler(tree->children[0]);
 		if (!(L->name == "int" &&  L->array == 0)) { semantic_error("Newarray's first argument must be of type int", LN); }
 		S_type * R = basetype(tree->children[1]);
-		if (!(ensure_type(R))) { semantic_error("Type undefined", LN); }
+		if (!(ensure_type(R))) { semantic_error("Type undefined in new array", LN); }
 		R->array++;
 		return R;
 	}
@@ -513,9 +517,9 @@ void stmthandler(ParseTree * tree) {
 			if (!(currentFunc->returnType == NULL)) { semantic_error(return1, LN); }}
 		else { 
 		S_type * returnT = expressionhandler(tree->children[1]);
-		if (returnT->array != currentFunc->returnType->array || returnT->name != currentFunc->returnType->name)  {
-			LN = tree->children[0]->token->line;
-			semantic_error(return1, LN); }}}
+		if (returnT->array == currentFunc->returnType->array && returnT->name == currentFunc->returnType->name)  {return; }
+		else if (compare(returnT, currentFunc->returnType)) {return;}
+		else { LN = tree->children[0]->token->line; semantic_error(return1, LN); }}}
 	else if (tree->description == "if") {}
 	else if (tree->description == "stmtblock") { 
 		openscope();
