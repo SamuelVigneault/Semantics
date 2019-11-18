@@ -67,6 +67,7 @@ S_type* basetype(ParseTree *type_tree, int arr = 0) {
     return typer;}
   else { semantic_error(typeerror1, LN); return nullptr; }
 }
+
 bool ensure_type(S_type * T) {
 	if (!T) return true;
 	if (T->name == "int") return true;
@@ -83,8 +84,7 @@ S_function * functions_signature(ParseTree * tree){
   	S_function * F;
 	F = new S_function();
   	F->name = tree->children[1]->token->text;
-  	LN = tree->children[1]->token->line;
-  	F->line = LN;
+  	F->line = tree->children[1]->token->line;
   	if (tree->children[0]->token) { F->returnType = NULL; }
   	else { F->returnType = basetype(tree->children[0]); }
   	openscope();
@@ -93,9 +93,8 @@ S_function * functions_signature(ParseTree * tree){
    		S_variable * V = new S_variable;
     	V->name = tree->children[2]->children[i]->children[1]->token->text;
     	V->type = basetype(tree->children[2]->children[i]->children[0]);
-    	LN = tree->children[2]->children[i]->children[1]->token->line;
-    	V->line = LN;
-    	if (currentSS->dict.count(V->name) == 1) { semantic_error(func1, LN); }
+    	V->line = tree->children[2]->children[i]->children[1]->token->line;
+    	if (currentSS->dict.count(V->name) == 1) { semantic_error(func1, V->line); }
     F->formals.push_back(V);
     currentSS->insert(V->name, V); }
   closescope();
@@ -105,8 +104,7 @@ S_function * functions_signature(ParseTree * tree){
 S_class * class_read(ParseTree * tree) {
   S_class* C = new S_class();
   C->name = tree->children[0]->token->text;
-  LN = tree->children[0]->token->line;
-  C->line = LN;
+  C->line = tree->children[0]->token->line;
   if (tree->children[1]) { C->parentClass = tree->children[1]->children[0]->token->text; }
   else { C->parentClass = ""; }
   if (tree->children[2]) {
@@ -128,8 +126,7 @@ S_class * class_read(ParseTree * tree) {
     else if (field->description == "variable") {
       S_variable * V = new S_variable();
       V->name = field->children[1]->token->text;
-      LN =  field->children[1]->token->line;
-      V->line = LN;
+      V->line = field->children[1]->token->line;
       V->type = basetype(field->children[0]);
       if (currentSS->dict.count(V->name) == 1) { semantic_error("Identifier " + V->name + classscope2, V->line); }
       currentSS->insert(V->name, V);
@@ -154,7 +151,6 @@ void traversing1(ParseTree * tree) {
       I->functions.push_back(F);
     }
     closescope();
-    LN = tree->children[0]->token->line;
     if (currentSS->dict.count(I->name) == 1) { semantic_error("Identifier " + I->name + global1, I->line); }
     currentSS->insert(I->name, I);
     usertypes.push_back(I->name);
@@ -169,7 +165,7 @@ void traversing1(ParseTree * tree) {
     S_variable * V = new S_variable();
     V->name = tree->children[1]->token->text;
     V->type = basetype(tree->children[0]);
-    LN = tree->children[1]->token->line;
+    V->line = tree->children[1]->token->line;
     if (currentSS->dict.count(V->name) == 1) { semantic_error("Identifier " + V->name + global1, V->line); }
     currentSS->insert(V->name, V);
   }
@@ -298,7 +294,7 @@ void check_parents2(ParseTree * tree) {
 	    }}}
       }}}}
   
-void check_compat(ParseTree * tree) {
+void check_compat() {
   for (map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { // looping through top scope
     if (dynamic_cast<S_class *>(it->second)) {
       S_class * A = dynamic_cast<S_class *>(it->second);
@@ -308,7 +304,23 @@ void check_compat(ParseTree * tree) {
 		if (A != B) { compat.push_back(make_tuple(A->name, B->name)); }
 		if (B->parentClass == "") { break; }
       }}}}
-  
+
+bool prim(string S1) {
+	if (S1 == "int" || S1 == "bool" ||S1 == "double"||S1 == "string" )
+	return true;
+	return false;
+}
+
+void compare(S_type * T1, S_type * T2) {
+	if (T1->array != 0 || T2->array != 0 || prim(T1->name) || prim(T2->name))
+		return false;
+	if (!T1 || !T2 || T2->"null")
+		return false;
+	for (size_t i=0; i < compat.size(); i++) { 
+		if (get<0>(compat[i]) == T1->name && get<1>(compat[i]) == T2->name)
+			return true; }
+	return false;
+}
 S_type * type_creator(string AAA) {
 	S_type * one = new S_type;
 	one->name == AAA;
@@ -322,7 +334,8 @@ S_type * expressionhandler(ParseTree * tree) {
 		if (type == 38) { 
 			S_type * L = expressionhandler(tree->children[0]);
 			S_type * R = expressionhandler(tree->children[2]);
-			if (L->name == R->name && L->array == R->array ) { return L; }
+			if (L->name == R->name && L->array == R->array) { return L; }
+			else if (compare(R, L)) {return L; }
 			else { semantic_error("Assignment failed", LN); }
 		}
 		else if (type == 41 || type == 42) { 
@@ -388,7 +401,7 @@ S_type * expressionhandler(ParseTree * tree) {
 				if (!(T1->name == T2->name)) { semantic_error("Type of the arguments of the function " + Fname + " don't match", LN); } 
 		}
 		if (F->returnType) { return F->returnType; }
-		else { return type_creator("NULL"); }}
+		else { return NULL; }}
 		else  {
 			S_class * C1;
 			S_type * T1 = expressionhandler(tree->children[0]->children[0]);
@@ -411,7 +424,7 @@ S_type * expressionhandler(ParseTree * tree) {
 				if (!(T1->name == T2->name)) { semantic_error("Type of the arguments of the method " + Fname + " don't match", LN); } 
 		}
 		if (F->returnType) { return F->returnType; }
-		else { return type_creator("NULL"); }}
+		else { return NULL; }}
 		}
 
 	else if (tree->description == "new") {
@@ -537,8 +550,6 @@ else if (tree->description == "class") {
 				currentSS = tree->children[3]->children[i]->symtab;
 				stmthandler(tree->children[3]->children[i]->children[3]);}}}}
     		
-  
-
 void type_definition() {
 	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) {
     	if (dynamic_cast<S_class *>(it->second)) {
@@ -599,12 +610,14 @@ int main(int argc, char **argv) {
   check_parents(); 							// makes sure every class' parent is declared
   check_loops(); 								// makes sure no class is a subclass of itself
   check_parents2(top); 				// modifies each class scope to include its parents' objects
+  check_compat();
   check_implements(); 					// makes sure every class' interfaces are declared
   check_implements2(top);			// makes sure every class' interfaces' functions are defined in the class scope
   type_definition();
   for (size_t i=0; i < top->children.size(); i++) {
   	currentClass = nullptr;
   	currentFunc = nullptr;
+  	LN = 0;
   	traversing2(top->children[i]);
   }
   traverseTree(top, 0, 1);
