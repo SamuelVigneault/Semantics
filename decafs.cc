@@ -311,8 +311,8 @@ void check_compat() {
 bool prim(string S1) { return (S1 == "int" || S1 == "bool" ||S1 == "double"||S1 == "string" );}
 
 bool compare(S_type * T1, S_type * T2) {
-	return (!(T1->array != 0 || T2->array != 0 || prim(T1->name) || prim(T2->name)))
-	return (!(!T1 || !T2 || T2->name == "null"))
+	return (!(T1->array != 0 || T2->array != 0 || prim(T1->name) || prim(T2->name)));
+	return (!(!T1 || !T2 || T2->name == "null"));
 	for (size_t i=0; i < compat.size(); i++) { 
 		cout <<get<0>(compat[i]) << T1->name << endl;
 		if (get<0>(compat[i]) == T1->name && get<1>(compat[i]) == T2->name)
