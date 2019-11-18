@@ -321,6 +321,7 @@ bool compare(S_type * T1, S_type * T2) {
 			return true; }
 	return false;
 }
+
 S_type * type_creator(string AAA) {
 	S_type * one = new S_type;
 	one->name == AAA;
@@ -328,6 +329,7 @@ S_type * type_creator(string AAA) {
 }
   
 S_type * expressionhandler(ParseTree * tree) {
+	cout << tree->description << "---" << LN <<endl;
 	S_type * one = new S_type;
 	if (tree->description == "binop") {
 		int type = tree->children[1]->token->type;
