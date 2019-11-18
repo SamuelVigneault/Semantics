@@ -621,7 +621,7 @@ int main(int argc, char **argv) {
   	LN = 0;
   	traversing2(top->children[i]);
   }
-  //traverseTree(top, 0, 1);
+  traverseTree(top, 0, 1);
   return 0;
 #endif
 }
