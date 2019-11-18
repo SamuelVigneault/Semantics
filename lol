@@ -8,7 +8,7 @@ int lol1(	A hey) {
 A lol2;
 bool joke;
 int lol;
-lol = lol2.lol("joe")[9]
+lol = lol2.lol("joe")[9];
 lol2 = New(B);
 joke = false || false;
 return 5; 

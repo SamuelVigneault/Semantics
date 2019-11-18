@@ -328,7 +328,6 @@ S_type * type_creator(string AAA) {
 }
   
 S_type * expressionhandler(ParseTree * tree) {
-	cout << tree->description << "---" << LN <<endl;
 	S_type * one = new S_type;
 	if (tree->description == "binop") {
 		int type = tree->children[1]->token->type;
@@ -622,7 +621,7 @@ int main(int argc, char **argv) {
   	LN = 0;
   	traversing2(top->children[i]);
   }
-  traverseTree(top, 0, 1);
+  //traverseTree(top, 0, 1);
   return 0;
 #endif
 }
