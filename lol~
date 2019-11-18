@@ -7,5 +7,6 @@ class B extends A {}
 int lol1(	A hey) {
 A lol2;
 lol2 = New(B);
-false || false || false || false || true || false;
+false || false;
+ false || false || true || false;
  {;} ; ; ; }
