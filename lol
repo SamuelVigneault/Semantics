@@ -6,7 +6,8 @@ class B extends A {}
 
 int lol1(	A hey) {
 A lol2;
+bool joke;
 lol2 = New(B);
-false || false;
- false || false || true || false;
- {;} ; ; ; }
+joke = false || false;
+return 5; 
+}
