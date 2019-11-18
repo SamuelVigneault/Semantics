@@ -530,7 +530,8 @@ void stmthandler(ParseTree * tree) {
       		currentSS->insert(V->name, V); }
       	for (size_t i=0; i < tree->children[1]->children.size(); i++) { stmthandler(tree->children[1]->children[i]); }
       	closescope(); }
-	else if (tree->description != "nullstmt") { expressionhandler(tree); }
+	else if (tree->description == "nullstmt") { return; }
+	else { expressionhandler(tree); }
 }
 
 void traversing2(ParseTree * tree) {

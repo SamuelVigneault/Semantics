@@ -342,37 +342,37 @@ S_type * expressionhandler(ParseTree * tree) {
 			S_type * L = expressionhandler(tree->children[0]);
 			S_type * R = expressionhandler(tree->children[2]);
 			if (L->name == "bool" && R->name == "bool" && L->array == 0 && R->array == 0) { return L; }
-			else { semantic_error("To be written", LN); }
+			else { semantic_error("and and ors over here", LN); }
 		}
 		else if (type == 39 || type == 40) { 
 			S_type * L = expressionhandler(tree->children[0]);
 			S_type * R = expressionhandler(tree->children[2]); 
 			if (L->name == R->name && L->array == R->array) { return type_creator("bool"); }
 			 //TYPECOMPAT
-			else { semantic_error("To be written", LN); }
+			else { semantic_error("comparaison == or !=", LN); }
 		}
 		else if (type > 33 && type < 38) { 
 			S_type * L = expressionhandler(tree->children[0]);
 			S_type * R = expressionhandler(tree->children[2]); 
 			if (L->name == R->name && (L->name == "int" || L->name == "double") && L->array == 0 && R->array == 0) { return type_creator("bool"); }
-			else { semantic_error("To be written", LN); }
+			else { semantic_error("arithmetic comparaison", LN); }
 		}
 		else if (type > 28 && type < 34) { 
 			S_type * L = expressionhandler(tree->children[0]);
 			S_type * R = expressionhandler(tree->children[2]); 
 			if (L->name == R->name && (L->name == "int" || L->name == "double") && L->array == 0 && R->array == 0) { return L; }
-			else { semantic_error("To be written", LN); }
+			else { semantic_error("math equations symbols", LN); }
 		 }
 	}
 	else if (tree->description == "uop") {
 		if (tree->children[0]->token->type == 30) {
 			S_type * T = expressionhandler(tree->children[1]);
-			if (!((T->name == "int" || T->name == "double") && T->array == 0)) { semantic_error("To be written", LN); }
+			if (!((T->name == "int" || T->name == "double") && T->array == 0)) { semantic_error("negation operator", LN); }
 			return T;
 		}
 		if (tree->children[0]->token->type == 43) {
 			S_type * T = expressionhandler(tree->children[1]);
-			if (!((T->name == "bool") && T->array == 0)) { semantic_error("To be written", LN); }
+			if (!((T->name == "bool") && T->array == 0)) { semantic_error("! - not unary", LN); }
 			return T;
 		}
 	}
