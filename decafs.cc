@@ -328,6 +328,7 @@ S_type * type_creator(string AAA) {
 }
   
 S_type * expressionhandler(ParseTree * tree) {
+	cout <<"LOL1" <<endl;
 	S_type * one = new S_type;
 	if (tree->description == "binop") {
 		int type = tree->children[1]->token->type;
@@ -608,15 +609,12 @@ int main(int argc, char **argv) {
   top->symtab = topSS;
   for (size_t i=0; i < top->children.size(); i++)
     traversing1(top->children[i]);
-   cout <<"LOL1" <<endl;
   check_parents(); 							// makes sure every class' parent is declared
-  cout <<"LOL1" <<endl;
   check_loops(); 								// makes sure no class is a subclass of itself
   check_parents2(top); 				// modifies each class scope to include its parents' objects
   check_compat();
   check_implements(); 					// makes sure every class' interfaces are declared
   check_implements2(top);			// makes sure every class' interfaces' functions are defined in the class scope
-  cout <<"LOL4" <<endl;
   type_definition();
   for (size_t i=0; i < top->children.size(); i++) {
   	currentClass = nullptr;
