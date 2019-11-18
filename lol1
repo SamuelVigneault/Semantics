@@ -1,0 +1,32 @@
+interface p {}
+class A implements p {
+
+int[] lol(A yolo) {
+int[] a;
+a = NewArray(300 *7, int);
+return a;
+
+}
+
+}
+class B extends A {}
+
+int lol1(A hey) {
+A lol2;
+bool joke;
+int lol;
+A[][][] heyo;
+int lol4;
+p poop;
+B oops;
+
+poop = lol2;
+poop = oops;
+lol = lol2.lol(lol2)[9];
+heyo = NewArray(lol, A[][]);
+lol = lol4 = 2;
+
+joke = false || false;
+return 5;
+return lol;
+}
