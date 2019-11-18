@@ -387,8 +387,7 @@ S_type * expressionhandler(ParseTree * tree) {
 		S_type * R = expressionhandler(tree->children[1]); 
 		if (!(R->name == "int" && R->array == 0)) { semantic_error("Array ref arguments have to be integers", LN); }
 		else if (!(L->array > 0)) { semantic_error(aref1, LN); }
-		else { L->array--; cout << "hello"<<endl; return L; }} 
-	else if (tree->description == "call"){
+		else { L->array--; cout << "hello"<<endl; return L; }} 	else if (tree->description == "call"){
 		if (tree->children[0]->token) {
 			bool found = false;
 			string Fname = tree->children[0]->token->text;
@@ -520,7 +519,11 @@ void stmthandler(ParseTree * tree) {
 		if (returnT->array == currentFunc->returnType->array && returnT->name == currentFunc->returnType->name)  {return; }
 		else if (compare(returnT, currentFunc->returnType)) {return;}
 		else { LN = tree->children[0]->token->line; semantic_error(return1, LN); }}}
-	else if (tree->description == "if") {}
+	else if (tree->description == "if") {
+		S_type * mustbool = expressionhandler(tree->children[0]); 
+		if (!(mustbool->name == "bool" && mustbool->array == 0)) { semantic_error("if statement expr must be a bool type", LN); }
+		if (tree->children.size() == 2) { stmthandler(tree->children[1]);}
+		if (tree->children.size() == 3) { stmthandler(tree->children[1]); stmthandler(tree->children[2]); }}
 	else if (tree->description == "stmtblock") { 
 		openscope();
 		tree->symtab = currentSS;
@@ -620,10 +623,10 @@ int main(int argc, char **argv) {
   check_implements(); 					// makes sure every class' interfaces are declared
   check_implements2(top);			// makes sure every class' interfaces' functions are defined in the class scope
   type_definition();
+  LN = 0;
   for (size_t i=0; i < top->children.size(); i++) {
   	currentClass = nullptr;
   	currentFunc = nullptr;
-  	LN = 0;
   	traversing2(top->children[i]);
   }
   traverseTree(top, 0, 1);
