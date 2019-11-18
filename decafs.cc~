@@ -305,7 +305,7 @@ void check_compat() {
 		if (B->parentClass == "") { break; }
 		for (std::map<string, semantics *>::iterator it1=topSS->dict.begin(); it1!=topSS->dict.end(); ++it1) {
 	  if (dynamic_cast<S_class *>(it1->second) && dynamic_cast<S_class*>(it1->second)->name == B->parentClass)
-	    B = dynamic_cast<S_class*>(it1->second); }
+	    B = dynamic_cast<S_class*>(it1->second); break; }
       }}}}
 
 bool prim(string S1) {
