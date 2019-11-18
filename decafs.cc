@@ -322,7 +322,8 @@ bool compare(S_type * T1, S_type * T2) {
 
 S_type * type_creator(string AAA) {
 	S_type * one = new S_type;
-	one->name == AAA;
+	one->name = AAA;
+	one->array = 0;
 	return one;
 }
   
