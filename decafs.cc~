@@ -64,6 +64,17 @@ S_type* basetype(ParseTree *type_tree, int arr = 0) {
     return typer;}
   else { semantic_error(typeerror1, LN); return nullptr; }
 }
+bool ensure_type(S_type * T) {
+	if (!T) return true;
+	if (T->name == "int") return true;
+	if (T->name == "bool") return true;
+	if (T->name == "double") return true;
+	if (T->name == "string") return true;
+	for (size_t i=0; i < usertypes.size(); i++) {
+		if (T->name == usertypes[i]) { return true; }
+	}
+	return false;
+}
 
 S_function * functions_signature(ParseTree * tree){
   	S_function * F;
@@ -510,18 +521,7 @@ else if (tree->description == "class") {
 				currentSS = tree->children[3]->children[i]->symtab;
 				stmthandler(tree->children[3]->children[i]->children[3]);}}}}
     		
-    		
-bool ensure_type(S_type * T) {
-	if (!T) return true;
-	if (T->name == "int") return true;
-	if (T->name == "bool") return true;
-	if (T->name == "double") return true;
-	if (T->name == "string") return true;
-	for (size_t i=0; i < usertypes.size(); i++) {
-		if (T->name == usertypes[i]) { return true; }
-	}
-	return false;
-}
+  
 
 void type_definition() {
 	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) {
