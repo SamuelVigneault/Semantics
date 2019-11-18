@@ -342,7 +342,7 @@ S_type * expressionhandler(ParseTree * tree) {
     				found = true;
     				F =  dynamic_cast<S_function *>(it->second); }}
     		if (! found) { semantic_error("Function " + Fname + global2, LN); }
-    		if (tree->children[1]->children.size() != F->formals.size()) { semantic_error("Num. of arguments in function " + Fname + def1, LN) }
+    		if (tree->children[1]->children.size() != F->formals.size()) { semantic_error("Num. of arguments in function " + Fname + def1, LN); }
     		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
 				S_type * T1 = expressionhandler(tree->children[1]->children[i]); 
 				S_type * T2 = F->formals[i]->type;
@@ -356,14 +356,14 @@ S_type * expressionhandler(ParseTree * tree) {
 			S_type * T1 = expressionhandler(tree->children[0]->children[0]);
 			if (!(T1->array == 0)) { semantic_error("Arrays do not have methods ", LN); } 
 			else if (topSS->local_lookup(T1->name) && dynamic_cast<S_class *>(topSS->local_lookup(T1->name))) {
-				S_class * C = dynamic_cast<S_class *>(topSS->local_lookup(T1->name)); }
-			else { "Non-class typed objects do not have methods ", LN);  }
+				S_class * C1 = dynamic_cast<S_class *>(topSS->local_lookup(T1->name)); }
+			else { semantic_error("Non-class typed objects do not have methods ", LN); }
 			
 			string Fname = tree->children[0]->children[1]->token->text;
 			LN = tree->children[0]->children[1]->token->line;
 			S_function * F;
 			bool found = false;
-			for (size_t i=0; i < C->functions.size(); i++) { if (C->functions[i]->name == Fname) { F = C->functions[i]; found = true; }}
+			for (size_t i=0; i < C1->functions.size(); i++) { if (C1->functions[i]->name == Fname) { F = C1->functions[i]; found = true; }}
     		if (! found1) { semantic_error("Method " + Fname + " is not defined in class " + C->name, LN); }
     		if (tree->children[1]->children.size() != F->formals.size()) { semantic_error("Num. of arguments in method " + Fname + def1, LN) }
     		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
