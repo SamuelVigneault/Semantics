@@ -69,18 +69,14 @@
 #define YYSTYPE ParseTree *
 
 using namespace std;
-
  
  extern Token *myTok;
  extern int yylineno;
  int yylex();
  ParseTree *top;
  ParseTree *tempo;
-
- /* stack<Token *> opstack;  // used this last time.  Might not need this time?
-    Token *optok; */
  
- %}
+%}
 
 %%
 
@@ -346,9 +342,6 @@ TIdent: T_TypeIdentifier { $$ = new ParseTree(myTok); }
 
 
 %%
-      /* |  IfStmt { $$ = $1; } 
-	 IfStmt: T_If T_LParen Expr T_RParen StmtBlock T_Else StmtBlock { $$ = new ParseTree("IFSTMT", $3, $5, $7); }
-      */
 
 int yyerror(const char * s)
 {

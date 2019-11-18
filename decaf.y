@@ -285,7 +285,7 @@ Expr: Constant
 | T_ReadInteger T_LParen T_RParen{ $$ = new ParseTree("readinteger"); }
 
 NewArrayType: Type 
-| NewArrayHack
+| NewArrayHack 
 
 NewArrayHack: Ident { $$  = new ParseTree("usertype", $1); }
 

@@ -39,6 +39,9 @@ string for1 = "Type of middle expression of 'for' loop is not of boolean type";
 string return1 = "Type of return statement does not match function return type";
 string stmtblock1 = "Variable redefined in statement block";
 string classcope1 = "Identifier redefined in the class scope";
+string aref1 = "Cannot access object in a non-array object";
+string classcope1 = "Identifier redefined in the class scope";
+string classcope1 = "Identifier redefined in the class scope";
 
 ParseTree * parse_decaf(FILE *);
 
@@ -287,6 +290,13 @@ void check_parents2(ParseTree * tree) {
 	    }}}
       }}}}
   
+  
+S_type * type_creator(string AAA) {
+	S_type * one = new S_type;
+	one->name == AAA;
+	return one;
+}
+  
 S_type * expressionhandler(ParseTree * tree) {
 	S_type * one = new S_type;
 	if (tree->description == "binop") {
@@ -296,20 +306,85 @@ S_type * expressionhandler(ParseTree * tree) {
 			S_type * L = expressionhandler(tree->children[0]);
 			S_type * R = expressionhandler(tree->children[2]);
 			if (L->name == "bool" && R->name == "bool" && L->array == 0 && R->array == 0) { return L; }
-			else { semantic_error("To be written", LN);}
+			else { semantic_error("To be written", LN); }
 		}
-		else if (type == 41 || type == 42) { 
+		else if (type == 39 || type == 40) { 
 			S_type * L = expressionhandler(tree->children[0]);
 			S_type * R = expressionhandler(tree->children[2]); 
-			if (L->name == R->name && L->array == R->array) { return L; }
-			else { semantic_error("To be written", LN);}
+			if (L->name == R->name && L->array == R->array) { return type_creator("bool"); } //TYPECOMPAT
+			else { semantic_error("To be written", LN); }
 		}
-		else if (tree->children[1]->token->type == 38) { cout << "HEYY THERE" << endl; }
+		else if (type > 33 && type < 38) { 
+			S_type * L = expressionhandler(tree->children[0]);
+			S_type * R = expressionhandler(tree->children[2]); 
+			if (L->name == R->name && (L->name == "int" || L->name == "double") && L->array == 0 && R->array == 0) { return type_creator("bool"); }
+			else { semantic_error("To be written", LN); }
+		}
+		else if (type > 28 && type < 34) { 
+			S_type * L = expressionhandler(tree->children[0]);
+			S_type * R = expressionhandler(tree->children[2]); 
+			if (L->name == R->name && (L->name == "int" || L->name == "double") && L->array == 0 && R->array == 0) { return L; }
+			else { semantic_error("To be written", LN); }
+		 }
 	}
 	else if (tree->description == "uop") {
+		
 	}
+	else if (tree->description == "aref"){
+		S_type * L = expressionhandler(tree->children[0]);
+		S_type * R = expressionhandler(tree->children[2]); 
+		if (!(R->name == "int" && R->array == 0)) { semantic_error("To be written", LN); }
+		else if (!(L->array > 0)) { semantic_error("To be written", LN); }
+		else { L->array--; return L; }
+	} 
+	else if (tree->description == "call"){
+		if (tree->children[0]->token) {
+			bool found = false;
+			for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { // looping through top scope
+    			if (dynamic_cast<S_function *>(it->second) && it->first == tree->children[0]->token->text) {
+    				found = true; }}
+    	LN = tree->children[0]->token->line;
+    	if (! found) { semantic_error("To be written", LN); }
+    	for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
+			S_type * T = expressionhandler(tree->children[0]); 
+			if (!(T->array == 0)) { semantic_error(print1, LN); } 
+			if (!(T->name == "int" || T->name == "bool" || T->name == "string")) { semantic_error(print2, LN); } 
+		}
+		else  
+		S_type * L = expressionhandler(tree->children[0]);
+		S_type * R = expressionhandler(tree->children[2]); 
+		if (!(R->name == "int" && R->array == 0)) { semantic_error("To be written", LN); }
+		else if (!(L->array > 0)) { semantic_error("To be written", LN); }
+		else { L->array--; return L; }
+	} 
+	
+	else if (tree->description == "new") {
+		bool found = false;
+		for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { // looping through top scope
+    		if (dynamic_cast<S_class *>(it->second) && it->first == tree->children[0]->token->text) {
+    			found = true;}}
+    	LN = tree->children[0]->token->line;
+    	if (! found) { semantic_error("To be written", LN); }
+    	else {return type_creator(tree->children[0]->token->text); }
+	}
+	else if (tree->description == "newarray") {
+		S_type * L = expressionhandler(tree->children[0]);
+		if (!(L->name == "int" &&  L->array == 0)) { semantic_error("To be written", LN); }
+		S_type * R = basetype(tree->children[1]); 
+		R->array++;
+		return R;
+	}
+	else if (tree->description == "readline") { return type_creator("string"); }
+	else if (tree->description == "readinteger") { return type_creator("int"); }
 	else if (tree->token) {
-		if (tree->token->type == 38) {}
+		if (tree->token->type == 25) { return type_creator("int"); }
+		if (tree->token->type == 26) { return type_creator("bool"); }
+		if (tree->token->type == 27) { return type_creator("double"); }
+		if (tree->token->type == 28) { return type_creator("string"); }
+		if (tree->token->type == 9) {
+			if (currentClass) { return type_creator(currentClass->name); }
+			else { semantic_error("To be written", LN);}
+			}
 		
 	}
 return one;
