@@ -315,8 +315,7 @@ bool compare(S_type * T1, S_type * T2) {
 	if (T1->array != 0 || T2->array != 0 || prim(T1->name) || prim(T2->name)) { return false; }
 	if (!T1 || !T2 || T2->name == "null") { return false; }
 	if (T1->name == "null") { return true; }
-	for (size_t i=0; i < compat.size(); i++) { 
-		cout <<get<0>(compat[i]) << T1->name << endl;
+	for (size_t i=0; i < compat.size(); i++) {
 		if (get<0>(compat[i]) == T1->name && get<1>(compat[i]) == T2->name)
 			return true; }
 	return false;
@@ -330,7 +329,6 @@ S_type * type_creator(string AAA) {
 }
   
 S_type * expressionhandler(ParseTree * tree) {
-	cout <<tree->description  << " ---- " << LN <<endl;
 	S_type * one = new S_type;
 	if (tree->description == "binop") {
 		int type = tree->children[1]->token->type;
@@ -387,7 +385,7 @@ S_type * expressionhandler(ParseTree * tree) {
 		S_type * R = expressionhandler(tree->children[1]); 
 		if (!(R->name == "int" && R->array == 0)) { semantic_error("Array ref arguments have to be integers", LN); }
 		else if (!(L->array > 0)) { semantic_error(aref1, LN); }
-		else { L->array--; cout << "hello"<<endl; return L; }} 	else if (tree->description == "call"){
+		else { L->array--; return L; }} 	else if (tree->description == "call"){
 		if (tree->children[0]->token) {
 			bool found = false;
 			string Fname = tree->children[0]->token->text;
