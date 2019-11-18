@@ -26,18 +26,21 @@ struct S_variable : public semantics {
   string name;
   S_type * type;
   virtual string kind() { return "S_variable"; }
+  int line;
 };
 
 struct S_function : public semantics {
   virtual string kind() { return "S_function"; }
   string name;
   vector<S_variable *> formals;
-  S_type * returnType;  // NULL for a void function
+  S_type * returnType;
+  int line;  // NULL for a void function
 };
 
 struct S_interface : public S_type {
   virtual string kind() { return "S_interface"; }
   vector<S_function *> functions;
+  int line;
 };
 
 struct S_class : public S_type {
@@ -46,6 +49,7 @@ struct S_class : public S_type {
   vector<string> interfaces; // implements
   vector<S_function *> functions;  // each has to be S_sfunction or S_variable
   vector<S_variable *> variables;
+  int line;
 };
 
 struct S_builtin : public semantics {

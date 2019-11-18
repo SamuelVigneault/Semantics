@@ -20,7 +20,6 @@ int yylex();
 int yyparse();
 
 extern vector<string> usertypes;
-extern vector<S_function *> global_funcs;
 
 extern Symtab *topSS;
 extern Symtab *currentSS;
@@ -39,9 +38,16 @@ string for1 = "Type of middle expression of 'for' loop is not of boolean type";
 string return1 = "Type of return statement does not match function return type";
 string stmtblock1 = "Variable redefined in statement block";
 string classcope1 = "Identifier redefined in the class scope";
+string classscope2 = " redefined in the class scope";
+string interface1 = " redefined in the interface scope";
 string aref1 = "Cannot access object in a non-array object";
-string classcope1 = "Identifier redefined in the class scope";
-string classcope1 = "Identifier redefined in the class scope";
+string new1 = "Argument of 'New' must be the name of a defined class";
+string newarray1 = "Identifier redefined in the class scope";
+string typeerror1 = "Parsing error revealed in basetype";
+string global1 = " redefined in the global scope";
+string par1 = " is not a class type object";
+string par2 = " is not defined in this scope";
+string subclass1 = " cannot be a subclass of itself";
 
 ParseTree * parse_decaf(FILE *);
 
@@ -54,7 +60,7 @@ S_type* basetype(ParseTree *type_tree, int arr = 0) {
     LN = type_tree->children[0]->token->line;
     typer->array = arr;
     return typer;}
-  else { semantic_error("Parsing error revealed in basetype", LN); return nullptr; }
+  else { semantic_error(typeerror1, LN); return nullptr; }
 }
 
 S_function * functions_signature(ParseTree * tree){
@@ -62,6 +68,7 @@ S_function * functions_signature(ParseTree * tree){
 	F = new S_function();
   	F->name = tree->children[1]->token->text;
   	LN = tree->children[1]->token->line;
+  	F->line = LN;
   	if (tree->children[0]->token) { F->returnType = NULL; }
   	else { F->returnType = basetype(tree->children[0]); }
   	openscope();
@@ -71,6 +78,7 @@ S_function * functions_signature(ParseTree * tree){
     	V->name = tree->children[2]->children[i]->children[1]->token->text;
     	V->type = basetype(tree->children[2]->children[i]->children[0]);
     	LN = tree->children[2]->children[i]->children[1]->token->line;
+    	V->line = LN;
     	if (currentSS->dict.count(V->name) == 1) { semantic_error(func1, LN); }
     F->formals.push_back(V);
     currentSS->insert(V->name, V); }
@@ -82,6 +90,7 @@ S_class * class_read(ParseTree * tree) {
   S_class* C = new S_class();
   C->name = tree->children[0]->token->text;
   LN = tree->children[0]->token->line;
+  C->line = LN;
   if (tree->children[1]) { C->parentClass = tree->children[1]->children[0]->token->text; }
   else { C->parentClass = ""; }
   if (tree->children[2]) {
@@ -96,8 +105,7 @@ S_class * class_read(ParseTree * tree) {
     ParseTree * field = fields->children[i];
     if (field->description == "functiondecl") {
       S_function * F = functions_signature(field);
-      if (currentSS->dict.count(F->name) == 1)
-		semantic_error(classcope1, LN);
+      if (currentSS->dict.count(F->name) == 1) { semantic_error("Identifier " + F->name + classscope2, F->line); }
       currentSS->insert(F->name, F);
       C->functions.push_back(F);
     }
@@ -105,9 +113,9 @@ S_class * class_read(ParseTree * tree) {
       S_variable * V = new S_variable();
       V->name = field->children[1]->token->text;
       LN =  field->children[1]->token->line;
+      V->line = LN;
       V->type = basetype(field->children[0]);
-      if (currentSS->dict.count(V->name) == 1)
-			semantic_error("Identifier redefined in the scope", LN);
+      if (currentSS->dict.count(V->name) == 1) { semantic_error("Identifier " + V->name + classscope2, V->line); }
       currentSS->insert(V->name, V);
       C->variables.push_back(V);
     }
@@ -118,49 +126,41 @@ S_class * class_read(ParseTree * tree) {
   
 void traversing1(ParseTree * tree) {
   if (tree->description == "interface") {
-    S_interface* inter;
-    inter = new S_interface();
-    inter->name = tree->children[0]->token->text;
+    S_interface* I = new S_interface();
+    I->name = tree->children[0]->token->text;
+    I->line = tree->children[0]->token->line;
     openscope();
     tree->symtab = currentSS;
     for (size_t i=1; i < tree->children.size(); i++) {
-      S_function * func;
-      func = functions_signature(tree->children[i]);
-      if (currentSS->dict.count(func->name) == 1)
-	semantic_error("Identifier redefined in the scope", yylineno);
-      currentSS->insert(func->name, func);
-      inter->functions.push_back(func);
+      S_function * F = functions_signature(tree->children[i]);
+      if (currentSS->dict.count(F->name) == 1) { semantic_error("Identifier " + F->name + interface1, F->line); }
+      currentSS->insert(F->name, F);
+      I->functions.push_back(F);
     }
     closescope();
-    if (currentSS->dict.count(inter->name) == 1)
-      semantic_error("Identifier "+inter->name+" redefined in the scope",yylineno);
-    currentSS->insert(inter->name, inter);
-    usertypes.push_back(inter->name);
+    LN = tree->children[0]->token->line;
+    if (currentSS->dict.count(I->name) == 1) { semantic_error("Identifier " + I->name + global1, I->line); }
+    currentSS->insert(I->name, I);
+    usertypes.push_back(I->name);
   }
   if (tree->description == "class") {
-    S_class* class1 = class_read(tree);
-    // Checking availability in scope and storing *********************************
-    if (currentSS->dict.count(class1->name) == 1)
-      semantic_error("Identifier redefined in the scope", yylineno);
-    currentSS->insert(class1->name, class1);
-    usertypes.push_back(class1->name);
+    S_class* C = class_read(tree);
+    if (currentSS->dict.count(C->name) == 1) { semantic_error("Identifier " + C->name + global1, C->line); }
+    currentSS->insert(C->name, C);
+    usertypes.push_back(C->name);
   }
   if (tree->description == "variable"){
-    S_variable * vari;
-    vari = new S_variable();
-    vari->name = tree->children[1]->token->text;
-    vari->type = basetype(tree->children[0]);
-    if (currentSS->dict.count(vari->name) == 1)
-      semantic_error("Identifier redefined in the scope", yylineno);
-    currentSS->insert(vari->name, vari);
+    S_variable * V = new S_variable();
+    V->name = tree->children[1]->token->text;
+    V->type = basetype(tree->children[0]);
+    LN = tree->children[1]->token->line;
+    if (currentSS->dict.count(V->name) == 1) { semantic_error("Identifier " + V->name + global1, V->line); }
+    currentSS->insert(V->name, V);
   }
   if (tree->description == "functiondecl"){
-    S_function * func;
-    func = functions_signature(tree);
-    if (currentSS->dict.count(func->name) == 1)
-      semantic_error("Identifier redefined in the scope", yylineno);
-    currentSS->insert(func->name, func);
-    global_funcs.push_back(func);
+    S_function * F = functions_signature(tree);
+    if (currentSS->dict.count(F->name) == 1) { semantic_error("Identifier " + F->name + global1, C->line); }
+    currentSS->insert(F->name, F);
   }
 }
 
@@ -169,13 +169,9 @@ void check_parents() {
     if (dynamic_cast<S_class *>(it->second)){
       S_class * A = dynamic_cast<S_class *>(it->second);
       if (A->parentClass != "") {
-	if (topSS->local_lookup(A->parentClass)) {
-	  if (topSS->local_lookup(A->parentClass)->kind()!= "S_class")
-	    semantic_error("Parent of class "+A->name+" is not a class type object", yylineno);
-	}
-	else
-	  semantic_error("Parent of class "+ A->name + " is not defined in this scope", yylineno);
-      }}}}
+			if (topSS->local_lookup(A->parentClass)) {
+	  			if (topSS->local_lookup(A->parentClass)->kind() != "S_class") { semantic_error("Parent of class "+A->name+par1, A->line); }}
+			else { semantic_error("Parent of class "+ A->name +par2, A->line); }}}}}
 
 void check_loops() {
   for (map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) {
@@ -183,15 +179,11 @@ void check_loops() {
       S_class * A = dynamic_cast<S_class *>(it->second);
       S_class * B = dynamic_cast<S_class *>(it->second);
       while (true) {
-        if (B->parentClass == A->name)
-	  semantic_error("Class "+A->name+" cannot be a subclass of itself", yylineno);
-        if (B->parentClass == "")
-	  break;
-	for (std::map<string, semantics *>::iterator it1=topSS->dict.begin(); it1!=topSS->dict.end(); ++it1) {
-	  if (dynamic_cast<S_class *>(it1->second) && dynamic_cast<S_class*>(it1->second)->name == B->parentClass) {
-	    B = dynamic_cast<S_class *>(it1->second);
-	  }}
-      }}}}
+        	if (B->parentClass == A->name) semantic_error("Class "+A->name+ subclass1, A->line);
+        	if (B->parentClass == "") break;
+			for (std::map<string, semantics *>::iterator it1=topSS->dict.begin(); it1!=topSS->dict.end(); ++it1) {
+	  			if (dynamic_cast<S_class *>(it1->second) && dynamic_cast<S_class*>(it1->second)->name == B->parentClass) {
+	    			B = dynamic_cast<S_class *>(it1->second); }}}}}}
 
 void check_implements() {
   for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) {
@@ -334,7 +326,7 @@ S_type * expressionhandler(ParseTree * tree) {
 		S_type * L = expressionhandler(tree->children[0]);
 		S_type * R = expressionhandler(tree->children[2]); 
 		if (!(R->name == "int" && R->array == 0)) { semantic_error("To be written", LN); }
-		else if (!(L->array > 0)) { semantic_error("To be written", LN); }
+		else if (!(L->array > 0)) { semantic_error(aref1, LN); }
 		else { L->array--; return L; }
 	} 
 	else if (tree->description == "call"){
@@ -364,12 +356,12 @@ S_type * expressionhandler(ParseTree * tree) {
     		if (dynamic_cast<S_class *>(it->second) && it->first == tree->children[0]->token->text) {
     			found = true;}}
     	LN = tree->children[0]->token->line;
-    	if (! found) { semantic_error("To be written", LN); }
+    	if (! found) { semantic_error(new1, LN); }
     	else {return type_creator(tree->children[0]->token->text); }
 	}
 	else if (tree->description == "newarray") {
 		S_type * L = expressionhandler(tree->children[0]);
-		if (!(L->name == "int" &&  L->array == 0)) { semantic_error("To be written", LN); }
+		if (!(L->name == "int" &&  L->array == 0)) { semantic_error("New", LN); }
 		S_type * R = basetype(tree->children[1]); 
 		R->array++;
 		return R;
