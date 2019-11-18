@@ -379,10 +379,10 @@ S_type * expressionhandler(ParseTree * tree) {
 	}
 	else if (tree->description == "aref"){
 		S_type * L = expressionhandler(tree->children[0]);
-		S_type * R = expressionhandler(tree->children[2]); 
+		S_type * R = expressionhandler(tree->children[1]); 
 		if (!(R->name == "int" && R->array == 0)) { semantic_error("Array ref arguments have to be integers", LN); }
 		else if (!(L->array > 0)) { semantic_error(aref1, LN); }
-		else { L->array--;cout << "hello"<<endl; return L; }} 
+		else { L->array--; cout << "hello"<<endl; return L; }} 
 	else if (tree->description == "call"){
 		if (tree->children[0]->token) {
 			bool found = false;
