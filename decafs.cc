@@ -295,7 +295,12 @@ S_type * expressionhandler(ParseTree * tree) {
 	S_type * one = new S_type;
 	if (tree->description == "binop") {
 		int type = tree->children[1]->token->type;
-		if (type == 38) { cout << "HEYY THERE" << endl; }
+		if (type == 38) { 
+			S_type * L = expressionhandler(tree->children[0]);
+			S_type * R = expressionhandler(tree->children[2]);
+			if (L->name == R->name && L->array == R->array ) { return L; }
+			else { semantic_error("To be written", LN); }
+		}
 		else if (type == 41 || type == 42) { 
 			S_type * L = expressionhandler(tree->children[0]);
 			S_type * R = expressionhandler(tree->children[2]);
@@ -322,15 +327,23 @@ S_type * expressionhandler(ParseTree * tree) {
 		 }
 	}
 	else if (tree->description == "uop") {
-		
+		if (tree->children[0]->token->type == 30) {
+			S_type * T = expressionhandler(tree->children[1]);
+			if (!((T->name == "int" || T->name == "double") && T->array == 0)) { semantic_error("To be written", LN); }
+			return T;
+		}
+		if (tree->children[0]->token->type == 43) {
+			S_type * T = expressionhandler(tree->children[1]);
+			if (!((T->name == "bool") && T->array == 0)) { semantic_error("To be written", LN); }
+			return T;
+		}
 	}
 	else if (tree->description == "aref"){
 		S_type * L = expressionhandler(tree->children[0]);
 		S_type * R = expressionhandler(tree->children[2]); 
-		if (!(R->name == "int" && R->array == 0)) { semantic_error("To be written", LN); }
+		if (!(R->name == "int" && R->array == 0)) { semantic_error("Array ref arguments have to be integers", LN); }
 		else if (!(L->array > 0)) { semantic_error(aref1, LN); }
-		else { L->array--; return L; }
-	} 
+		else { L->array--; return L; }} 
 	else if (tree->description == "call"){
 		if (tree->children[0]->token) {
 			bool found = false;
@@ -375,26 +388,46 @@ S_type * expressionhandler(ParseTree * tree) {
 		if (F->returnType) { return F->returnType; }
 		else { return type_creator("NULL"); }}
 		}
-	
+
 	else if (tree->description == "new") {
 		bool found = false;
-		for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { // looping through top scope
-    		if (dynamic_cast<S_class *>(it->second) && it->first == tree->children[0]->token->text) {
-    			found = true;}}
+		string name = tree->children[0]->token->text;
+		if (topSS->local_lookup(name) && dynamic_cast<S_class *>(topSS->local_lookup(name))) { found = true; }
     	LN = tree->children[0]->token->line;
     	if (! found) { semantic_error(new1, LN); }
-    	else {return type_creator(tree->children[0]->token->text); }
+    	else { return type_creator(name); }
 	}
 	else if (tree->description == "newarray") {
 		S_type * L = expressionhandler(tree->children[0]);
 		if (!(L->name == "int" &&  L->array == 0)) { semantic_error("Newarray's first argument must be of type int", LN); }
 		S_type * R = basetype(tree->children[1]);
+		if (!(ensure_type(R))) { semantic_error("Type undefined", LN); }
 		R->array++;
 		return R;
 	}
 	else if (tree->description == "readline") { return type_creator("string"); }
 	else if (tree->description == "readinteger") { return type_creator("int"); }
+	else if (tree->description == "field_access") { 
+	LN = tree->children[1]->token->line;
+	if (!currentClass) {semantic_error("Cannot access class variables outside class scope", LN); }
+	S_type * T = expressionhandler(tree->children[0]);
+	if (T->array != 0) {semantic_error("Cannot access class variables of an array object", LN);}
+	if (T->name != currentClass->name) {semantic_error("Cannot access class variables outside of class scope", LN);}
+	string name1 = tree->children[1]->token->text;
+	for (unsigned int k=0; k <  currentClass->variables.size(); k++) {
+    	if (name1 == currentClass->variables[k]->name) { return currentClass->variables[k]->type; }}
+	semantic_error("Variable undefined in the current class", LN);
+	}
 	else if (tree->token) {
+		if (tree->token->type == 8) { return type_creator("null"); }
+		if (tree->token->type == 23) { 
+		if (currentSS->lookup(tree->token->text)){
+			semantics * S = currentSS->lookup(tree->token->text);
+			if (dynamic_cast<S_variable *>(S)) {
+    			S_variable * V = dynamic_cast<S_variable *>(S);
+    			return V->type; }
+    		else  { semantic_error("To be written", LN);}}
+		else { semantic_error("To be written", LN);}}
 		if (tree->token->type == 25) { return type_creator("int"); }
 		if (tree->token->type == 26) { return type_creator("bool"); }
 		if (tree->token->type == 27) { return type_creator("double"); }
@@ -403,9 +436,7 @@ S_type * expressionhandler(ParseTree * tree) {
 			if (currentClass) { return type_creator(currentClass->name); }
 			else { semantic_error("To be written", LN);}
 			}
-		
 	}
-return one;
 }
   
 void stmthandler(ParseTree * tree) {
@@ -449,11 +480,12 @@ void stmthandler(ParseTree * tree) {
 		openscope();
 		tree->symtab = currentSS;
 		for (size_t i=0; i < tree->children[0]->children.size(); i++) {
-			S_variable * V;
-      		V = new S_variable();
+			S_variable * V = new S_variable();
       		V->name = tree->children[0]->children[i]->children[1]->token->text;
       		V->type = basetype(tree->children[0]->children[i]->children[0]);
       		LN = tree->children[0]->children[i]->children[1]->token->line;
+      		V->line = LN;
+      		if (!(ensure_type(V->type))) { semantic_error("Type undefined", V->line); }
       		if (currentSS->dict.count(V->name) == 1) { semantic_error(stmtblock1, LN);  }
       		currentSS->insert(V->name, V); }
       	for (size_t i=0; i < tree->children[1]->children.size(); i++) { stmthandler(tree->children[1]->children[i]); }
