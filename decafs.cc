@@ -364,8 +364,8 @@ S_type * expressionhandler(ParseTree * tree) {
 			S_function * F;
 			bool found = false;
 			for (size_t i=0; i < C1->functions.size(); i++) { if (C1->functions[i]->name == Fname) { F = C1->functions[i]; found = true; }}
-    		if (!found) { semantic_error("Method " + Fname + " is not defined in class " + C->name, LN); }
-    		if (tree->children[1]->children.size() != F->formals.size()) { semantic_error("Num. of arguments in method " + Fname + def1, LN) }
+    		if (!found) { semantic_error("Method " + Fname + " is not defined in class " + C1->name, LN); }
+    		if (tree->children[1]->children.size() != F->formals.size()) { semantic_error("Num. of arguments in method " + Fname + def1, LN); }
     		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
 				S_type * T1 = expressionhandler(tree->children[1]->children[i]); 
 				S_type * T2 = F->formals[i]->type;
