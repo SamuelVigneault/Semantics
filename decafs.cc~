@@ -491,13 +491,13 @@ bool ensure_type(S_type * T) {
 	return false;
 }
 
-void traversing3(ParseTree * tree) {
+void type_definition() {
 	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) {
     	if (dynamic_cast<S_class *>(it->second)) {
     		S_class * C = dynamic_cast<S_class *>(it->second);
     		for (unsigned int k=0; k <  C->functions.size(); k++) {
     			if (!(ensure_type(C->functions[k]->returnType))) { semantic_error("Type undefined", C->functions[k]->line); }
-    			for (unsigned int i=0; k <  C->functions[k]->formals.size(); i++) {
+    			for (unsigned int i=0; i <  C->functions[k]->formals.size(); i++) {
     				if (!(ensure_type(C->functions[k]->formals[i]->type))) { semantic_error("Type undefined", C->functions[k]->formals[i]->line); }}}
     		for (unsigned int k=0; k <  C->variables.size(); k++) {
     			if (!(ensure_type(C->variables[k]->type))) { semantic_error("Type undefined", C->variables[k]->line); }}}
@@ -506,7 +506,7 @@ void traversing3(ParseTree * tree) {
     		S_interface * I = dynamic_cast<S_interface *>(it->second);
     		for (unsigned int k=0; k <  I->functions.size(); k++) {
     			if (!(ensure_type(I->functions[k]->returnType))) { semantic_error("Type undefined", I->functions[k]->line); }
-    			for (unsigned int i=0; k <  I->functions[k]->formals.size(); i++) {
+    			for (unsigned int i=0; i <  I->functions[k]->formals.size(); i++) {
     				if (!(ensure_type(I->functions[k]->formals[i]->type))) { semantic_error("Type undefined", I->functions[k]->formals[i]->line); }}}}
     		
     	else if (dynamic_cast<S_function *>(it->second)) {

@@ -512,7 +512,7 @@ void type_definition() {
     	else if (dynamic_cast<S_function *>(it->second)) {
     		S_function * F = dynamic_cast<S_function *>(it->second);
     		if (!(ensure_type(F->returnType))) { semantic_error("Type undefined", F->line); }
-    		for (unsigned int i=0; k <  F->formals.size(); i++) {
+    		for (unsigned int i=0; i <  F->formals.size(); i++) {
     				if (!(ensure_type(F->formals[i]->type))) { semantic_error("Type undefined", F->formals[i]->line); }}}
     	else  { 
     		S_variable * V = dynamic_cast<S_variable *>(it->second); 
@@ -553,8 +553,7 @@ int main(int argc, char **argv) {
   check_parents2(top); 				// modifies each class scope to include its parents' objects
   check_implements(); 					// makes sure every class' interfaces are declared
   check_implements2(top);			// makes sure every class' interfaces' functions are defined in the class scope
-  for (size_t i=0; i < top->children.size(); i++)
-    traversing3(top->children[i]);
+  type_definition();
   for (size_t i=0; i < top->children.size(); i++) {
   	currentClass = nullptr;
   	currentFunc = nullptr;
