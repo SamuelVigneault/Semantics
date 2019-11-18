@@ -311,7 +311,7 @@ bool prim(string S1) {
 	return false;
 }
 
-void compare(S_type * T1, S_type * T2) {
+bool compare(S_type * T1, S_type * T2) {
 	if (T1->array != 0 || T2->array != 0 || prim(T1->name) || prim(T2->name))
 		return false;
 	if (!T1 || !T2 || T2->"null")
