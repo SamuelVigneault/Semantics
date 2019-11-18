@@ -310,7 +310,7 @@ S_type * expressionhandler(ParseTree * tree) {
 			S_type * L = expressionhandler(tree->children[0]);
 			S_type * R = expressionhandler(tree->children[2]);
 			if (L->name == R->name && L->array == R->array ) { return L; }
-			else { semantic_error("To be written", LN); }
+			else { semantic_error("Assignment failed", LN); }
 		}
 		else if (type == 41 || type == 42) { 
 			S_type * L = expressionhandler(tree->children[0]);

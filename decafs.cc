@@ -310,7 +310,7 @@ S_type * expressionhandler(ParseTree * tree) {
 			S_type * L = expressionhandler(tree->children[0]);
 			S_type * R = expressionhandler(tree->children[2]);
 			if (L->name == R->name && L->array == R->array ) { return L; }
-			else { semantic_error("To be written", LN); }
+			else { semantic_error("Assignment failed", LN); }
 		}
 		else if (type == 41 || type == 42) { 
 			S_type * L = expressionhandler(tree->children[0]);
@@ -430,8 +430,9 @@ S_type * expressionhandler(ParseTree * tree) {
 	semantic_error("Variable undefined in the current class", LN);
 	}
 	else if (tree->token) {	
-		if (tree->token->type == 8) { return type_creator("null"); }
+		if (tree->token->type == 8) { LN = tree->token->line; return type_creator("null"); }
 		if (tree->token->type == 23) { 
+		LN = tree->token->line; 
 		if (currentSS->lookup(tree->token->text)){
 			semantics * S = currentSS->lookup(tree->token->text);
 			if (dynamic_cast<S_variable *>(S)) {
@@ -439,12 +440,12 @@ S_type * expressionhandler(ParseTree * tree) {
     			return V->type; }
     		else  { semantic_error("To be written", LN);}}
 		else { semantic_error("To be written", LN);}}
-		if (tree->token->type == 25) { return type_creator("int"); }
-		if (tree->token->type == 26) { return type_creator("bool"); }
-		if (tree->token->type == 27) { return type_creator("double"); }
-		if (tree->token->type == 28) { return type_creator("string"); }
+		if (tree->token->type == 25) { LN = tree->token->line; return type_creator("int"); }
+		if (tree->token->type == 26) { LN = tree->token->line; return type_creator("bool"); }
+		if (tree->token->type == 27) { LN = tree->token->line; return type_creator("double"); }
+		if (tree->token->type == 28) { LN = tree->token->line; return type_creator("string"); }
 		if (tree->token->type == 9) {
-			if (currentClass) { return type_creator(currentClass->name); }
+			if (currentClass) { LN = tree->token->line; return type_creator(currentClass->name); }
 			else { semantic_error("To be written", LN);}
 			}
 	}
