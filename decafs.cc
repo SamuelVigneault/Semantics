@@ -303,6 +303,9 @@ void check_compat() {
       	for (size_t i=0; i < B->interfaces.size(); i++) { compat.push_back(make_tuple(A->name, B->interfaces[i]));	}
 		if (A != B) { compat.push_back(make_tuple(A->name, B->name)); }
 		if (B->parentClass == "") { break; }
+		for (std::map<string, semantics *>::iterator it1=topSS->dict.begin(); it1!=topSS->dict.end(); ++it1) {
+	  if (dynamic_cast<S_class *>(it1->second) && dynamic_cast<S_class*>(it1->second)->name == B->parentClass)
+	    B = dynamic_cast<S_class*>(it1->second); break; }
       }}}}
 
 bool prim(string S1) {
