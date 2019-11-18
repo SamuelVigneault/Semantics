@@ -27,8 +27,11 @@ extern Symtab *currentSS;
 extern S_class* currentClass;
 extern S_function * currentFunc;
  
+vector < tuple <string, string>> compat;
+
 int looper = 0;
 int LN = 0;
+
 // ALL ERROR MESSAGES
 string func1 = "Variable redefined in the function's arguments";
 string print1 = "Arguments passed to print statements cannot be arrays";
@@ -205,10 +208,10 @@ void check_implements() {
       for (unsigned int i=0; i < A->interfaces.size(); i++) {
 	if (topSS->local_lookup(A->interfaces[i])) {
 	  if (topSS->local_lookup(A->interfaces[i])->kind()!= "S_interface")
-	    semantic_error(A->interfaces[i]+" implemented by class "+A->name+ " is not an interface", yylineno);
+	    semantic_error(A->interfaces[i]+" implemented by class "+A->name+ " is not an interface", A->line);
 	}
 	else
-	  semantic_error("Interface "+A->interfaces[i]+" implemented by class "+A->name+ " is not defined", yylineno);
+	  semantic_error("Interface "+A->interfaces[i]+" implemented by class "+A->name+ " is not defined", A->line);
       }}}}
 
 bool check_type_signature(S_function * father, S_function * son) {
@@ -252,7 +255,7 @@ void check_implements2(ParseTree * tree) {
 	        break;
 	      }}}
 	  if (!found1)
-	    semantic_error("Class "+C->name+" does not implement all methods of the '"+I->name+ "' interface", yylineno);
+	    semantic_error("Class "+C->name+" does not implement all methods of the '"+I->name+ "' interface", FI->line);
 	}}}}}
 
 void check_parents2(ParseTree * tree) {
@@ -277,8 +280,8 @@ void check_parents2(ParseTree * tree) {
 	      if (dynamic_cast<S_function*>(currenttab->dict[it2->first]) && dynamic_cast<S_function*>(it2->second)) {
 				S_function * FUNC1 = dynamic_cast<S_function*>(currenttab->dict[it2->first]);
 				S_function * FUNC2 = dynamic_cast<S_function*>(it2->second);
-				if (!check_type_signature(FUNC1, FUNC2)) {semantic_error("Subclass "+A->name+" cannot overwrite a function from the '"+B->name+"' class", yylineno); }}
-	      	else { semantic_error("Subclass "+A->name+" cannot overwrite a variable from the '"+B->name+"' class", yylineno); }}
+				if (!check_type_signature(FUNC1, FUNC2)) {semantic_error("Subclass "+A->name+" cannot overwrite a function from the '"+B->name+"' class", FUNC1->line); }}
+	      	else { semantic_error("Subclass "+A->name+" cannot overwrite a variable from the '"+B->name+"' class", A->line); }}
 	    else currenttab->insert(it2->first, it2->second); }}
 	if (B->parentClass == "") { done.push_back(A->name); break; }
 	bool found = false;
@@ -295,6 +298,16 @@ void check_parents2(ParseTree * tree) {
 	    }}}
       }}}}
   
+void check_compat(ParseTree * tree) {
+  for (map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { // looping through top scope
+    if (dynamic_cast<S_class *>(it->second)) {
+      S_class * A = dynamic_cast<S_class *>(it->second);
+      S_class * B = dynamic_cast<S_class *>(it->second);
+      while (true) {
+      	for (size_t i=0; i < B->interfaces.size(); i++) { compat.push_back(make_tuple(A->name, B->interfaces[i]));	}
+		if (A != B) { compat.push_back(make_tuple(A->name, B->name)); }
+		if (B->parentClass == "") { break; }
+      }}}}
   
 S_type * type_creator(string AAA) {
 	S_type * one = new S_type;
@@ -321,7 +334,8 @@ S_type * expressionhandler(ParseTree * tree) {
 		else if (type == 39 || type == 40) { 
 			S_type * L = expressionhandler(tree->children[0]);
 			S_type * R = expressionhandler(tree->children[2]); 
-			if (L->name == R->name && L->array == R->array) { return type_creator("bool"); } //TYPECOMPAT
+			if (L->name == R->name && L->array == R->array) { return type_creator("bool"); }
+			 //TYPECOMPAT
 			else { semantic_error("To be written", LN); }
 		}
 		else if (type > 33 && type < 38) { 
