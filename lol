@@ -2,8 +2,10 @@
 class A {
 int lol(string hey) {int a; int b; {int a; int b; {int a; int c;}}}
 }
+class B extends A {}
+
 int lol1(	A hey) {
 A lol2;
-lol2 = 1;
+lol2 = New(B);
 false || false || false || false || true || false;
  {;} ; ; ; }
