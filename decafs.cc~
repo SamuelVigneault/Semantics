@@ -497,7 +497,7 @@ void stmthandler(ParseTree * tree) {
 	if (tree->description == "print") {
 		LN = tree->children[0]->token->line;
 		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
-			S_type * T = expressionhandler(tree->children[0]); 
+			S_type * T = expressionhandler(tree->children[1]->children[i]); 
 			if (!(T->array == 0)) { semantic_error(print1, LN); } 
 			if (!(T->name == "int" || T->name == "bool" || T->name == "string")) { semantic_error(print2, LN); } 
 		}}
