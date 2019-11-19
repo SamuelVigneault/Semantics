@@ -440,7 +440,7 @@ S_type * expressionhandler(ParseTree * tree) {
 				if (!(T1->array == T2->array)) { semantic_error("Type of the arguments of the method " + Fname + " don't match", LN); } 
 				if (T1->name != T2->name && (! compare(T2, T1))) { semantic_error("Type of the arguments of the method " + Fname + " don't match", LN); } 
 		}
-		cout << F->returnType->name <<endl;
+		//cout << F->returnType <<endl;
 		if (F->returnType) { return F->returnType; }
 		else { return type_creator(""); }}
 		}
