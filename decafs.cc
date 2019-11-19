@@ -334,6 +334,7 @@ S_type * type_creator(string AAA) {
 }
   
 S_type * expressionhandler(ParseTree * tree) {
+	cout << LN << " -- " << tree->description <<endl;
 	S_type * one = new S_type;
 	if (tree->description == "binop") {
 		int type = tree->children[1]->token->type;
