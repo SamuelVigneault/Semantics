@@ -318,6 +318,7 @@ void check_compat() {
 bool prim(string S1) { return (S1 == "int" || S1 == "bool" ||S1 == "double"||S1 == "string" );}
 
 bool compare(S_type * T1, S_type * T2) {
+  if (!T1 || !T2) return false;
 	if (T1->array != 0 || T2->array != 0 || prim(T1->name) || prim(T2->name)) { return false; }
 	if (T1->name == "" || T2->name == "" || T2->name == "null") { return false; }
 	if (T1->name == "null") { return true; }
@@ -521,12 +522,15 @@ void stmthandler(ParseTree * tree) {
 	else if (tree->description == "return") {
 		LN = tree->children[0]->token->line;
 		if (tree->children.size() == 1) {
-			if (!(currentFunc->returnType == NULL)) { semantic_error(return1, LN); }}
-		else { 
+			if (!(currentFunc->returnType == NULL)) { semantic_error(return1, LN); }
+			return;}
+		
+		else {
 		S_type * returnT = expressionhandler(tree->children[1]);
-		if (returnT->array == currentFunc->returnType->array && returnT->name == currentFunc->returnType->name)  {return; }
+		if (!currentFunc->returnType) {semantic_error(return1, LN); }
+		else if (returnT->array == currentFunc->returnType->array && returnT->name == currentFunc->returnType->name)  { return; }
 		else if (compare(returnT, currentFunc->returnType)) {return;}
-		else { LN = tree->children[0]->token->line; semantic_error(return1, LN); }}}
+		else { semantic_error(return1, LN); }}}
 	else if (tree->description == "if") {
 		S_type * mustbool = expressionhandler(tree->children[0]); 
 		if (!(mustbool->name == "bool" && mustbool->array == 0)) { semantic_error(ifstmt1, LN); }
@@ -565,8 +569,7 @@ else if (tree->description == "class") {
     	if (tree->children[3]->children[i]->description == "functiondecl") {
     			currentFunc = dynamic_cast<S_function *>(classSS->local_lookup(tree->children[3]->children[i]->children[1]->token->text));
 				currentSS = tree->children[3]->children[i]->symtab;
-				stmthandler(tree->children[3]->children[i]->children[3]); }}}}
-    		
+		        stmthandler(tree->children[3]->children[i]->children[3]);}}}}
 void type_definition() {
 	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) {
     	if (dynamic_cast<S_class *>(it->second)) {
