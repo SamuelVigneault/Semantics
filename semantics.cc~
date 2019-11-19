@@ -9,17 +9,12 @@ using namespace std;
 #include "parsetree.h"
 
 vector<string> usertypes;
-vector<S_interface *> interfaces;
-vector<S_class *> classes;
-vector<S_function *> global_funcs;
 
 Symtab *topSS = nullptr;
 Symtab *currentSS = nullptr;
-ParseTree * topTT = nullptr;
-ParseTree * currentTT = nullptr;
 
-S_function* currentFunc = nullptr;
-S_class* currentClass = nullptr;
+S_function* currentFunc;
+S_class* currentClass;
 
 void semantic_error(string msg, int line)
 {
