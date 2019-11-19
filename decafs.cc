@@ -88,8 +88,7 @@ bool ensure_type(S_type * T) {
 }
 
 S_function * functions_signature(ParseTree * tree){
-  	S_function * F;
-	F = new S_function();
+  	S_function * F = new S_function();
   	F->name = tree->children[1]->token->text;
   	F->line = tree->children[1]->token->line;
   	if (tree->children[0]->token) { F->returnType = NULL; }
@@ -413,16 +412,16 @@ S_type * expressionhandler(ParseTree * tree) {
 			else { return type_creator("");; }}
 		else  {
 			S_class * C1 = nullptr;
-			S_interface * I1 = nullptr;
+			S_interface * INTER1 = nullptr;
 			S_type * T1 = expressionhandler(tree->children[0]->children[0]);
 			string Fname = tree->children[0]->children[1]->token->text;
 			
 			if (T1->array > 0 && Fname == "length" && tree->children[1]->children.size() == 0) { return type_creator("int"); }
-			if (!(T1->array == 0)) { semantic_error("Arrays do not have methods ", LN); } 
+			else if (!(T1->array == 0)) { semantic_error("Arrays do not have methods ", LN); } 
 			else if (topSS->local_lookup(T1->name) && dynamic_cast<S_class *>(topSS->local_lookup(T1->name))) {
 				C1 = dynamic_cast<S_class *>(topSS->local_lookup(T1->name)); }
 			else if (topSS->local_lookup(T1->name) && dynamic_cast<S_interface *>(topSS->local_lookup(T1->name))) {
-				I1 = dynamic_cast<S_interface *>(topSS->local_lookup(T1->name)); }
+				INTER1 = dynamic_cast<S_interface *>(topSS->local_lookup(T1->name)); }
 			else { semantic_error("Objects of primitive types or objects with no types do not have methods", LN); }
 			
 			LN = tree->children[0]->children[1]->token->line;
@@ -430,7 +429,7 @@ S_type * expressionhandler(ParseTree * tree) {
 			bool found = false;
 			
 			if (C1) { for (size_t i=0; i < C1->functions.size(); i++) { if (C1->functions[i]->name == Fname) { F = C1->functions[i]; found = true; }} }
-			else if (I1) { for (size_t i=0; i < I1->functions.size(); i++) { if (I1->functions[i]->name == Fname) { F = I1->functions[i]; found = true; }}}
+			else if (INTER1) { for (size_t i=0; i < INTER1->functions.size(); i++) { if (INTER1->functions[i]->name == Fname) { F = INTER1->functions[i]; found = true; }}}
 			if (F->returnType) { cout << "HEY" <<endl; }
     		if (!found) { semantic_error("Method " + Fname + " is not defined in that user-defined object type", LN); }
     		if (tree->children[1]->children.size() != F->formals.size()) { semantic_error("Num. of arguments in method " + Fname + def1, LN); }
