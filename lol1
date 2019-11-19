@@ -1,4 +1,6 @@
-interface p {}
+interface p {
+}
+
 class A implements p {
 
 int[] lol(A yolo) {
@@ -22,6 +24,8 @@ B oops;
 
 poop = lol2;
 poop = oops;
+heyo.length();
+lol = 56565;
 lol = lol2.lol(lol2)[9];
 heyo = NewArray(lol, A[][]);
 lol = lol4 = 2;
