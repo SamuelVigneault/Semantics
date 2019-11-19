@@ -431,7 +431,7 @@ S_type * expressionhandler(ParseTree * tree) {
 			
 			if (C1) { for (size_t i=0; i < C1->functions.size(); i++) { if (C1->functions[i]->name == Fname) { F = C1->functions[i]; found = true; }} }
 			else if (I1) { for (size_t i=0; i < I1->functions.size(); i++) { if (I1->functions[i]->name == Fname) { F = I1->functions[i]; found = true; }}}
-			
+			if (F->returnType) { cout << "HEY" <<endl; }
     		if (!found) { semantic_error("Method " + Fname + " is not defined in that user-defined object type", LN); }
     		if (tree->children[1]->children.size() != F->formals.size()) { semantic_error("Num. of arguments in method " + Fname + def1, LN); }
     		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
@@ -440,7 +440,7 @@ S_type * expressionhandler(ParseTree * tree) {
 				if (!(T1->array == T2->array)) { semantic_error("Type of the arguments of the method " + Fname + " don't match", LN); } 
 				if (T1->name != T2->name && (! compare(T2, T1))) { semantic_error("Type of the arguments of the method " + Fname + " don't match", LN); } 
 		}
-		cout << F->returnType <<endl;
+		//cout << F->returnType <<endl;
 		if (F->returnType) { return F->returnType; }
 		else { return type_creator(""); }}
 		}
