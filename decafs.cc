@@ -624,7 +624,6 @@ int main(int argc, char **argv) {
   openscope();  // create original scope
   topSS = currentSS;
   top = parse_decaf(yyin);
-   traverseTree(top, 0, 1);
   top->symtab = topSS;
   for (size_t i=0; i < top->children.size(); i++)
     traversing1(top->children[i]);
