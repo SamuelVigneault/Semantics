@@ -568,8 +568,13 @@ else if (tree->description == "class") {
     for (size_t i=0; i < tree->children[3]->children.size(); i++) {
     	if (tree->children[3]->children[i]->description == "functiondecl") {
     			currentFunc = dynamic_cast<S_function *>(classSS->local_lookup(tree->children[3]->children[i]->children[1]->token->text));
+<<<<<<< HEAD
 			currentSS = tree->children[3]->children[i]->symtab;
 		        stmthandler(tree->children[3]->children[i]->children[3]);}}}}
+=======
+				currentSS = tree->children[3]->children[i]->symtab;
+				stmthandler(tree->children[3]->children[i]->children[3]); }}}}
+>>>>>>> 1f84a84a1b54624c31b457bff3ddfbcd872b6f13
     		
 void type_definition() {
 	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) {
