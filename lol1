@@ -1,34 +1,27 @@
-interface p {
+interface primates {
 }
 
-class A implements p {
+class human implements primates {
 
-int[] lol(A yolo) {
-int[] a;
-a = NewArray(300 *7, int);
-return a;
+int height;
+string quality;
+
+void qualityAssign(string lol) { quality = lol;}
+
+string getQuality() { return quality; }
+
+int[] lol(human yolo) { int[] a; a = NewArray(300 *7, int); return a;}
 
 }
 
-}
-class B extends A {}
-
-int lol1(A hey) {
-A lol2;
+int lol1(human hey) {
 bool joke;
 int lol;
-A[][][] heyo;
 int lol4;
-p poop;
-B oops;
+human sam;
 
-poop = lol2;
-poop = oops;
-heyo.length();
-lol = 56565;
-lol = lol2.lol(lol2)[9];
-heyo = NewArray(lol, A[][]);
-lol = lol4 = 2;
+sam.qualityAssign("lol");
+Print(sam.getQuality());
 
 joke = false || false;
 return 5;
