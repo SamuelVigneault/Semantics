@@ -4,9 +4,17 @@ interface primates {
 class human implements primates {
 
 int height;
-string quality;
+string[] quality;
+int counter;
 
-void qualityAssign(string lol) { quality = lol;}
+void setZero() { counter = 0; quality = NewArray(10, string); }
+void qualityAssign(string lol) {
+if (counter < 10) {
+   quality[counter] = lol;
+   counter = counter + 1;
+}
+else Print("error array of qualities is full");
+}
 
 string getQuality() { return quality; }
 
@@ -19,9 +27,21 @@ bool joke;
 int lol;
 int lol4;
 human sam;
+human maggie;
 
-sam.qualityAssign("lol");
-Print(sam.getQuality());
+sam.setZero();
+sam.qualityAssign("big butt");
+sam.qualityAssign("tall");
+sam.qualityAssign("not funny");
+sam.qualityAssign("nice hair");
+
+maggie.setZero();
+maggie.qualityAssign("pretty");
+maggie.qualityAssign("nice butt");
+maggie.qualityAssign(" eyes");
+maggie.qualityAssign("");
+
+Print(sam.getQuality(), lol4);
 
 joke = false || false;
 return 5;
