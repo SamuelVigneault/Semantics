@@ -42,12 +42,18 @@ string for1 = "Type of middle expression of 'for' loop is not of boolean type";
 string return1 = "Type of return statement does not match function return type";
 string stmtblock1 = "Variable redefined in statement block";
 string classcope1 = "Identifier redefined in the class scope";
-string classscope2 = " redefined in the class scope";
-string interface1 = " redefined in the interface scope";
 string aref1 = "Cannot access object in a non-array object";
+string aref2 = "Array references' argument inside the brackets has to be of type 'int'";
 string new1 = "Argument of 'New' must be the name of a defined class";
 string newarray1 = "Identifier redefined in the class scope";
 string typeerror1 = "Parsing error revealed in basetype";
+string break1 = "Break statement outside a loop";
+string ifstmt1 = "The epression of an 'if' statement must be of 'bool' type";
+string typevar = "Type of variable is not defined";
+string typefunc = "Return type of function/method is not defined";
+
+string classscope2 = " redefined in the class scope";
+string interface1 = " redefined in the interface scope";
 string global1 = " redefined in the global scope";
 string global2 = " is not defined in the global scope";
 string par1 = " is not a class type object";
@@ -313,13 +319,11 @@ bool prim(string S1) { return (S1 == "int" || S1 == "bool" ||S1 == "double"||S1 
 
 bool compare(S_type * T1, S_type * T2) {
 	if (T1->array != 0 || T2->array != 0 || prim(T1->name) || prim(T2->name)) { return false; }
-	if (!T1 || !T2 || T2->name == "null") { return false; }
+	if (T1->name == "" || T2->name == "" || T2->name == "null") { return false; }
 	if (T1->name == "null") { return true; }
 	for (size_t i=0; i < compat.size(); i++) {
-		if (get<0>(compat[i]) == T1->name && get<1>(compat[i]) == T2->name)
-			return true; }
-	return false;
-}
+		if (get<0>(compat[i]) == T1->name && get<1>(compat[i]) == T2->name) return true; }
+	return false; }
 
 S_type * type_creator(string AAA) {
 	S_type * one = new S_type;
@@ -380,12 +384,13 @@ S_type * expressionhandler(ParseTree * tree) {
 			return T;
 		}
 	}
-	else if (tree->description == "aref"){
+	else if (tree->description == "aref") {
 		S_type * L = expressionhandler(tree->children[0]);
 		S_type * R = expressionhandler(tree->children[1]); 
-		if (!(R->name == "int" && R->array == 0)) { semantic_error("Array ref arguments have to be integers", LN); }
+		if (!(R->name == "int" && R->array == 0)) { semantic_error(aref2, LN); }
 		else if (!(L->array > 0)) { semantic_error(aref1, LN); }
-		else { L->array--; return L; }} 	else if (tree->description == "call"){
+		else { L->array--; return L; }} 	
+	else if (tree->description == "call") {
 		if (tree->children[0]->token) {
 			bool found = false;
 			string Fname = tree->children[0]->token->text;
@@ -401,24 +406,31 @@ S_type * expressionhandler(ParseTree * tree) {
 				S_type * T1 = expressionhandler(tree->children[1]->children[i]); 
 				S_type * T2 = F->formals[i]->type;
 				if (!(T1->array == T2->array)) { semantic_error("Type of the arguments of the function " + Fname + " don't match", LN); } 
-				if (T1->name != T2->name && (! compare(T2, T1))) { semantic_error("Type of the arguments of the function " + Fname + " don't match", LN); } 
-		}
-		if (F->returnType) { return F->returnType; }
-		else { return NULL; }}
+				if (T1->name != T2->name && (! compare(T2, T1))) { semantic_error("Type of the arguments of the function " + Fname + " don't match", LN); } }
+			if (F->returnType) { return F->returnType; }
+			else { return type_creator("");; }}
 		else  {
-			S_class * C1;
+			S_class * C1 = nullptr;
+			S_interface * I1 = nullptr;
 			S_type * T1 = expressionhandler(tree->children[0]->children[0]);
+			string Fname = tree->children[0]->children[1]->token->text;
+			
+			if (T1->array > 0 && Fname == "length" && tree->children[1]->children.size() == 0) { return type_creator("int"); }
 			if (!(T1->array == 0)) { semantic_error("Arrays do not have methods ", LN); } 
 			else if (topSS->local_lookup(T1->name) && dynamic_cast<S_class *>(topSS->local_lookup(T1->name))) {
 				C1 = dynamic_cast<S_class *>(topSS->local_lookup(T1->name)); }
-			else { semantic_error("Non-class typed objects do not have methods ", LN); }
+			else if (topSS->local_lookup(T1->name) && dynamic_cast<S_interface *>(topSS->local_lookup(T1->name))) {
+				I1 = dynamic_cast<S_interface *>(topSS->local_lookup(T1->name)); }
+			else { semantic_error("Objects of primitive types or objects with no types do not have methods", LN); }
 			
-			string Fname = tree->children[0]->children[1]->token->text;
 			LN = tree->children[0]->children[1]->token->line;
 			S_function * F;
 			bool found = false;
-			for (size_t i=0; i < C1->functions.size(); i++) { if (C1->functions[i]->name == Fname) { F = C1->functions[i]; found = true; }}
-    		if (!found) { semantic_error("Method " + Fname + " is not defined in class " + C1->name, LN); }
+			
+			if (C1) { for (size_t i=0; i < C1->functions.size(); i++) { if (C1->functions[i]->name == Fname) { F = C1->functions[i]; found = true; }} }
+			else if (I1) { for (size_t i=0; i < I1->functions.size(); i++) { if (I1->functions[i]->name == Fname) { F = I1->functions[i]; found = true; }}}
+			
+    		if (!found) { semantic_error("Method " + Fname + " is not defined in that user-defined object type", LN); }
     		if (tree->children[1]->children.size() != F->formals.size()) { semantic_error("Num. of arguments in method " + Fname + def1, LN); }
     		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
 				S_type * T1 = expressionhandler(tree->children[1]->children[i]); 
@@ -427,7 +439,7 @@ S_type * expressionhandler(ParseTree * tree) {
 				if (T1->name != T2->name && (! compare(T2, T1))) { semantic_error("Type of the arguments of the method " + Fname + " don't match", LN); } 
 		}
 		if (F->returnType) { return F->returnType; }
-		else { return NULL; }}
+		else { return type_creator(""); }}
 		}
 	else if (tree->description == "new") {
 		ass = false;
@@ -461,21 +473,19 @@ S_type * expressionhandler(ParseTree * tree) {
 	else if (tree->token) {	
 		if (tree->token->type == 8) { LN = tree->token->line; return type_creator("null"); }
 		if (tree->token->type == 23) { 
-		LN = tree->token->line; 
-		if (currentSS->lookup(tree->token->text)){
-			semantics * S = currentSS->lookup(tree->token->text);
-			if (dynamic_cast<S_variable *>(S)) {
-    			S_variable * V = dynamic_cast<S_variable *>(S);
-    			return V->type; }
-    		else  { semantic_error("To be written", LN);}}
-		else { semantic_error("To be written", LN);}}
+			LN = tree->token->line; 
+			if (currentSS->lookup(tree->token->text)){
+				semantics * S = currentSS->lookup(tree->token->text);
+				if (dynamic_cast<S_variable *>(S)) { return dynamic_cast<S_variable *>(S)->type; }
+    			else  { semantic_error("Identifier is not a variable", LN);}}
+			else { semantic_error("Identifier is not defined in this scope", LN);}}
 		if (tree->token->type == 25) { LN = tree->token->line; return type_creator("int"); }
 		if (tree->token->type == 26) { LN = tree->token->line; return type_creator("bool"); }
 		if (tree->token->type == 27) { LN = tree->token->line; return type_creator("double"); }
 		if (tree->token->type == 28) { LN = tree->token->line; return type_creator("string"); }
 		if (tree->token->type == 9) {
 			if (currentClass) { LN = tree->token->line; return type_creator(currentClass->name); }
-			else { semantic_error("To be written", LN);}
+			else { semantic_error("This cannot be used outside of a class scope", LN);}
 			}
 	}
 	return one;
@@ -507,7 +517,7 @@ void stmthandler(ParseTree * tree) {
 	}
 	else if (tree->description == "break") {
 		LN = tree->children[0]->token->line;
-		if (looper == 0){ semantic_error("Break statement outside a loop", LN); }}
+		if (looper == 0){ semantic_error(break1, LN); }}
 	else if (tree->description == "return") {
 		LN = tree->children[0]->token->line;
 		if (tree->children.size() == 1) {
@@ -519,7 +529,7 @@ void stmthandler(ParseTree * tree) {
 		else { LN = tree->children[0]->token->line; semantic_error(return1, LN); }}}
 	else if (tree->description == "if") {
 		S_type * mustbool = expressionhandler(tree->children[0]); 
-		if (!(mustbool->name == "bool" && mustbool->array == 0)) { semantic_error("if statement expr must be a bool type", LN); }
+		if (!(mustbool->name == "bool" && mustbool->array == 0)) { semantic_error(ifstmt1, LN); }
 		if (tree->children.size() == 2) { stmthandler(tree->children[1]);}
 		if (tree->children.size() == 3) { stmthandler(tree->children[1]); stmthandler(tree->children[2]); }}
 	else if (tree->description == "stmtblock") { 
@@ -531,7 +541,7 @@ void stmthandler(ParseTree * tree) {
       		V->type = basetype(tree->children[0]->children[i]->children[0]);
       		LN = tree->children[0]->children[i]->children[1]->token->line;
       		V->line = LN;
-      		if (!(ensure_type(V->type))) { semantic_error("Type undefined", V->line); }
+      		if (!(ensure_type(V->type))) { semantic_error(typevar, V->line); }
       		if (currentSS->dict.count(V->name) == 1) { semantic_error(stmtblock1, LN);  }
       		currentSS->insert(V->name, V); }
       	for (size_t i=0; i < tree->children[1]->children.size(); i++) { stmthandler(tree->children[1]->children[i]); }
@@ -562,28 +572,27 @@ void type_definition() {
     	if (dynamic_cast<S_class *>(it->second)) {
     		S_class * C = dynamic_cast<S_class *>(it->second);
     		for (unsigned int k=0; k <  C->functions.size(); k++) {
-    			if (!(ensure_type(C->functions[k]->returnType))) { semantic_error("Type undefined", C->functions[k]->line); }
+    			if (!(ensure_type(C->functions[k]->returnType))) { semantic_error(typefunc, C->functions[k]->line); }
     			for (unsigned int i=0; i <  C->functions[k]->formals.size(); i++) {
-    				if (!(ensure_type(C->functions[k]->formals[i]->type))) { semantic_error("Type undefined", C->functions[k]->formals[i]->line); }}}
+    				if (!(ensure_type(C->functions[k]->formals[i]->type))) { semantic_error(typevar, C->functions[k]->formals[i]->line); }}}
     		for (unsigned int k=0; k <  C->variables.size(); k++) {
-    			if (!(ensure_type(C->variables[k]->type))) { semantic_error("Type undefined", C->variables[k]->line); }}}
+    			if (!(ensure_type(C->variables[k]->type))) { semantic_error(typevar, C->variables[k]->line); }}}
     			
     	else if (dynamic_cast<S_interface *>(it->second)) {
     		S_interface * I = dynamic_cast<S_interface *>(it->second);
     		for (unsigned int k=0; k <  I->functions.size(); k++) {
-    			if (!(ensure_type(I->functions[k]->returnType))) { semantic_error("Type undefined", I->functions[k]->line); }
+    			if (!(ensure_type(I->functions[k]->returnType))) { semantic_error(typefunc, I->functions[k]->line); }
     			for (unsigned int i=0; i <  I->functions[k]->formals.size(); i++) {
-    				if (!(ensure_type(I->functions[k]->formals[i]->type))) { semantic_error("Type undefined", I->functions[k]->formals[i]->line); }}}}
+    				if (!(ensure_type(I->functions[k]->formals[i]->type))) { semantic_error(typevar, I->functions[k]->formals[i]->line); }}}}
     		
     	else if (dynamic_cast<S_function *>(it->second)) {
     		S_function * F = dynamic_cast<S_function *>(it->second);
-    		if (!(ensure_type(F->returnType))) { semantic_error("Type undefined", F->line); }
+    		if (!(ensure_type(F->returnType))) { semantic_error(typefunc, F->line); }
     		for (unsigned int i=0; i <  F->formals.size(); i++) {
-    				if (!(ensure_type(F->formals[i]->type))) { semantic_error("Type undefined", F->formals[i]->line); }}}
+    				if (!(ensure_type(F->formals[i]->type))) { semantic_error(typevar, F->formals[i]->line); }}}
     	else  { 
     		S_variable * V = dynamic_cast<S_variable *>(it->second); 
-    		if (!(ensure_type(V->type))) { semantic_error("Type undefined", V->line); }} 
-}}
+    		if (!(ensure_type(V->type))) { semantic_error(typevar, V->line); }}}}
 
 int main(int argc, char **argv) { 
   /* Make sure there's a given file name */
