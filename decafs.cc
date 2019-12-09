@@ -217,6 +217,7 @@ void check_implements() {
       }}}}
 
 bool check_type_signature(S_function * father, S_function * son) {
+cout<<"reached1" <<endl;
   bool AA = (father->returnType->name == son->returnType->name);
   bool BB = (father->returnType->array == son->returnType->array);
   bool CC = (father->formals.size() == son->formals.size());
