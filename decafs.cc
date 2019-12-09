@@ -75,6 +75,13 @@ S_type* basetype(ParseTree *type_tree, int arr = 0) {
   else { semantic_error(typeerror1, LN); return nullptr; }
 }
 
+S_type * type_creator(string AAA) {
+	S_type * one = new S_type;
+	one->name = AAA;
+	one->array = 0;
+	return one;
+}
+
 bool ensure_type(S_type * T) {
 	if (!T) return true;
 	if (T->name == "int") return true;
@@ -91,7 +98,7 @@ S_function * functions_signature(ParseTree * tree){
   	S_function * F = new S_function();
   	F->name = tree->children[1]->token->text;
   	F->line = tree->children[1]->token->line;
-  	if (tree->children[0]->token) { F->returnType = NULL; }
+  	if (tree->children[0]->token) { F->returnType = type_creator(""); }
   	else { F->returnType = basetype(tree->children[0]); }
   	openscope();
  	tree->symtab = currentSS;
@@ -321,25 +328,18 @@ void compatible() {
 
 bool prim(string S1) { return (S1 == "int" || S1 == "bool" ||S1 == "double"||S1 == "string" );}
 
+bool equivalent(S_type * DAD, S_type * SON) { return (DAD->array == SON->array && DAD->name == SON->name); }
+
 bool compatibles(S_type * DAD, S_type * SON) {
 	if (!DAD || !SON) { return false; }
 	if (SON->name == "" || DAD->name == "" || DAD->name == "null") { return false; }
-	if (DAD->array == SON->array && DAD->name == SON->name ) {return true; }
+	if (equivalent(DAD, SON)) {return true; }
 	if (DAD->array != 0 || SON->array != 0 || prim(DAD->name) || prim(SON->name)) { return false; }
 	if (SON->name == "null") { return true; }
 	for (size_t i=0; i < compat.size(); i++) {
 		if (get<0>(compat[i]) == SON->name && get<1>(compat[i]) == DAD->name) return true; }
 	return false; }
 
-bool equivalent(S_type * DAD, S_type * SON) { return (DAD->array == SON->array && DAD->name == SON->name); }
-
-S_type * type_creator(string AAA) {
-	S_type * one = new S_type;
-	one->name = AAA;
-	one->array = 0;
-	return one;
-}
-  
 S_type * expressionhandler(ParseTree * tree) {
 	S_type * one = new S_type;
 	if (tree->description == "binop") {

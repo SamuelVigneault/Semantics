@@ -222,6 +222,7 @@ cout<<"reached1" <<endl;
   bool BB = (father->returnType->array == son->returnType->array);
   bool CC = (father->formals.size() == son->formals.size());
   if (AA && BB && CC) {
+  	cout<<"reached4" <<endl;
     for (unsigned int y=0; y < son->formals.size(); y++) {
       if (son->formals[y]->type->name != father->formals[y]->type->name) return false;
       if (son->formals[y]->type->array != father->formals[y]->type->array) return false;
