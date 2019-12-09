@@ -8,6 +8,7 @@ string[] quality;
 int counter;
 
 void setZero() { counter = 0; quality = NewArray(10, string); }
+
 void qualityAssign(string lol) {
 if (counter < 10) {
    quality[counter] = lol;
