@@ -492,6 +492,7 @@ S_type * expressionhandler(ParseTree * tree) {
 }
   
 void stmthandler(ParseTree * tree) {
+	cout << LN << endl;
 	if (tree->description == "print") {
 		LN = tree->children[0]->token->line;
 		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
