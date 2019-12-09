@@ -333,7 +333,6 @@ S_type * type_creator(string AAA) {
 }
   
 S_type * expressionhandler(ParseTree * tree) {
-	cout << LN << " -- " << tree->description <<endl;
 	S_type * one = new S_type;
 	if (tree->description == "binop") {
 		int type = tree->children[1]->token->type;
@@ -430,7 +429,6 @@ S_type * expressionhandler(ParseTree * tree) {
 			
 			if (C1) { for (size_t i=0; i < C1->functions.size(); i++) { if (C1->functions[i]->name == Fname) { F = C1->functions[i]; found = true; }} }
 			else if (INTER1) { for (size_t i=0; i < INTER1->functions.size(); i++) { if (INTER1->functions[i]->name == Fname) { F = INTER1->functions[i]; found = true; }}}
-			if (F->returnType) { cout << "HEY" <<endl; }
     		if (!found) { semantic_error("Method " + Fname + " is not defined in that user-defined object type", LN); }
     		if (tree->children[1]->children.size() != F->formals.size()) { semantic_error("Num. of arguments in method " + Fname + def1, LN); }
     		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
