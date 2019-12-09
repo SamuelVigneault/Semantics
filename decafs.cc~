@@ -89,6 +89,7 @@ bool ensure_type(S_type * T) {
 	if (T->name == "double") return true;
 	if (T->name == "string") return true;
 	if (T->name == "void") return true;
+	if (T->name == "") return true;
 	for (size_t i=0; i < usertypes.size(); i++) {
 		if (T->name == usertypes[i]) { return true; }
 	}
@@ -225,12 +226,10 @@ void check_implements() {
       }}}}
 
 bool check_type_signature(S_function * father, S_function * son) {
-cout<<"reached1" <<endl;
   bool AA = (father->returnType->name == son->returnType->name);
   bool BB = (father->returnType->array == son->returnType->array);
   bool CC = (father->formals.size() == son->formals.size());
   if (AA && BB && CC) {
-  	cout<<"reached4" <<endl;
     for (unsigned int y=0; y < son->formals.size(); y++) {
       if (son->formals[y]->type->name != father->formals[y]->type->name) return false;
       if (son->formals[y]->type->array != father->formals[y]->type->array) return false;
@@ -256,7 +255,6 @@ void check_implements2(ParseTree * tree) {
 		currenttab = tree->children[j]->symtab;
 		break;
 	      }}}
-	      cout<<"reached" <<endl;
 	for (unsigned int k=0; k < I->functions.size(); k++) {
 	  bool found1 = false;
 	  S_function * FI =  I->functions[k];
@@ -264,11 +262,9 @@ void check_implements2(ParseTree * tree) {
 	    if (dynamic_cast<S_function *>(it1->second)) {
 	      if(dynamic_cast<S_function *>(it1->second)->name == FI->name) {
 	        S_function * FUNC = dynamic_cast<S_function *>(it1->second);
-	         cout<<"reached1" <<endl;
 	        if (check_type_signature(FUNC, FI)) { found1 = true; }
 	        break;
 	      }}}
-	  cout<<"reached2" <<endl;
 	  if (!found1)
 	    semantic_error("Class "+C->name+" does not implement all methods of the '"+I->name+ "' interface", FI->line);
 	}}}}}
@@ -442,7 +438,6 @@ S_type * expressionhandler(ParseTree * tree) {
 				S_type * T2 = F->formals[i]->type;
 				if (! compatibles(T2, T1)) { semantic_error("Type of the arguments of the method " + Fname + " don't match", LN); }
 		}
-		//cout << F->returnType <<endl;
 		if (F->returnType) { return F->returnType; }
 		else { return type_creator(""); }}
 		}
@@ -497,7 +492,6 @@ S_type * expressionhandler(ParseTree * tree) {
 }
   
 void stmthandler(ParseTree * tree) {
-	cout << LN << endl;
 	if (tree->description == "print") {
 		LN = tree->children[0]->token->line;
 		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
@@ -634,11 +628,8 @@ int main(int argc, char **argv) {
   check_parents2(top); 				// modifies each class scope to include its parents' objects
   compatible();
   check_implements(); 					// makes sure every class' interfaces are declared
-   cout<< "HEYYY" << endl;
   check_implements2(top);			// makes sure every class' interfaces' functions are defined in the class scope
-   cout<< "HEYYY" << endl;
   type_definition();
-   cout<< "HEYYY" << endl;
   LN = 0;
   for (size_t i=0; i < top->children.size(); i++) {
   	currentClass = nullptr;
