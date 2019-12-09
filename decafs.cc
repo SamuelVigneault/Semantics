@@ -628,10 +628,15 @@ int main(int argc, char **argv) {
     traversing1(top->children[i]);
     cout<< "HEYYY" << endl;
   check_parents(); 							// makes sure every class' parent is declared
+   cout<< "HEYYY" << endl;
   check_loops(); 								// makes sure no class is a subclass of itself
+   cout<< "HEYYY" << endl;
   check_parents2(top); 				// modifies each class scope to include its parents' objects
+   cout<< "HEYYY" << endl;
   check_compat();
+   cout<< "HEYYY" << endl;
   check_implements(); 					// makes sure every class' interfaces are declared
+   cout<< "HEYYY" << endl;
   check_implements2(top);			// makes sure every class' interfaces' functions are defined in the class scope
   type_definition();
    cout<< "HEYYY" << endl;
