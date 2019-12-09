@@ -626,6 +626,7 @@ int main(int argc, char **argv) {
   top->symtab = topSS;
   for (size_t i=0; i < top->children.size(); i++)
     traversing1(top->children[i]);
+    cout<< "HEYYY" << endl;
   check_parents(); 							// makes sure every class' parent is declared
   check_loops(); 								// makes sure no class is a subclass of itself
   check_parents2(top); 				// modifies each class scope to include its parents' objects
@@ -633,6 +634,7 @@ int main(int argc, char **argv) {
   check_implements(); 					// makes sure every class' interfaces are declared
   check_implements2(top);			// makes sure every class' interfaces' functions are defined in the class scope
   type_definition();
+   cout<< "HEYYY" << endl;
   LN = 0;
   for (size_t i=0; i < top->children.size(); i++) {
   	currentClass = nullptr;
