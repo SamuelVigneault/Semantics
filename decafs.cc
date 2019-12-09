@@ -346,7 +346,6 @@ S_type * expressionhandler(ParseTree * tree) {
 			S_type * L = expressionhandler(tree->children[0]);
 			if (!ass) { semantic_error("Cannot have New or NewArray on left side of assignment", LN); }
 			S_type * R = expressionhandler(tree->children[2]);
-			cout << R->name <<R->array << " - - " << L->name << L->array<< endl;
 			if (compatibles(L, R)) { return L; }
 			else { semantic_error("Assignment failed", LN); }
 		}
@@ -396,15 +395,12 @@ S_type * expressionhandler(ParseTree * tree) {
 		else { L->array--; return L; }} 	
 	else if (tree->description == "call") {
 		if (tree->children[0]->token) {
-			bool found = false;
 			string Fname = tree->children[0]->token->text;
 			LN = tree->children[0]->token->line;
 			S_function * F;
-			for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { // looping through top scope
-    			if (dynamic_cast<S_function *>(it->second) && it->first == Fname) {
-    				found = true;
-    				F =  dynamic_cast<S_function *>(it->second); }}
-    		if (! found) { semantic_error("Function " + Fname + global2, LN); }
+			semantics * S = currentSS->lookup(Fname);
+			if (S && dynamic_cast<S_function *>(S)) { F = dynamic_cast<S_function *>(S); }
+    		else { semantic_error("Function " + Fname + global2, LN); }
     		if (tree->children[1]->children.size() != F->formals.size()) { semantic_error("Num. of arguments in function " + Fname + def1, LN); }
     		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
 				S_type * T1 = expressionhandler(tree->children[1]->children[i]); 
