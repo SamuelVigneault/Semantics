@@ -258,6 +258,7 @@ void check_implements2(ParseTree * tree) {
 	        if (check_type_signature(FUNC, FI)) { found1 = true; }
 	        break;
 	      }}}
+	  cout<<"reached2" <<endl;
 	  if (!found1)
 	    semantic_error("Class "+C->name+" does not implement all methods of the '"+I->name+ "' interface", FI->line);
 	}}}}}
