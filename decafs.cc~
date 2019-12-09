@@ -88,6 +88,7 @@ bool ensure_type(S_type * T) {
 	if (T->name == "bool") return true;
 	if (T->name == "double") return true;
 	if (T->name == "string") return true;
+	if (T->name == "void") return true;
 	for (size_t i=0; i < usertypes.size(); i++) {
 		if (T->name == usertypes[i]) { return true; }
 	}
