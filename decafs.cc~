@@ -75,10 +75,10 @@ S_type* basetype(ParseTree *type_tree, int arr = 0) {
   else { semantic_error(typeerror1, LN); return nullptr; }
 }
 
-S_type * type_creator(string AAA) {
+S_type * type_creator(string AAA, int arr = 0) {
 	S_type * one = new S_type;
 	one->name = AAA;
-	one->array = 0;
+	one->array = arr;
 	return one;
 }
 
@@ -346,7 +346,7 @@ S_type * expressionhandler(ParseTree * tree) {
 			S_type * L = expressionhandler(tree->children[0]);
 			if (!ass) { semantic_error("Cannot have New or NewArray on left side of assignment", LN); }
 			S_type * R = expressionhandler(tree->children[2]);
-			cout << R->name << " - - " << L->name << endl;
+			cout << R->name <<R->array << " - - " << L->name << L->array<< endl;
 			if (compatibles(L, R)) { return L; }
 			else { semantic_error("Assignment failed", LN); }
 		}

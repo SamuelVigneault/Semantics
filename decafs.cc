@@ -75,10 +75,10 @@ S_type* basetype(ParseTree *type_tree, int arr = 0) {
   else { semantic_error(typeerror1, LN); return nullptr; }
 }
 
-S_type * type_creator(string AAA) {
+S_type * type_creator(string AAA, int arr = 0) {
 	S_type * one = new S_type;
 	one->name = AAA;
-	one->array = 0;
+	one->array = arr;
 	return one;
 }
 
@@ -477,7 +477,7 @@ S_type * expressionhandler(ParseTree * tree) {
 			LN = tree->token->line; 
 			if (currentSS->lookup(tree->token->text)){
 				semantics * S = currentSS->lookup(tree->token->text);
-				if (dynamic_cast<S_variable *>(S)) { return dynamic_cast<S_variable *>(S)->type; }
+				if (dynamic_cast<S_variable *>(S)) { S_type* temp = dynamic_cast<S_variable *>(S)->type; return type_creator(temp->name, temp->array); }
     			else  { semantic_error("Identifier is not a variable", LN);}}
 			else { semantic_error("Identifier is not defined in this scope", LN);}}
 		if (tree->token->type == 25) { LN = tree->token->line; return type_creator("int"); }
