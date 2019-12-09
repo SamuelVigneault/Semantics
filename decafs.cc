@@ -346,6 +346,7 @@ S_type * expressionhandler(ParseTree * tree) {
 			S_type * L = expressionhandler(tree->children[0]);
 			if (!ass) { semantic_error("Cannot have New or NewArray on left side of assignment", LN); }
 			S_type * R = expressionhandler(tree->children[2]);
+			cout << R->name <<R->array << " - - " << L->name << L->array<< endl;
 			if (compatibles(L, R)) { return L; }
 			else { semantic_error("Assignment failed", LN); }
 		}
