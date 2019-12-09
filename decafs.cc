@@ -525,10 +525,8 @@ void stmthandler(ParseTree * tree) {
 		if (looper == 0){ semantic_error(break1, LN); }}
 	else if (tree->description == "return") {
 		LN = tree->children[0]->token->line;
-		if (tree->children.size() == 1) {
-			if (!(currentFunc->returnType == NULL)) { semantic_error(return1, LN); }
-			return;}
-		
+		if (tree->children.size() == 1 && currentFunc->returnType == NULL) { return; }
+		else if (tree->children.size() == 1) { semantic_error(return1, LN); }
 		else {
 		S_type * returnT = expressionhandler(tree->children[1]);
 		if (!currentFunc->returnType) {semantic_error(return1, LN); }
