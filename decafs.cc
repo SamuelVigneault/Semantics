@@ -325,7 +325,7 @@ bool compatibles(S_type * DAD, S_type * SON) {
 	if (DAD->array != 0 || SON->array != 0 || prim(DAD->name) || prim(SON->name)) { return false; }
 	if (SON->name == "null") { return true; }
 	for (size_t i=0; i < compat.size(); i++) {
-		if (get<0>(compat[i]) == T1->name && get<1>(compat[i]) == T2->name) return true; }
+		if (get<0>(compat[i]) == SON->name && get<1>(compat[i]) == DAD->name) return true; }
 	return false; }
 
 bool equivalent(S_type * DAD, S_type * SON) { return (DAD->array == SON->array && DAD->name == SON->name); }

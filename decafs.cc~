@@ -254,6 +254,7 @@ void check_implements2(ParseTree * tree) {
 	    if (dynamic_cast<S_function *>(it1->second)) {
 	      if(dynamic_cast<S_function *>(it1->second)->name == FI->name) {
 	        S_function * FUNC = dynamic_cast<S_function *>(it1->second);
+	         cout<<"reached1" <<endl;
 	        if (check_type_signature(FUNC, FI)) { found1 = true; }
 	        break;
 	      }}}
