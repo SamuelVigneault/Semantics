@@ -101,8 +101,8 @@ S_function * functions_signature(ParseTree * tree){
     	V->type = basetype(tree->children[2]->children[i]->children[0]);
     	V->line = tree->children[2]->children[i]->children[1]->token->line;
     	if (currentSS->dict.count(V->name) == 1) { semantic_error(func1, V->line); }
-    F->formals.push_back(V);
-    currentSS->insert(V->name, V); }
+		F->formals.push_back(V);
+    	currentSS->insert(V->name, V); }
   closescope();
   return F;
 }
