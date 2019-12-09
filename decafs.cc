@@ -209,7 +209,7 @@ void check_implements() {
       S_class * A = dynamic_cast<S_class *>(it->second);
       for (unsigned int i=0; i < A->interfaces.size(); i++) {
 	if (topSS->local_lookup(A->interfaces[i])) {
-	  if (topSS->local_lookup(A->interfaces[i])->kind()!= "S_interface")
+	  if (topSS->local_lookup(A->interfaces[i])->kind() != "S_interface")
 	    semantic_error(A->interfaces[i]+" implemented by class "+A->name+ " is not an interface", A->line);
 	}
 	else
@@ -246,6 +246,7 @@ void check_implements2(ParseTree * tree) {
 		currenttab = tree->children[j]->symtab;
 		break;
 	      }}}
+	      cout<<"reached" <<endl;
 	for (unsigned int k=0; k < I->functions.size(); k++) {
 	  bool found1 = false;
 	  S_function * FI =  I->functions[k];
