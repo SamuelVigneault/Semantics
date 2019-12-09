@@ -246,6 +246,7 @@ void check_implements2(ParseTree * tree) {
 		currenttab = tree->children[j]->symtab;
 		break;
 	      }}}
+	      cout<<"reached" <<endl;
 	for (unsigned int k=0; k < I->functions.size(); k++) {
 	  bool found1 = false;
 	  S_function * FI =  I->functions[k];
@@ -300,7 +301,7 @@ void check_parents2(ParseTree * tree) {
 	    }}}
       }}}}
   
-void check_compat() {
+void compatible() {
   for (map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { // looping through top scope
     if (dynamic_cast<S_class *>(it->second)) {
       S_class * A = dynamic_cast<S_class *>(it->second);
@@ -316,14 +317,17 @@ void check_compat() {
 
 bool prim(string S1) { return (S1 == "int" || S1 == "bool" ||S1 == "double"||S1 == "string" );}
 
-bool compare(S_type * T1, S_type * T2) {
-  if (!T1 || !T2) return false;
-	if (T1->array != 0 || T2->array != 0 || prim(T1->name) || prim(T2->name)) { return false; }
-	if (T1->name == "" || T2->name == "" || T2->name == "null") { return false; }
-	if (T1->name == "null") { return true; }
+bool compatibles(S_type * DAD, S_type * SON) {
+	if (!DAD || !SON) { return false; }
+	if (SON->name == "" || DAD->name == "" || DAD->name == "null") { return false; }
+	if (DAD->array == SON->array && DAD->name == SON->name ) {return true; }
+	if (DAD->array != 0 || SON->array != 0 || prim(DAD->name) || prim(SON->name)) { return false; }
+	if (SON->name == "null") { return true; }
 	for (size_t i=0; i < compat.size(); i++) {
 		if (get<0>(compat[i]) == T1->name && get<1>(compat[i]) == T2->name) return true; }
 	return false; }
+
+bool equivalent(S_type * DAD, S_type * SON) { return (DAD->array == SON->array && DAD->name == SON->name); }
 
 S_type * type_creator(string AAA) {
 	S_type * one = new S_type;
@@ -341,8 +345,7 @@ S_type * expressionhandler(ParseTree * tree) {
 			S_type * L = expressionhandler(tree->children[0]);
 			if (!ass) { semantic_error("Cannot have New or NewArray on left side of assignment", LN); }
 			S_type * R = expressionhandler(tree->children[2]);
-			if (L->name == R->name && L->array == R->array) { return L; }
-			else if (compare(R, L)) { return L; }
+			if (compatibles(L, R)) { return L; }
 			else { semantic_error("Assignment failed", LN); }
 		}
 		else if (type == 41 || type == 42) { 
@@ -353,10 +356,9 @@ S_type * expressionhandler(ParseTree * tree) {
 		}
 		else if (type == 39 || type == 40) { 
 			S_type * L = expressionhandler(tree->children[0]);
-			S_type * R = expressionhandler(tree->children[2]); 
-			if (L->name == R->name && L->array == R->array) { return type_creator("bool"); }
-			else if (compare(R, L)) { return type_creator("bool"); }
-			else if (compare(L, R)) { return type_creator("bool"); }
+			S_type * R = expressionhandler(tree->children[2]);
+			if (compatibles(L, R)) { return type_creator("bool"); }
+			else if (compatibles(R, L)) { return type_creator("bool"); }
 			else { semantic_error("comparaison == or !=", LN); }
 		}
 		else if (type > 33 && type < 38) { 
@@ -405,8 +407,7 @@ S_type * expressionhandler(ParseTree * tree) {
     		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
 				S_type * T1 = expressionhandler(tree->children[1]->children[i]); 
 				S_type * T2 = F->formals[i]->type;
-				if (!(T1->array == T2->array)) { semantic_error("Type of the arguments of the function " + Fname + " don't match", LN); } 
-				if (T1->name != T2->name && (! compare(T2, T1))) { semantic_error("Type of the arguments of the function " + Fname + " don't match", LN); } }
+				if (! compatibles(T2, T1)) { semantic_error("Type of the arguments of the function " + Fname + " don't match", LN); }}
 			if (F->returnType) { return F->returnType; }
 			else { return type_creator("");; }}
 		else  {
@@ -434,8 +435,7 @@ S_type * expressionhandler(ParseTree * tree) {
     		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
 				S_type * T1 = expressionhandler(tree->children[1]->children[i]); 
 				S_type * T2 = F->formals[i]->type;
-				if (!(T1->array == T2->array)) { semantic_error("Type of the arguments of the method " + Fname + " don't match", LN); } 
-				if (T1->name != T2->name && (! compare(T2, T1))) { semantic_error("Type of the arguments of the method " + Fname + " don't match", LN); } 
+				if (! compatibles(T2, T1)) { semantic_error("Type of the arguments of the method " + Fname + " don't match", LN); }
 		}
 		//cout << F->returnType <<endl;
 		if (F->returnType) { return F->returnType; }
@@ -529,7 +529,7 @@ void stmthandler(ParseTree * tree) {
 		S_type * returnT = expressionhandler(tree->children[1]);
 		if (!currentFunc->returnType) {semantic_error(return1, LN); }
 		else if (returnT->array == currentFunc->returnType->array && returnT->name == currentFunc->returnType->name)  { return; }
-		else if (compare(returnT, currentFunc->returnType)) {return;}
+		else if (compatibles(currentFunc->returnType, returnT)) { return; }
 		else { semantic_error(return1, LN); }}}
 	else if (tree->description == "if") {
 		S_type * mustbool = expressionhandler(tree->children[0]); 
@@ -629,7 +629,7 @@ int main(int argc, char **argv) {
   check_parents(); 							// makes sure every class' parent is declared
   check_loops(); 								// makes sure no class is a subclass of itself
   check_parents2(top); 				// modifies each class scope to include its parents' objects
-  check_compat();
+  compatible();
   check_implements(); 					// makes sure every class' interfaces are declared
    cout<< "HEYYY" << endl;
   check_implements2(top);			// makes sure every class' interfaces' functions are defined in the class scope
