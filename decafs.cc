@@ -281,33 +281,39 @@ void check_parents2(ParseTree * tree) {
 		if (tree->children[i]->description == "class") { 
 	 		if (tree->children[i]->children[0]->token->text == A->name) {
 	    		currenttab = tree->children[i]->symtab;
+	    		othertab = currenttab;
 	    		break;
 	  		}}}
       while (true) {
-	if (A != B) {
-	  for (std::map<string, semantics *>::iterator it2=othertab->dict.begin(); it2!=othertab->dict.end(); ++it2) {
-	  	// looping through the non completed parent class scope
-	    if (currenttab->dict.count(it2->first) == 1) {
-	      if (dynamic_cast<S_function*>(currenttab->dict[it2->first]) && dynamic_cast<S_function*>(it2->second)) {
-				S_function * FUNC1 = dynamic_cast<S_function*>(currenttab->dict[it2->first]);
-				S_function * FUNC2 = dynamic_cast<S_function*>(it2->second);
-				if (!check_type_signature(FUNC1, FUNC2)) {semantic_error("Subclass "+A->name+" cannot overwrite a function from the '"+B->name+"' class", FUNC1->line); }}
-	      	else { semantic_error("Subclass "+A->name+" cannot overwrite a variable from the '"+B->name+"' class", A->line); }}
-	    else currenttab->insert(it2->first, it2->second); }}
-	if (B->parentClass == "") { done.push_back(A->name); break; }
-	bool found = false;
-	for (unsigned int i = 0; i < done.size(); i++) { if (B->name == done[i]) { done.push_back(A->name); found = true; }}
-	if (found) { break; }
-	for (std::map<string, semantics *>::iterator it1=topSS->dict.begin(); it1!=topSS->dict.end(); ++it1) {
-	  if (dynamic_cast<S_class *>(it1->second) && dynamic_cast<S_class*>(it1->second)->name == B->parentClass)
-	    B = dynamic_cast<S_class*>(it1->second); }
-	for (size_t i=0; i < tree->children.size(); i++) {
-	  if (tree->children[i]->description == "class") {
-	    if (tree->children[i]->children[0]->token->text == B->name) {
-	      othertab = tree->children[i]->symtab;
-	      break;
-	    }}}
-      }}}}
+			if (A != B) {
+	  			for (std::map<string, semantics *>::iterator it2=othertab->dict.begin(); it2!=othertab->dict.end(); ++it2) {
+	  				// looping through the non completed parent class scope
+	    			if (currenttab->dict.count(it2->first) == 1) {
+	      				if (dynamic_cast<S_function*>(currenttab->dict[it2->first]) && dynamic_cast<S_function*>(it2->second)) {
+							S_function * FUNC1 = dynamic_cast<S_function*>(currenttab->dict[it2->first]);
+							S_function * FUNC2 = dynamic_cast<S_function*>(it2->second);
+							if (!check_type_signature(FUNC1, FUNC2)) {semantic_error("Subclass "+A->name+" cannot overwrite a function from the '"+B->name+"' class", FUNC1->line); }}
+	      				else { semantic_error("Subclass "+A->name+" cannot overwrite a variable from the '"+B->name+"' class", A->line); }}
+	    			else currenttab->insert(it2->first, it2->second); }}
+			if (B->parentClass == "") { done.push_back(A->name); break; }
+			bool found = false;
+			for (unsigned int i = 0; i < done.size(); i++) { if (B->name == done[i]) { done.push_back(A->name); found = true; }}
+			if (found) { break; }
+			for (std::map<string, semantics *>::iterator it1=topSS->dict.begin(); it1!=topSS->dict.end(); ++it1) {
+	 			if (dynamic_cast<S_class *>(it1->second) && dynamic_cast<S_class*>(it1->second)->name == B->parentClass)
+	    			B = dynamic_cast<S_class*>(it1->second); }
+			for (size_t i=0; i < tree->children.size(); i++) {
+	 			if (tree->children[i]->description == "class") {
+	    			if (tree->children[i]->children[0]->token->text == B->name) {
+	      				othertab = tree->children[i]->symtab;
+	      				break;
+	    	}}}
+      }}}
+      for (size_t i=0; i < tree->children.size(); i++) {
+	 			if (tree->children[i]->description == "class") {
+	      				othertab = tree->children[i]->symtab;
+	      				othertab.outputer(); }}
+      }
   
 void compatible() {
   for (map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { // looping through top scope
