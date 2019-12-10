@@ -312,7 +312,7 @@ void check_parents2(ParseTree * tree) {
       for (size_t i=0; i < tree->children.size(); i++) {
 	 			if (tree->children[i]->description == "class") {
 	      				Symtab * othertab = tree->children[i]->symtab;
-	      				othertab.outputer(); }}
+	      				othertab->outputer(); }}
       }
   
 void compatible() {
