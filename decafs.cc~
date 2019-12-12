@@ -625,7 +625,7 @@ void code_generation(ParseTree * tree, char **argv) {
 	string name1 = argv[1];
    file.open(argv[1], ios::out); 
    file << ".source" << (25 - 7) * ' ' << name1 << endl;
-   file << ".class" << (25 - 6) * ' ' << name.1.substr(0, name1.length() - 5) << endl;
+   file << ".class" << (25 - 6) * ' ' << name1.substr(0, name1.length() - 5) << endl;
 	for (size_t i=0; i < top->children.size(); i++) {
   	currentClass = nullptr;
   	currentFunc = nullptr;
