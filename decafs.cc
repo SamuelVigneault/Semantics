@@ -621,8 +621,8 @@ else if (tree->description == "class") {
 		        
 void code_generation(ParseTree * tree, char **argv) {
 	fstream file; 
-   file.open(argv[1]ios::out); 
-   
+	tree = tree;
+   file.open(argv[1], ios::out); 
 	for (size_t i=0; i < top->children.size(); i++) {
   	currentClass = nullptr;
   	currentFunc = nullptr;
@@ -672,7 +672,7 @@ int main(int argc, char **argv) {
   	currentFunc = nullptr;
   	traversing2(top->children[i]);
   }
-  code_generation(top, argv)
+  //code_generation(top, argv);
   traverseTree(top, 0, 1);
   return 0;
 #endif
