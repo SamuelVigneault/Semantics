@@ -294,7 +294,11 @@ void check_parents2(ParseTree * tree) {
 							S_function * FUNC2 = dynamic_cast<S_function*>(it2->second);
 							if (!check_type_signature(FUNC1, FUNC2)) {semantic_error("Subclass "+A->name+" cannot overwrite a function from the '"+B->name+"' class", FUNC1->line); }}
 	      				else { semantic_error("Subclass "+A->name+" cannot overwrite a variable from the '"+B->name+"' class", A->line); }}
-	    			else currenttab->insert(it2->first, it2->second); }}
+	    			else {
+	    				currenttab->insert(it2->first, it2->second);
+	    				if (dynamic_cast<S_function*>(it2->second)) A->functions.push_back(dynamic_cast<S_function*>(it2->second));
+	    				else if (dynamic_cast<S_variable*>(it2->second)) A->variables.push_back(dynamic_cast<S_variable*>(it2->second));
+	    				}}}
 			if (B->parentClass == "") { done.push_back(A->name); break; }
 			bool found = false;
 			for (unsigned int i = 0; i < done.size(); i++) { if (B->name == done[i]) { done.push_back(A->name); found = true; }}
