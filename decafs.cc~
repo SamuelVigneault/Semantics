@@ -622,8 +622,10 @@ else if (tree->description == "class") {
 void code_generation(ParseTree * tree, char **argv) {
 	fstream file; 
 	tree = tree;
+	string name1 = argv[1];
    file.open(argv[1], ios::out); 
-   file << ".source" << (25 - 7) * ' ' <<endl;
+   file << ".source" << (25 - 7) * ' ' << argv[1] << endl;
+   file << ".class" << (25 - 6) * ' ' << argv[1].substr(0,) << endl;
 	for (size_t i=0; i < top->children.size(); i++) {
   	currentClass = nullptr;
   	currentFunc = nullptr;
