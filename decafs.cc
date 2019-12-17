@@ -680,11 +680,13 @@ void globalF(ParseTree * tree, fstream file) {
 	return;
 }
 		        
-void code_generation(ParseTree * tree, string namej) {
+void code_generation(ParseTree * tree, string filename) {
+	string real = file_name(filename);
 	fstream file; 
 	tree = tree;
-   file.open(namej + ".j", ios::out); 
-   file << ".source" << (25 - 7) * " " << name1 << endl;
+   file.open(real + ".j", ios::out); 
+   string out = ".source" + (25 - 7) * ' ' + filename + "\n";
+   file <<out;
    file << ".class" << (25 - 6) * ' ' << "public " << name1.substr(0, name1.length() - 5) << endl;
    file << ".super" << (25 - 6) * ' ' << "java/lang/Object" << endl << endl <<endl;
    for (size_t i=0; i < tree->children.size(); i++) { globalV(tree->children[i], file); }
@@ -752,8 +754,7 @@ int main(int argc, char ** argv) {
   top = parse_decaf(yyin);
   check_semantics(top);
   string filename = argv[1];
-  string real = file_name(lololol);
-  code_generation(top, real);
+  code_generation(top, filename);
   traverseTree(top, 0, 1);
   return 0;
 #endif
