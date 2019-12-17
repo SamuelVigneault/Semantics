@@ -649,36 +649,32 @@ string file_name(string name1) {
 	return real;
 }
 
-void outputType(S_type * T, fstream file) {
-		for (size_t i=0; i < T->array; i++) { file << "["; }
-		if (T->name == "int") file << "I" ;
-		else if (T->name == "bool") file << "Z";
-		else if (T->name == "double") file << "D";
-		else if (T->name == "string") file << "Ljava/lang/String;";
-		else file << "L" << T->name << ";";
+string outputType(S_type * T) {
+		string out = "";
+		for (size_t i=0; i < T->array; i++) { out += "["; }
+		if (T->name == "int") out += "I" ;
+		else if (T->name == "bool") out += "Z";
+		else if (T->name == "double")out +="D";
+		else if (T->name == "string") out += "Ljava/lang/String;";
+		else out += "L" + T->name + ";";
+		return out;
 }
 
-void globalV(ParseTree * tree, fstream file) {
-	if (tree->description == "variable") { 
-		file << ".field" << (25 - 6) * ' ' << "public static " << tree->children[1]->token->text << " ";
-		outputType(basetype(tree->children[0]), file);
-		file << endl << endl;
-		return; }}
+string globalV(S_variable * V, string name) {
+	string out; 
+	out =  ".field" + (25 - 6) * ' ' + "public static " + name  + " ";
+	out += outputType(V->type);
+	out += "\n\n";
+	return out; }
 
-void globalF(ParseTree * tree, fstream file) {
-	if (tree->description == "functiondecl") { 
-		S_function * F = dynamic_cast<S_function *>(topSS->local_lookup(tree->children[1]->token->text;));
-		file << ".method" << (25 - 7) * ' ' << "public static " << tree->children[1]->token->text << "(";
-		for (size_t i=0; i < F->formals.size(); i++) {
-			outputType(F->formals[i]->type, file);
-		}
-		file << ")";
-		if (tree->children[0]->token) file << "V"<< endl;
-		else { outputType(basetype(tree->children[0]), file); file << endl; }
-		
-		return; }
-	return;
-}
+string globalF(S_function * F, string name) {
+	string out;
+	out = ".method" + (25 - 7) * ' ' + "public static " + name + "(";
+	for (size_t i=0; i < F->formals.size(); i++) { out += outputType(F->formals[i]->type); }
+	out +=  ")";
+	if (F->returnType->name == "") out += "V" + "\n";
+	else  out += outputType(F->returnType) + "\n"; 
+	return out; }
 		        
 void code_generation(ParseTree * tree, string filename) {
 	string real = file_name(filename);
@@ -686,23 +682,25 @@ void code_generation(ParseTree * tree, string filename) {
 	tree = tree;
    file.open(real + ".j", ios::out); 
    string out = ".source" + (25 - 7) * ' ' + filename + "\n";
-   file <<out;
-   file << ".class" << (25 - 6) * ' ' << "public " << name1.substr(0, name1.length() - 5) << endl;
-   file << ".super" << (25 - 6) * ' ' << "java/lang/Object" << endl << endl <<endl;
-   for (size_t i=0; i < tree->children.size(); i++) { globalV(tree->children[i], file); }
-   file << ".method" << (25-7) *' ' << "public <init>()V" <<endl;
-   file << 3 * ' ' <<  ".limit stack" << 10 * ' ' << "1" <<endl;
+   out += ".class" + (25 - 6) * ' ' + "public " + real + "\n";
+   out += ".super" + (25 - 6) * ' ' + "java/lang/Object" + "\n\n\n";
+   for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { 
+   		if  (dynamic_cast<S_variable *>(it->second)) 
+   			out += globalV(dynamic_cast<S_variable *>(it->second), it->first); }
+   out += ".method" + (25-7) * ' ' + "public <init>()V" + "\n";
+   out += 3 * ' ' +  ".limit stack" + 10 * ' ' + "1" + "\n";
+   file << out;
    file << 3 * ' ' <<  ".limit locals" << 9 * ' ' << "1" <<endl;
    file << 3 * ' ' <<  ".line" << 17 * ' ' << "1" <<endl;
    file << 3 * ' ' << "aload_0" << endl;   
    file << 3 * ' ' << "invokespecial" << 9 * ' ' << "java/lang/Object/<init>()V" << endl;
    file << 3 * ' ' << "return" << endl;
 	file << ".end method" << endl << endl;
-	for (size_t i=0; i < tree->children.size(); i++) {
-  	currentClass = nullptr;
-  	currentFunc = nullptr;
-  	globalF(tree->children[i], file);
-  }
+	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { 
+	 	if  (dynamic_cast<S_function *>(it->second)) {
+	 		currentClass = nullptr;
+  			currentFunc = nullptr;
+  			out += globalF(dynamic_cast<S_function *>(it->second), it->first); }}
 }
 
 
