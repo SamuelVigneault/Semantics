@@ -374,59 +374,59 @@ bool compatibles(S_type * DAD, S_type * SON) {
 		if (get<0>(compat[i]) == SON->name && get<1>(compat[i]) == DAD->name) return true; }
 	return false; }
 
-S_type * expressionhandler(ParseTree * tree) {
+S_type * EXPR(ParseTree * tree) {
 	S_type * one = new S_type;
 	if (tree->description == "binop") {
 		int type = tree->children[1]->token->type;
 		if (type == 38) {
 			ass =true;
-			S_type * L = expressionhandler(tree->children[0]);
+			S_type * L = EXPR(tree->children[0]);
 			if (!ass) { semantic_error("Cannot have New or NewArray on left side of assignment", LN); }
-			S_type * R = expressionhandler(tree->children[2]);
+			S_type * R = EXPR(tree->children[2]);
 			if (compatibles(L, R)) { return L; }
 			else { semantic_error("Assignment failed", LN); }
 		}
 		else if (type == 41 || type == 42) { 
-			S_type * L = expressionhandler(tree->children[0]);
-			S_type * R = expressionhandler(tree->children[2]);
+			S_type * L = EXPR(tree->children[0]);
+			S_type * R = EXPR(tree->children[2]);
 			if (L->name == "bool" && R->name == "bool" && L->array == 0 && R->array == 0) { return L; }
 			else { semantic_error("and and ors over here", LN); }
 		}
 		else if (type == 39 || type == 40) { 
-			S_type * L = expressionhandler(tree->children[0]);
-			S_type * R = expressionhandler(tree->children[2]);
+			S_type * L = EXPR(tree->children[0]);
+			S_type * R = EXPR(tree->children[2]);
 			if (compatibles(L, R)) { return type_creator("bool"); }
 			else if (compatibles(R, L)) { return type_creator("bool"); }
 			else { semantic_error("comparaison == or !=", LN); }
 		}
 		else if (type > 33 && type < 38) { 
-			S_type * L = expressionhandler(tree->children[0]);
-			S_type * R = expressionhandler(tree->children[2]); 
+			S_type * L = EXPR(tree->children[0]);
+			S_type * R = EXPR(tree->children[2]); 
 			if (L->name == R->name && (L->name == "int" || L->name == "double") && L->array == 0 && R->array == 0) { return type_creator("bool"); }
 			else { semantic_error("arithmetic comparaison", LN); }
 		}
 		else if (type > 28 && type < 34) { 
-			S_type * L = expressionhandler(tree->children[0]);
-			S_type * R = expressionhandler(tree->children[2]); 
+			S_type * L = EXPR(tree->children[0]);
+			S_type * R = EXPR(tree->children[2]); 
 			if (L->name == R->name && (L->name == "int" || L->name == "double") && L->array == 0 && R->array == 0) { return L; }
 			else { semantic_error("math equations symbols", LN); }
 		 }
 	}
 	else if (tree->description == "uop") {
 		if (tree->children[0]->token->type == 30) {
-			S_type * T = expressionhandler(tree->children[1]);
+			S_type * T = EXPR(tree->children[1]);
 			if (!((T->name == "int" || T->name == "double") && T->array == 0)) { semantic_error("negation operator", LN); }
 			return T;
 		}
 		if (tree->children[0]->token->type == 43) {
-			S_type * T = expressionhandler(tree->children[1]);
+			S_type * T = EXPR(tree->children[1]);
 			if (!((T->name == "bool") && T->array == 0)) { semantic_error("! - not unary", LN); }
 			return T;
 		}
 	}
 	else if (tree->description == "aref") {
-		S_type * L = expressionhandler(tree->children[0]);
-		S_type * R = expressionhandler(tree->children[1]); 
+		S_type * L = EXPR(tree->children[0]);
+		S_type * R = EXPR(tree->children[1]); 
 		if (!(R->name == "int" && R->array == 0)) { semantic_error(aref2, LN); }
 		else if (!(L->array > 0)) { semantic_error(aref1, LN); }
 		else { L->array--; return L; }} 	
@@ -440,7 +440,7 @@ S_type * expressionhandler(ParseTree * tree) {
     		else { semantic_error("Function " + Fname + global2, LN); }
     		if (tree->children[1]->children.size() != F->formals.size()) { semantic_error("Num. of arguments in function " + Fname + def1, LN); }
     		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
-				S_type * T1 = expressionhandler(tree->children[1]->children[i]); 
+				S_type * T1 = EXPR(tree->children[1]->children[i]); 
 				S_type * T2 = F->formals[i]->type;
 				if (! compatibles(T2, T1)) { semantic_error("Type of the arguments of the function " + Fname + " don't match", LN); }}
 			if (F->returnType) { return F->returnType; }
@@ -448,7 +448,7 @@ S_type * expressionhandler(ParseTree * tree) {
 		else  {
 			S_class * C1 = nullptr;
 			S_interface * INTER1 = nullptr;
-			S_type * T1 = expressionhandler(tree->children[0]->children[0]);
+			S_type * T1 = EXPR(tree->children[0]->children[0]);
 			string Fname = tree->children[0]->children[1]->token->text;
 			
 			if (T1->array > 0 && Fname == "length" && tree->children[1]->children.size() == 0) { return type_creator("int"); }
@@ -468,7 +468,7 @@ S_type * expressionhandler(ParseTree * tree) {
     		if (!found) { semantic_error("Method " + Fname + " is not defined in that user-defined object type", LN); }
     		if (tree->children[1]->children.size() != F->formals.size()) { semantic_error("Num. of arguments in method " + Fname + def1, LN); }
     		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
-				S_type * T1 = expressionhandler(tree->children[1]->children[i]); 
+				S_type * T1 = EXPR(tree->children[1]->children[i]); 
 				S_type * T2 = F->formals[i]->type;
 				if (! compatibles(T2, T1)) { semantic_error("Type of the arguments of the method " + Fname + " don't match", LN); }
 		}
@@ -484,7 +484,7 @@ S_type * expressionhandler(ParseTree * tree) {
 	}
 	else if (tree->description == "newarray") {
 		ass = false;
-		S_type * L = expressionhandler(tree->children[0]);
+		S_type * L = EXPR(tree->children[0]);
 		if (!(L->name == "int" &&  L->array == 0)) { semantic_error("Newarray's first argument must be of type int", LN); }
 		S_type * R = basetype(tree->children[1]);
 		if (!(ensure_type(R))) { semantic_error("Type undefined in new array", LN); }
@@ -496,7 +496,7 @@ S_type * expressionhandler(ParseTree * tree) {
 	else if (tree->description == "field_access") { 
 	LN = tree->children[1]->token->line;
 	if (!currentClass) {semantic_error("Cannot access class variables outside class scope", LN); }
-	S_type * T = expressionhandler(tree->children[0]);
+	S_type * T = EXPR(tree->children[0]);
 	if (T->array != 0) {semantic_error("Cannot access class variables of an array object", LN);}
 	if (T->name != currentClass->name) {semantic_error("Cannot access class variables outside of class scope", LN);}
 	string name1 = tree->children[1]->token->text;
@@ -525,28 +525,28 @@ S_type * expressionhandler(ParseTree * tree) {
 	return one;
 }
   
-void stmthandler(ParseTree * tree) {
+void STMT(ParseTree * tree) {
 	if (tree->description == "print") {
 		LN = tree->children[0]->token->line;
 		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
-			S_type * T = expressionhandler(tree->children[1]->children[i]); 
+			S_type * T = EXPR(tree->children[1]->children[i]); 
 			if (!(T->array == 0)) { semantic_error(print1, LN); } 
 			if (!(T->name == "int" || T->name == "bool" || T->name == "string")) { semantic_error(print2, LN); } 
 		}}
 	else if (tree->description == "while") {
 		looper++;
-		S_type * mustbool = expressionhandler(tree->children[0]); 
+		S_type * mustbool = EXPR(tree->children[0]); 
 		if (!(mustbool->name == "bool" && mustbool->array == 0)) {semantic_error(while1, LN); } 
-		stmthandler(tree->children[1]);
+		STMT(tree->children[1]);
 		looper--;
 	}
 	else if (tree->description == "for") {
 		looper++;
-		expressionhandler(tree->children[0]); 
-		S_type * mustbool = expressionhandler(tree->children[1]); 
+		EXPR(tree->children[0]); 
+		S_type * mustbool = EXPR(tree->children[1]); 
 		if (!(mustbool->name == "bool" && mustbool->array == 0)) {semantic_error(for1, LN); }
-		expressionhandler(tree->children[2]); 
-		stmthandler(tree->children[3]);
+		EXPR(tree->children[2]); 
+		STMT(tree->children[3]);
 		looper--;
 	}
 	else if (tree->description == "break") {
@@ -557,16 +557,16 @@ void stmthandler(ParseTree * tree) {
 		if (tree->children.size() == 1 && currentFunc->returnType == NULL) { return; }
 		else if (tree->children.size() == 1) { semantic_error(return1, LN); }
 		else {
-		S_type * returnT = expressionhandler(tree->children[1]);
+		S_type * returnT = EXPR(tree->children[1]);
 		if (!currentFunc->returnType) {semantic_error(return1, LN); }
 		else if (returnT->array == currentFunc->returnType->array && returnT->name == currentFunc->returnType->name)  { return; }
 		else if (compatibles(currentFunc->returnType, returnT)) { return; }
 		else { semantic_error(return1, LN); }}}
 	else if (tree->description == "if") {
-		S_type * mustbool = expressionhandler(tree->children[0]); 
+		S_type * mustbool = EXPR(tree->children[0]); 
 		if (!(mustbool->name == "bool" && mustbool->array == 0)) { semantic_error(ifstmt1, LN); }
-		if (tree->children.size() == 2) { stmthandler(tree->children[1]);}
-		if (tree->children.size() == 3) { stmthandler(tree->children[1]); stmthandler(tree->children[2]); }}
+		if (tree->children.size() == 2) { STMT(tree->children[1]);}
+		if (tree->children.size() == 3) { STMT(tree->children[1]); STMT(tree->children[2]); }}
 	else if (tree->description == "stmtblock") { 
 		openscope();
 		tree->symtab = currentSS;
@@ -579,19 +579,22 @@ void stmthandler(ParseTree * tree) {
       		if (!(ensure_type(V->type))) { semantic_error(typevar, V->line); }
       		if (currentSS->dict.count(V->name) == 1) { semantic_error(stmtblock1, LN);  }
       		currentSS->insert(V->name, V); }
-      	for (size_t i=0; i < tree->children[1]->children.size(); i++) { stmthandler(tree->children[1]->children[i]); }
+      	for (size_t i=0; i < tree->children[1]->children.size(); i++) { STMT(tree->children[1]->children[i]); }
       	closescope(); }
 	else if (tree->description == "nullstmt") { return; }
-	else { expressionhandler(tree); }
+	else { EXPR(tree); }
 }
 
 void traversing2(ParseTree * tree) {
 if (tree->description == "interface" || tree->description == "variable") { return; }
 else if (tree->description == "functiondecl") {
 	currentFunc = dynamic_cast<S_function *>(topSS->local_lookup(tree->children[1]->token->text));
+	for (size_t i=0; i < currentFunc->formals.size(); i++) {
+			currentFunc->locals.push_back()
+	}
 	LN = tree->children[1]->token->line;
 	currentSS = tree->symtab;
-	stmthandler(tree->children[3]);}
+	STMT(tree->children[3]);}
 else if (tree->description == "class") {
 	currentClass = dynamic_cast<S_class *>(topSS->local_lookup(tree->children[0]->token->text));
    LN = tree->children[0]->token->line;
@@ -600,36 +603,100 @@ else if (tree->description == "class") {
     	if (tree->children[3]->children[i]->description == "functiondecl") {
     			currentFunc = dynamic_cast<S_function *>(classSS->local_lookup(tree->children[3]->children[i]->children[1]->token->text));
 				currentSS = tree->children[3]->children[i]->symtab;
-		        stmthandler(tree->children[3]->children[i]->children[3]);}}}}
+		        STMT(tree->children[3]->children[i]->children[3]);}}}}
+		
+void functions_mods(ParseTree * tree)  {
+	for (size_t i=0; i < top->children.size(); i++) {
+  		currentClass = nullptr;
+  		currentFunc = nullptr;
+  		if (tree->children[i]->description == "functiondecl") {
+			currentFunc = dynamic_cast<S_function *>(topSS->local_lookup(tree->children[1]->token->text));
+			for (size_t i=0; i < currentFunc->formals.size(); i++) {
+				currentFunc->locals.push_back(currentFunc->formals[i]->name);
+				currentFunc->nums.push_back(currentFunc->total);
+				if (currentFunc->formals[i]->type->name == "double" && currentFunc->formals[i]->type->array == 0) currentFunc->total += 2;
+				else  currentFunc->total++;
+			}}
+		else if (tree->children[i]->description == "class") {
+			currentClass = dynamic_cast<S_class *>(topSS->local_lookup(tree->children[0]->token->text));
+  	 		Symtab * classSS = tree->symtab;
+    		for (size_t i=0; i < tree->children[3]->children.size(); i++) {
+    			if (tree->children[3]->children[i]->description == "functiondecl") {
+    				currentFunc = dynamic_cast<S_function *>(classSS->local_lookup(tree->children[3]->children[i]->children[1]->token->text));
+    				currentFunc->total++;
+					for (size_t i=0; i < currentFunc->formals.size(); i++) {
+						currentFunc->locals.push_back(currentFunc->formals[i]->name);
+						currentFunc->nums.push_back(currentFunc->total);
+						if (currentFunc->formals[i]->type->name == "double" && currentFunc->formals[i]->type->array == 0) currentFunc->total += 2;
+						else  currentFunc->total++;
+				}}}}
+
+void check_main() {
+	if (topSS->local_lookup("main") && dynamic_cast<S_function *>(topSS->local_lookup("main"))) return;
+	else semantic_error("No declaration for the global function main", 1); }
+	
+string file_name(char **argv) {
+	string name1 = argv[1];
+	string real = "";
+	for (size_t i=0; i < name1.length(); i++) { 
+		if (name1[i] == ".") { break; }
+		else { real = real + name[i]; }
+	}
+	if (topSS->local_lookup(real) && dynamic_cast<S_class *>(topSS->local_lookup(real))) { semantic_error("Classes cannot have the same name as the file", 1); }
+	return real;
+}
+
+void outputType(S_type * T, fstream file) {
+		for (size_t i=0; i < T->array; i++) { file << "["; }
+		if (T->name == "int") file << "I" ;
+		else if (T->name == "bool") file << "Z";
+		else if (T->name == "double") file << "D";
+		else if (T->name == "string") file << "Ljava/lang/String;";
+		else file << "L" << T->name << ";";
+}
+
+void globalV(ParseTree * tree, fstream file) {
+	if (tree->description == "variable") { 
+		file << ".field" << (25 - 6) * ' ' << "public static " << tree->children[1]->token->text << " ";
+		outputType(basetype(tree->children[0]), file);
+		file << endl << endl;
+		return; }}
+
+void globalF(ParseTree * tree, fstream file) {
+	if (tree->description == "functiondecl") { 
+		S_function * F = dynamic_cast<S_function *>(topSS->local_lookup(tree->children[1]->token->text;))
+		file << ".method" << (25 - 7) * ' ' << "public static " << tree->children[1]->token->text << "(";
+		for (size_t i=0; i < F->formals.size(); i++) {
+			outputType(F->formals[i]->type, file);
+		}
+		file << ")";
+		if (tree->children[0]->token) file << "V"<< endl;
+		else { outputType(basetype(tree->children[0]), file); file << endl; }
+		
+		return; }
+	return;
+}
 		        
-void traversing3(ParseTree * tree) {
-if (tree->description == "interface" || tree->description == "variable") { return; }
-else if (tree->description == "functiondecl") {
-	currentFunc = dynamic_cast<S_function *>(topSS->local_lookup(tree->children[1]->token->text));
-	LN = tree->children[1]->token->line;
-	currentSS = tree->symtab;
-	stmthandler(tree->children[3]);}
-else if (tree->description == "class") {
-	currentClass = dynamic_cast<S_class *>(topSS->local_lookup(tree->children[0]->token->text));
-   LN = tree->children[0]->token->line;
-   Symtab * classSS = tree->symtab;
-    for (size_t i=0; i < tree->children[3]->children.size(); i++) {
-    	if (tree->children[3]->children[i]->description == "functiondecl") {
-    			currentFunc = dynamic_cast<S_function *>(classSS->local_lookup(tree->children[3]->children[i]->children[1]->token->text));
-				currentSS = tree->children[3]->children[i]->symtab;
-		        stmthandler(tree->children[3]->children[i]->children[3]);}}}}
-		        
-void code_generation(ParseTree * tree, char **argv) {
+void code_generation(ParseTree * tree, string namej) {
 	fstream file; 
 	tree = tree;
-	string name1 = argv[1];
-   file.open(argv[1], ios::out); 
+   file.open(namej, ios::out); 
    file << ".source" << (25 - 7) * ' ' << name1 << endl;
-   file << ".class" << (25 - 6) * ' ' << name1.substr(0, name1.length() - 5) << endl;
+   file << ".class" << (25 - 6) * ' ' << "public " << name1.substr(0, name1.length() - 5) << endl;
+   file << ".super" << (25 - 6) * ' ' << "java/lang/Object" << endl << endl <<endl;
+   for (size_t i=0; i < top->children.size(); i++) { globalV(top->children[i], file); }
+   file << ".method" << (25-7) *' ' << "public <init>()V" <<endl;
+   file << 3 * ' ' <<  ".limit stack" << 10 * ' ' << "1" <<endl;
+   file << 3 * ' ' <<  ".limit locals" << 9 * ' ' << "1" <<endl;
+   file << 3 * ' ' <<  ".line" << 17 * ' ' << "1" <<endl;
+   file << 3 * ' ' << "aload_0" << endl;   
+   file << 3 * ' ' << "invokespecial" << 9 * ' ' << "java/lang/Object/<init>()V" << endl;
+   file << 3 * ' ' << "return" << endl;
+	file << ".end method" << endl << endl;
 	for (size_t i=0; i < top->children.size(); i++) {
   	currentClass = nullptr;
   	currentFunc = nullptr;
-  	traversing3(top->children[i]);
+  	globalF(top->children[i], file);
   }
 }
 
@@ -669,13 +736,16 @@ int main(int argc, char **argv) {
   check_implements(); 					// makes sure every class' interfaces are declared
   check_implements2(top);			// makes sure every class' interfaces' functions are defined in the class scope
   type_definition();
+  functions_mods(top);
   LN = 0;
   for (size_t i=0; i < top->children.size(); i++) {
   	currentClass = nullptr;
   	currentFunc = nullptr;
   	traversing2(top->children[i]);
   }
-  //code_generation(top, argv);
+  check_main()
+  real = file_name(argv);
+  code_generation(top, argv);
   traverseTree(top, 0, 1);
   return 0;
 #endif

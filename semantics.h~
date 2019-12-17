@@ -36,7 +36,6 @@ struct S_function : public semantics {
   vector<S_variable *> formals;
   S_type * returnType;
   vector<string> locals;
-  vector<int> vars;
   vector<int> nums;
   int total = 0;
   int line;  // NULL for a void function

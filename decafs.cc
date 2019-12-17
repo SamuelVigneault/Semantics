@@ -32,6 +32,7 @@ vector < tuple <string, string>> compat;
 bool ass = false;
 int looper = 0;
 int LN = 0;
+int var0 = 0;
 
 // ALL ERROR MESSAGES
 string func1 = "Variable redefined in the function's arguments";
@@ -106,6 +107,7 @@ S_function * functions_signature(ParseTree * tree){
  	tree->symtab = currentSS;
   	for (size_t i=0; i < tree->children[2]->children.size(); i++) {
    		S_variable * V = new S_variable;
+   		V->var = var0; var0++;
     	V->name = tree->children[2]->children[i]->children[1]->token->text;
     	V->type = basetype(tree->children[2]->children[i]->children[0]);
     	V->line = tree->children[2]->children[i]->children[1]->token->line;
@@ -140,6 +142,7 @@ S_class * class_read(ParseTree * tree) {
     }
     else if (field->description == "variable") {
       S_variable * V = new S_variable();
+      V->var = var0; var0++;
       V->name = field->children[1]->token->text;
       V->line = field->children[1]->token->line;
       V->type = basetype(field->children[0]);
@@ -178,6 +181,7 @@ void traversing1(ParseTree * tree) {
   }
   if (tree->description == "variable"){
     S_variable * V = new S_variable();
+    V->var = var0; var0++;
     V->name = tree->children[1]->token->text;
     V->type = basetype(tree->children[0]);
     V->line = tree->children[1]->token->line;
@@ -572,6 +576,7 @@ void STMT(ParseTree * tree) {
 		tree->symtab = currentSS;
 		for (size_t i=0; i < tree->children[0]->children.size(); i++) {
 			S_variable * V = new S_variable();
+			V->var = var0; var0++;
       		V->name = tree->children[0]->children[i]->children[1]->token->text;
       		V->type = basetype(tree->children[0]->children[i]->children[0]);
       		LN = tree->children[0]->children[i]->children[1]->token->line;
@@ -601,32 +606,89 @@ else if (tree->description == "class") {
     			currentFunc = dynamic_cast<S_function *>(classSS->local_lookup(tree->children[3]->children[i]->children[1]->token->text));
 				currentSS = tree->children[3]->children[i]->symtab;
 		        STMT(tree->children[3]->children[i]->children[3]);}}}}
+		
+void functions_mods(ParseTree * tree)  {
+	for (size_t i=0; i < top->children.size(); i++) {
+  		currentClass = nullptr;
+  		currentFunc = nullptr;
+  		if (tree->children[i]->description == "functiondecl") {
+			currentFunc = dynamic_cast<S_function *>(topSS->local_lookup(tree->children[1]->token->text));
+			for (size_t i=0; i < currentFunc->formals.size(); i++) {
+				currentFunc->locals.push_back(currentFunc->formals[i]->name);
+				currentFunc->nums.push_back(currentFunc->total);
+				currentFunc->vars.push_back(currentFunc->formals[i]->var)
+				if (currentFunc->formals[i]->type->name == "double" && currentFunc->formals[i]->type->array == 0) currentFunc->total += 2;
+				else  currentFunc->total++;
+			}}
+		else if (tree->children[i]->description == "class") {
+			currentClass = dynamic_cast<S_class *>(topSS->local_lookup(tree->children[0]->token->text));
+  	 		Symtab * classSS = tree->symtab;
+    		for (size_t i=0; i < tree->children[3]->children.size(); i++) {
+    			if (tree->children[3]->children[i]->description == "functiondecl") {
+    				currentFunc = dynamic_cast<S_function *>(classSS->local_lookup(tree->children[3]->children[i]->children[1]->token->text));
+    				currentFunc->total++;
+					for (size_t i=0; i < currentFunc->formals.size(); i++) {
+						currentFunc->locals.push_back(currentFunc->formals[i]->name);
+						currentFunc->nums.push_back(currentFunc->total);
+						currentFunc->vars.push_back(currentFunc->formals[i]->var)
+						if (currentFunc->formals[i]->type->name == "double" && currentFunc->formals[i]->type->array == 0) currentFunc->total += 2;
+						else  currentFunc->total++;
+				}}}}}}
+
+void check_main() {
+	if (topSS->local_lookup("main") && dynamic_cast<S_function *>(topSS->local_lookup("main"))) return;
+	else semantic_error("No declaration for the global function main", 1); }
+	
+string file_name(char **argv) {
+	string name1 = argv[1];
+	string real = "";
+	for (size_t i=0; i < name1.length(); i++) { 
+		if (name1[i] == ".") { break; }
+		else { real = real + name[i]; }
+	}
+	if (topSS->local_lookup(real) && dynamic_cast<S_class *>(topSS->local_lookup(real))) { semantic_error("Classes cannot have the same name as the file", 1); }
+	return real;
+}
+
+void outputType(S_type * T, fstream file) {
+		for (size_t i=0; i < T->array; i++) { file << "["; }
+		if (T->name == "int") file << "I" ;
+		else if (T->name == "bool") file << "Z";
+		else if (T->name == "double") file << "D";
+		else if (T->name == "string") file << "Ljava/lang/String;";
+		else file << "L" << T->name << ";";
+}
+
+void globalV(ParseTree * tree, fstream file) {
+	if (tree->description == "variable") { 
+		file << ".field" << (25 - 6) * ' ' << "public static " << tree->children[1]->token->text << " ";
+		outputType(basetype(tree->children[0]), file);
+		file << endl << endl;
+		return; }}
+
+void globalF(ParseTree * tree, fstream file) {
+	if (tree->description == "functiondecl") { 
+		S_function * F = dynamic_cast<S_function *>(topSS->local_lookup(tree->children[1]->token->text;))
+		file << ".method" << (25 - 7) * ' ' << "public static " << tree->children[1]->token->text << "(";
+		for (size_t i=0; i < F->formals.size(); i++) {
+			outputType(F->formals[i]->type, file);
+		}
+		file << ")";
+		if (tree->children[0]->token) file << "V"<< endl;
+		else { outputType(basetype(tree->children[0]), file); file << endl; }
+		
+		return; }
+	return;
+}
 		        
-void traversing3(ParseTree * tree) {
-if (tree->description == "interface" || tree->description == "variable") { return; }
-else if (tree->description == "functiondecl") {
-	currentFunc = dynamic_cast<S_function *>(topSS->local_lookup(tree->children[1]->token->text));
-	LN = tree->children[1]->token->line;
-	currentSS = tree->symtab;
-	STMT(tree->children[3]);}
-else if (tree->description == "class") {
-	currentClass = dynamic_cast<S_class *>(topSS->local_lookup(tree->children[0]->token->text));
-   LN = tree->children[0]->token->line;
-   Symtab * classSS = tree->symtab;
-    for (size_t i=0; i < tree->children[3]->children.size(); i++) {
-    	if (tree->children[3]->children[i]->description == "functiondecl") {
-    			currentFunc = dynamic_cast<S_function *>(classSS->local_lookup(tree->children[3]->children[i]->children[1]->token->text));
-				currentSS = tree->children[3]->children[i]->symtab;
-		        STMT(tree->children[3]->children[i]->children[3]);}}}}
-		        
-void code_generation(ParseTree * tree, char **argv) {
+void code_generation(ParseTree * tree, string namej) {
 	fstream file; 
 	tree = tree;
-	string name1 = argv[1];
-   file.open(argv[1], ios::out); 
+   file.open(namej, ios::out); 
    file << ".source" << (25 - 7) * ' ' << name1 << endl;
    file << ".class" << (25 - 6) * ' ' << "public " << name1.substr(0, name1.length() - 5) << endl;
    file << ".super" << (25 - 6) * ' ' << "java/lang/Object" << endl << endl <<endl;
+   for (size_t i=0; i < top->children.size(); i++) { globalV(top->children[i], file); }
    file << ".method" << (25-7) *' ' << "public <init>()V" <<endl;
    file << 3 * ' ' <<  ".limit stack" << 10 * ' ' << "1" <<endl;
    file << 3 * ' ' <<  ".limit locals" << 9 * ' ' << "1" <<endl;
@@ -638,7 +700,7 @@ void code_generation(ParseTree * tree, char **argv) {
 	for (size_t i=0; i < top->children.size(); i++) {
   	currentClass = nullptr;
   	currentFunc = nullptr;
-  	traversing3(top->children[i]);
+  	globalF(top->children[i], file);
   }
 }
 
@@ -678,13 +740,16 @@ int main(int argc, char **argv) {
   check_implements(); 					// makes sure every class' interfaces are declared
   check_implements2(top);			// makes sure every class' interfaces' functions are defined in the class scope
   type_definition();
+  functions_mods(top);
   LN = 0;
   for (size_t i=0; i < top->children.size(); i++) {
   	currentClass = nullptr;
   	currentFunc = nullptr;
   	traversing2(top->children[i]);
   }
-  //code_generation(top, argv);
+  check_main()
+  real = file_name(argv);
+  code_generation(top, argv);
   traverseTree(top, 0, 1);
   return 0;
 #endif
