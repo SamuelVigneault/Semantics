@@ -624,7 +624,7 @@ void functions_mods(ParseTree * tree)  {
   		currentClass = nullptr;
   		currentFunc = nullptr;
   		if (tree->children[i]->description == "functiondecl") {
-			currentFunc = dynamic_cast<S_function *>(topSS->local_lookup(tree->children[1]->token->text));
+			currentFunc = dynamic_cast<S_function *>(topSS->local_lookup(tree->children[i]->children[1]->token->text));
 			for (size_t i=0; i < currentFunc->formals.size(); i++) {
 				currentFunc->locals.push_back(currentFunc->formals[i]->name);
 				currentFunc->nums.push_back(currentFunc->total);
@@ -633,11 +633,13 @@ void functions_mods(ParseTree * tree)  {
 				else  currentFunc->total++;
 			}}
 		else if (tree->children[i]->description == "class") {
-			currentClass = dynamic_cast<S_class *>(topSS->local_lookup(tree->children[0]->token->text));
-  	 		Symtab * classSS = tree->children[i]->symtab;
-    		for (size_t i=0; i < tree->children[i]->children[3]->children.size(); i++) {
-    			if (tree->children[i]->children[3]->children[i]->description == "functiondecl") {
-    				currentFunc = dynamic_cast<S_function *>(classSS->local_lookup(tree->children[i]->children[3]->children[i]->children[1]->token->text));
+			ParseTree * C = tree->children[i];
+			currentClass = dynamic_cast<S_class *>(topSS->local_lookup(C->children[0]->token->text));
+  	 		Symtab * classSS = C->symtab;
+    		for (size_t i=0; i < C->children[3]->children.size(); i++) {
+    			if (C->children[3]->children[i]->description == "functiondecl") {
+    				ParseTree * F = C->children[3]->children[i];
+    				currentFunc = dynamic_cast<S_function *>(classSS->local_lookup(F->children[1]->token->text));
     				currentFunc->total++;
 					for (size_t i=0; i < currentFunc->formals.size(); i++) {
 						currentFunc->locals.push_back(currentFunc->formals[i]->name);

@@ -635,9 +635,9 @@ void functions_mods(ParseTree * tree)  {
 		else if (tree->children[i]->description == "class") {
 			currentClass = dynamic_cast<S_class *>(topSS->local_lookup(tree->children[0]->token->text));
   	 		Symtab * classSS = tree->children[i]->symtab;
-    		for (size_t i=0; i < tree->children[3]->children.size(); i++) {
-    			if (tree->children[3]->children[i]->description == "functiondecl") {
-    				currentFunc = dynamic_cast<S_function *>(classSS->local_lookup(tree->children[3]->children[i]->children[1]->token->text));
+    		for (size_t i=0; i < tree->children[i]->children[3]->children.size(); i++) {
+    			if (tree->children[i]->children[3]->children[i]->description == "functiondecl") {
+    				currentFunc = dynamic_cast<S_function *>(classSS->local_lookup(tree->children[i]->children[3]->children[i]->children[1]->token->text));
     				currentFunc->total++;
 					for (size_t i=0; i < currentFunc->formals.size(); i++) {
 						currentFunc->locals.push_back(currentFunc->formals[i]->name);
