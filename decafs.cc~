@@ -639,7 +639,7 @@ void check_main() {
 	if (topSS->local_lookup("main") && dynamic_cast<S_function *>(topSS->local_lookup("main"))) return;
 	else semantic_error("No declaration for the global function main", 1); }
 	
-string file_name(string name1) {
+string f_name(string name1) {
 	string real = "";
 	for (size_t i=0; i < name1.length(); i++) { 
 		if (name1[i] == '.') { break; }
@@ -649,7 +649,7 @@ string file_name(string name1) {
 	return real;
 }
 
-string WS(int L) {
+string WS(size_t L) {
 	string lol =  "";
 	for (size_t i=0; i < L; i++) lol += " ";
 	return lol;
@@ -682,13 +682,12 @@ string globalF(S_function * F, string name) {
 	else  out += outputType(F->returnType) + '\n'; 
 	return out; }
 
-
-void code_generation(ParseTree * tree, string filename) {
-	string real = file_name(filename);
-	fstream file; 
+void code_generation(ParseTree * tree, string fname) {
+	string real = f_name(fname);
+	fstream FILE; 
 	tree = tree;
-   file.open(real + ".j", ios::out); 
-   string out = ".source" + WS(18) + filename + '\n';
+   FILE.open(real + ".j", ios::out); 
+   string out = ".source" + WS(18) + fname + '\n';
    out += ".class" + WS(19) + "public " + real + '\n';
    out += ".super" + WS(19) + "java/lang/Object" + '\n' +'\n'+'\n';
    for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { 
@@ -696,18 +695,18 @@ void code_generation(ParseTree * tree, string filename) {
    			out += globalV(dynamic_cast<S_variable *>(it->second), it->first); }
    out += ".method" + WS(18) + "public <init>()V" + '\n';
    out += WS(3) +  ".limit stack" + WS(10) + "1" + '\n';
-   file << out;
-   file << 3 * ' ' <<  ".limit locals" << WS(9) << "1" <<'\n';
-   file << 3 * ' ' <<  ".line" << WS(17) << "1" <<endl;
-   file << 3 * ' ' << "aload_0" << endl;   
-   file << 3 * ' ' << "invokespecial" << WS(9) << "java/lang/Object/<init>()V" << endl;
-   file << 3 * ' ' << "return" << endl;
-	file << ".end method" << endl << endl;
+   out += WS(3) + ".limit locals" + WS(9) + "1" + '\n';
+   out += WS(3) +  ".line" + WS(17) + "1" +'\n';
+   out += WS(3) + "aload_0" + '\n';   
+   out += WS(3) + "invokespecial" + WS(9) + "java/lang/Object/<init>()V" + '\n';
+   out += WS(3) + "return" + '\n';
+	out += ".end method" + endl + endl;
 	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { 
 	 	if  (dynamic_cast<S_function *>(it->second)) {
 	 		currentClass = nullptr;
   			currentFunc = nullptr;
   			out += globalF(dynamic_cast<S_function *>(it->second), it->first); }}
+  	file << out;
 }
 
 
