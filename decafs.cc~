@@ -746,7 +746,7 @@ int main(int argc, char ** argv) {
   	currentFunc = nullptr;
   	traversing2(top->children[i]);
   }
-  check_main()
+  check_main();
   string lololol = argv[1];
   string real = file_name(lololol);
   code_generation(top, real);
