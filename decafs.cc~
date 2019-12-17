@@ -667,7 +667,7 @@ void globalV(ParseTree * tree, fstream file) {
 
 void globalF(ParseTree * tree, fstream file) {
 	if (tree->description == "functiondecl") { 
-		S_function * F = dynamic_cast<S_function *>(topSS->local_lookup(tree->children[1]->token->text;))
+		S_function * F = dynamic_cast<S_function *>(topSS->local_lookup(tree->children[1]->token->text;));
 		file << ".method" << (25 - 7) * ' ' << "public static " << tree->children[1]->token->text << "(";
 		for (size_t i=0; i < F->formals.size(); i++) {
 			outputType(F->formals[i]->type, file);

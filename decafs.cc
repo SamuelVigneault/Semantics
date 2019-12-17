@@ -684,7 +684,7 @@ void code_generation(ParseTree * tree, string namej) {
 	fstream file; 
 	tree = tree;
    file.open(namej + ".j", ios::out); 
-   file << ".source" << (25 - 7) * ' ' << name1 << endl;
+   file << ".source" << (25 - 7) * " " << name1 << endl;
    file << ".class" << (25 - 6) * ' ' << "public " << name1.substr(0, name1.length() - 5) << endl;
    file << ".super" << (25 - 6) * ' ' << "java/lang/Object" << endl << endl <<endl;
    for (size_t i=0; i < tree->children.size(); i++) { globalV(tree->children[i], file); }
@@ -700,6 +700,27 @@ void code_generation(ParseTree * tree, string namej) {
   	currentClass = nullptr;
   	currentFunc = nullptr;
   	globalF(tree->children[i], file);
+  }
+}
+
+
+void check_semantics(ParseTree * top) {
+	top->symtab = topSS;
+	for (size_t i=0; i < top->children.size(); i++) traversing1(top->children[i]);
+	check_parents(); 							// makes sure every class' parent is declared
+  	check_loops(); 								// makes sure no class is a subclass of itself
+  	check_parents2(top); 					// modifies each class scope to include its parents' objects
+  	compatible();									//
+  	check_implements(); 					// makes sure every class' interfaces are declared
+  	check_implements2(top);			// makes sure every class' interfaces' functions are defined in the class scope
+  	type_definition();							// makes sure all user types are defined user types
+ 	functions_mods(top);					// fills in formals code generation numbers
+  	check_main();									// checks for main function
+  	LN = 0;
+  	for (size_t i=0; i < top->children.size(); i++) {
+  		currentClass = nullptr;
+  		currentFunc = nullptr;
+  		traversing2(top->children[i]);
   }
 }
 
@@ -729,25 +750,8 @@ int main(int argc, char ** argv) {
   openscope();  // create original scope
   topSS = currentSS;
   top = parse_decaf(yyin);
-  top->symtab = topSS;
-  for (size_t i=0; i < top->children.size(); i++)
-    traversing1(top->children[i]);
-  check_parents(); 							// makes sure every class' parent is declared
-  check_loops(); 								// makes sure no class is a subclass of itself
-  check_parents2(top); 				// modifies each class scope to include its parents' objects
-  compatible();
-  check_implements(); 					// makes sure every class' interfaces are declared
-  check_implements2(top);			// makes sure every class' interfaces' functions are defined in the class scope
-  type_definition();
-  functions_mods(top);
-  LN = 0;
-  for (size_t i=0; i < top->children.size(); i++) {
-  	currentClass = nullptr;
-  	currentFunc = nullptr;
-  	traversing2(top->children[i]);
-  }
-  check_main();
-  string lololol = argv[1];
+  check_semantics(top);
+  string filename = argv[1];
   string real = file_name(lololol);
   code_generation(top, real);
   traverseTree(top, 0, 1);
