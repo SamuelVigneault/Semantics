@@ -323,7 +323,7 @@ void check_parents2(ParseTree * tree) {
 	      				// othertab->outputer();}}
 }
   
-void compat() {
+void compat1() {
   for (map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { // looping through top scope
     if (dynamic_cast<S_class *>(it->second)) {
       S_class * A = dynamic_cast<S_class *>(it->second);
@@ -728,7 +728,7 @@ void check_semantics(ParseTree * top) {
 	cout << "TRAVERSE1" <<endl;
 	type_definition();							// makes sure all user types are defined user types
   	cout << "TYPES DEFINED" <<endl;
-  	compat();		
+  	compat1();		
   	cout << "COMPATIBLE TABLE" <<endl;
 	check_parents(); 							// makes sure every class' parent is declared
   	check_loops(); 								// makes sure no class is a subclass of itself
