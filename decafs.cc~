@@ -616,7 +616,7 @@ void functions_mods(ParseTree * tree)  {
 			for (size_t i=0; i < currentFunc->formals.size(); i++) {
 				currentFunc->locals.push_back(currentFunc->formals[i]->name);
 				currentFunc->nums.push_back(currentFunc->total);
-				currentFunc->vars.push_back(currentFunc->formals[i]->var)
+				currentFunc->vars.push_back(currentFunc->formals[i]->var);
 				if (currentFunc->formals[i]->type->name == "double" && currentFunc->formals[i]->type->array == 0) currentFunc->total += 2;
 				else  currentFunc->total++;
 			}}
@@ -630,7 +630,7 @@ void functions_mods(ParseTree * tree)  {
 					for (size_t i=0; i < currentFunc->formals.size(); i++) {
 						currentFunc->locals.push_back(currentFunc->formals[i]->name);
 						currentFunc->nums.push_back(currentFunc->total);
-						currentFunc->vars.push_back(currentFunc->formals[i]->var)
+						currentFunc->vars.push_back(currentFunc->formals[i]->var);
 						if (currentFunc->formals[i]->type->name == "double" && currentFunc->formals[i]->type->array == 0) currentFunc->total += 2;
 						else  currentFunc->total++;
 				}}}}}}
@@ -642,8 +642,8 @@ void check_main() {
 string file_name(string name1) {
 	string real = "";
 	for (size_t i=0; i < name1.length(); i++) { 
-		if (name1[i] == ".") { break; }
-		else { real = real + name[i]; }
+		if (name1[i] == '.') { break; }
+		else { real = real + name1[i]; }
 	}
 	if (topSS->local_lookup(real) && dynamic_cast<S_class *>(topSS->local_lookup(real))) { semantic_error("Classes cannot have the same name as the file", 1); }
 	return real;

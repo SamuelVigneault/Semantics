@@ -642,14 +642,14 @@ void check_main() {
 string file_name(string name1) {
 	string real = "";
 	for (size_t i=0; i < name1.length(); i++) { 
-		if (name1[i] == ".") { break; }
-		else { real = real + name[i]; }
+		if (name1[i] == '.') { break; }
+		else { real = real + name1[i]; }
 	}
 	if (topSS->local_lookup(real) && dynamic_cast<S_class *>(topSS->local_lookup(real))) { semantic_error("Classes cannot have the same name as the file", 1); }
 	return real;
 }
 
-string WS(int L) {
+string WS(size_t L) {
 	string lol =  "";
 	for (size_t i=0; i < L; i++) lol += " ";
 	return lol;
