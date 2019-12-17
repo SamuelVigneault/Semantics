@@ -639,8 +639,7 @@ void check_main() {
 	if (topSS->local_lookup("main") && dynamic_cast<S_function *>(topSS->local_lookup("main"))) return;
 	else semantic_error("No declaration for the global function main", 1); }
 	
-string file_name(char **argv) {
-	string name1 = argv[1];
+string file_name(string name1) {
 	string real = "";
 	for (size_t i=0; i < name1.length(); i++) { 
 		if (name1[i] == ".") { break; }
@@ -684,11 +683,11 @@ void globalF(ParseTree * tree, fstream file) {
 void code_generation(ParseTree * tree, string namej) {
 	fstream file; 
 	tree = tree;
-   file.open(namej, ios::out); 
+   file.open(namej + ".j", ios::out); 
    file << ".source" << (25 - 7) * ' ' << name1 << endl;
    file << ".class" << (25 - 6) * ' ' << "public " << name1.substr(0, name1.length() - 5) << endl;
    file << ".super" << (25 - 6) * ' ' << "java/lang/Object" << endl << endl <<endl;
-   for (size_t i=0; i < top->children.size(); i++) { globalV(top->children[i], file); }
+   for (size_t i=0; i < tree->children.size(); i++) { globalV(tree->children[i], file); }
    file << ".method" << (25-7) *' ' << "public <init>()V" <<endl;
    file << 3 * ' ' <<  ".limit stack" << 10 * ' ' << "1" <<endl;
    file << 3 * ' ' <<  ".limit locals" << 9 * ' ' << "1" <<endl;
@@ -697,14 +696,14 @@ void code_generation(ParseTree * tree, string namej) {
    file << 3 * ' ' << "invokespecial" << 9 * ' ' << "java/lang/Object/<init>()V" << endl;
    file << 3 * ' ' << "return" << endl;
 	file << ".end method" << endl << endl;
-	for (size_t i=0; i < top->children.size(); i++) {
+	for (size_t i=0; i < tree->children.size(); i++) {
   	currentClass = nullptr;
   	currentFunc = nullptr;
-  	globalF(top->children[i], file);
+  	globalF(tree->children[i], file);
   }
 }
 
-int main(int argc, char **argv) { 
+int main(int argc, char ** argv) { 
   /* Make sure there's a given file name */
   if (argc != 2) {
     cout << "USAGE: " << argv[0] << " FILE" << endl;
@@ -748,8 +747,9 @@ int main(int argc, char **argv) {
   	traversing2(top->children[i]);
   }
   check_main()
-  real = file_name(argv);
-  code_generation(top, argv);
+  string lololol = argv[1];
+  string real = file_name(lololol);
+  code_generation(top, real);
   traverseTree(top, 0, 1);
   return 0;
 #endif
