@@ -664,7 +664,7 @@ string globalV(S_variable * V, string name) {
 	string out; 
 	out =  ".field" + (25 - 6) * ' ' + "public static " + name  + " ";
 	out += outputType(V->type);
-	out += "\n\n";
+	out += endl + endl;
 	return out; }
 
 string globalF(S_function * F, string name) {
@@ -677,7 +677,8 @@ string globalF(S_function * F, string name) {
 	return out; }
 
 string WS(int L) {
-	string lol =  L * ' ';
+	string lol =  "";
+	for (size_t i=0; i < L; i++) lol += " ";
 	return lol;
 }
 
@@ -693,7 +694,7 @@ void code_generation(ParseTree * tree, string filename) {
    		if  (dynamic_cast<S_variable *>(it->second)) 
    			out += globalV(dynamic_cast<S_variable *>(it->second), it->first); }
    out += ".method" + WS(18) + "public <init>()V" + "\n";
-   out += WS(3) +  ".limit stack" + WS(10) + "1" + "\n";
+   out += WS(3) +  ".limit stack" + WS(10) + "1" + endl;
    file << out;
    file << 3 * ' ' <<  ".limit locals" << 9 * ' ' << "1" <<endl;
    file << 3 * ' ' <<  ".line" << 17 * ' ' << "1" <<endl;
