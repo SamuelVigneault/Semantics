@@ -675,20 +675,25 @@ string globalF(S_function * F, string name) {
 	if (F->returnType->name == "") out += "V" + "\n";
 	else  out += outputType(F->returnType) + "\n"; 
 	return out; }
-		        
+
+string WS(int L) {
+	string lol =  L * ' ';
+	return lol;
+}
+
 void code_generation(ParseTree * tree, string filename) {
 	string real = file_name(filename);
 	fstream file; 
 	tree = tree;
    file.open(real + ".j", ios::out); 
-   string out = ".source" + (25 - 7) * ' ' + filename + "\n";
-   out += ".class" + (25 - 6) * ' ' + "public " + real + "\n";
-   out += ".super" + (25 - 6) * ' ' + "java/lang/Object" + "\n\n\n";
+   string out = ".source" + WS(18) + filename + "\n";
+   out += ".class" + WS(19) + "public " + real + "\n";
+   out += ".super" + WS(19) + "java/lang/Object" + "\n\n\n";
    for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { 
    		if  (dynamic_cast<S_variable *>(it->second)) 
    			out += globalV(dynamic_cast<S_variable *>(it->second), it->first); }
-   out += ".method" + (25-7) * ' ' + "public <init>()V" + "\n";
-   out += 3 * ' ' +  ".limit stack" + 10 * ' ' + "1" + "\n";
+   out += ".method" + WS(18) + "public <init>()V" + "\n";
+   out += WS(3) +  ".limit stack" + WS(10) + "1" + "\n";
    file << out;
    file << 3 * ' ' <<  ".limit locals" << 9 * ' ' << "1" <<endl;
    file << 3 * ' ' <<  ".line" << 17 * ' ' << "1" <<endl;
