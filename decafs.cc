@@ -439,7 +439,7 @@ S_type * EXPR(ParseTree * tree) {
 			string Fname = tree->children[0]->token->text;
 			LN = tree->children[0]->token->line;
 			S_function * F;
-			found = false;
+			bool found = false;
 			if (currentClass) {
 				for (size_t i=0; i < currentClass->functions.size(); i++) { 
 					if (currentClass->functions[i]->name == Fname) { F = currentClass->functions[i]; found = true; }}
@@ -712,13 +712,13 @@ void code_generation(ParseTree * tree, string fname) {
    out += WS(3) + "aload_0" + '\n';   
    out += WS(3) + "invokespecial" + WS(9) + "java/lang/Object/<init>()V" + '\n';
    out += WS(3) + "return" + '\n';
-	out += ".end method" + endl + endl;
+	out += ".end method" + '\n' + '\n';
 	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { 
 	 	if  (dynamic_cast<S_function *>(it->second)) {
 	 		currentClass = nullptr;
   			currentFunc = nullptr;
   			out += globalF(dynamic_cast<S_function *>(it->second), it->first); }}
-  	file << out;
+  	FILE << out;
 }
 
 
