@@ -657,7 +657,7 @@ string WS(int L) {
 
 string outputType(S_type * T) {
 		string out = "";
-		for (size_t i=0; i < T->array; i++) { out += "["; }
+		for (int i=0; i < T->array; i++) { out += "["; }
 		if (T->name == "int") out += "I" ;
 		else if (T->name == "bool") out += "Z";
 		else if (T->name == "double")out +="D";
@@ -676,7 +676,7 @@ string globalV(S_variable * V, string name) {
 string globalF(S_function * F, string name) {
 	string out;
 	out = ".method" + WS(18) + "public static " + name + "(";
-	for (int i=0; i < F->formals.size(); i++) { out += outputType(F->formals[i]->type); }
+	for (size_t i=0; i < F->formals.size(); i++) { out += outputType(F->formals[i]->type); }
 	out +=  ')';
 	if (F->returnType->name == "") out += 'V' + '\n';
 	else  out += outputType(F->returnType) + '\n'; 

@@ -616,7 +616,7 @@ void functions_mods(ParseTree * tree)  {
 			for (size_t i=0; i < currentFunc->formals.size(); i++) {
 				currentFunc->locals.push_back(currentFunc->formals[i]->name);
 				currentFunc->nums.push_back(currentFunc->total);
-				currentFunc->vars.push_back(currentFunc->formals[i]->var)
+				currentFunc->vars.push_back(currentFunc->formals[i]->var);
 				if (currentFunc->formals[i]->type->name == "double" && currentFunc->formals[i]->type->array == 0) currentFunc->total += 2;
 				else  currentFunc->total++;
 			}}
@@ -630,7 +630,7 @@ void functions_mods(ParseTree * tree)  {
 					for (size_t i=0; i < currentFunc->formals.size(); i++) {
 						currentFunc->locals.push_back(currentFunc->formals[i]->name);
 						currentFunc->nums.push_back(currentFunc->total);
-						currentFunc->vars.push_back(currentFunc->formals[i]->var)
+						currentFunc->vars.push_back(currentFunc->formals[i]->var);
 						if (currentFunc->formals[i]->type->name == "double" && currentFunc->formals[i]->type->array == 0) currentFunc->total += 2;
 						else  currentFunc->total++;
 				}}}}}}
