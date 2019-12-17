@@ -320,7 +320,7 @@ void check_parents2(ParseTree * tree) {
       for (size_t i=0; i < tree->children.size(); i++) {
 	 			if (tree->children[i]->description == "class") {
 	      				Symtab * othertab = tree->children[i]->symtab;
-	      				othertab->outputer(); }}
+	      				// othertab->outputer(); }}
       }
   
 void compatible() {
@@ -768,9 +768,12 @@ int main(int argc, char ** argv) {
   openscope();  // create original scope
   topSS = currentSS;
   top = parse_decaf(yyin);
+  cout << "PARSED" <<endl;
   check_semantics(top);
+  cout << "SEMANTICS" <<endl;
   string filename = argv[1];
   code_generation(top, filename);
+  cout << "GENERATED" <<endl;
   traverseTree(top, 0, 1);
   return 0;
 #endif

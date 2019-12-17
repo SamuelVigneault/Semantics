@@ -439,7 +439,7 @@ S_type * EXPR(ParseTree * tree) {
 			string Fname = tree->children[0]->token->text;
 			LN = tree->children[0]->token->line;
 			S_function * F;
-			found = false;
+			bool found = false;
 			if (currentClass) {
 				for (size_t i=0; i < currentClass->functions.size(); i++) { 
 					if (currentClass->functions[i]->name == Fname) { F = currentClass->functions[i]; found = true; }}
