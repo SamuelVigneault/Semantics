@@ -649,6 +649,12 @@ string file_name(string name1) {
 	return real;
 }
 
+string WS(int L) {
+	string lol =  "";
+	for (size_t i=0; i < L; i++) lol += " ";
+	return lol;
+}
+
 string outputType(S_type * T) {
 		string out = "";
 		for (size_t i=0; i < T->array; i++) { out += "["; }
@@ -662,25 +668,20 @@ string outputType(S_type * T) {
 
 string globalV(S_variable * V, string name) {
 	string out; 
-	out =  ".field" + (25 - 6) * ' ' + "public static " + name  + " ";
+	out =  ".field" + WS(19) + "public static " + name  + " ";
 	out += outputType(V->type);
 	out += '\n' + '\n';
 	return out; }
 
 string globalF(S_function * F, string name) {
 	string out;
-	out = ".method" + (25 - 7) * ' ' + "public static " + name + "(";
-	for (size_t i=0; i < F->formals.size(); i++) { out += outputType(F->formals[i]->type); }
+	out = ".method" + WS(18) + "public static " + name + "(";
+	for (int i=0; i < F->formals.size(); i++) { out += outputType(F->formals[i]->type); }
 	out +=  ')';
 	if (F->returnType->name == "") out += 'V' + '\n';
 	else  out += outputType(F->returnType) + '\n'; 
 	return out; }
 
-string WS(int L) {
-	string lol =  "";
-	for (size_t i=0; i < L; i++) lol += " ";
-	return lol;
-}
 
 void code_generation(ParseTree * tree, string filename) {
 	string real = file_name(filename);
@@ -694,12 +695,12 @@ void code_generation(ParseTree * tree, string filename) {
    		if  (dynamic_cast<S_variable *>(it->second)) 
    			out += globalV(dynamic_cast<S_variable *>(it->second), it->first); }
    out += ".method" + WS(18) + "public <init>()V" + '\n';
-   out += WS(3) +  ".limit stack" + WS(10) + "1" + endl;
+   out += WS(3) +  ".limit stack" + WS(10) + "1" + '\n';
    file << out;
-   file << 3 * ' ' <<  ".limit locals" << 9 * ' ' << "1" <<endl;
-   file << 3 * ' ' <<  ".line" << 17 * ' ' << "1" <<endl;
+   file << 3 * ' ' <<  ".limit locals" << WS(9) << "1" <<'\n';
+   file << 3 * ' ' <<  ".line" << WS(17) << "1" <<endl;
    file << 3 * ' ' << "aload_0" << endl;   
-   file << 3 * ' ' << "invokespecial" << 9 * ' ' << "java/lang/Object/<init>()V" << endl;
+   file << 3 * ' ' << "invokespecial" << WS(9) << "java/lang/Object/<init>()V" << endl;
    file << 3 * ' ' << "return" << endl;
 	file << ".end method" << endl << endl;
 	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { 
