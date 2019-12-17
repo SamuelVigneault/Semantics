@@ -323,7 +323,7 @@ void check_parents2(ParseTree * tree) {
 	      				// othertab->outputer();}}
 }
   
-void compatible() {
+void compat() {
   for (map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { // looping through top scope
     if (dynamic_cast<S_class *>(it->second)) {
       S_class * A = dynamic_cast<S_class *>(it->second);
@@ -333,8 +333,8 @@ void compatible() {
 		if (A != B) { compat.push_back(make_tuple(A->name, B->name)); }
 		if (B->parentClass == "") { break; }
 		for (std::map<string, semantics *>::iterator it1=topSS->dict.begin(); it1!=topSS->dict.end(); ++it1) {
-	  if (dynamic_cast<S_class *>(it1->second) && dynamic_cast<S_class*>(it1->second)->name == B->parentClass)
-	    B = dynamic_cast<S_class*>(it1->second); break; }
+	  		if (dynamic_cast<S_class *>(it1->second) && dynamic_cast<S_class*>(it1->second)->name == B->parentClass)
+	    		B = dynamic_cast<S_class*>(it1->second); break; }
       }}}}
 
 void type_definition() {
@@ -725,21 +725,29 @@ void code_generation(ParseTree * tree, string fname) {
 void check_semantics(ParseTree * top) {
 	top->symtab = topSS;
 	for (size_t i=0; i < top->children.size(); i++) traversing1(top->children[i]);
+	cout << "TRAVERSE1" <<endl;
+	type_definition();							// makes sure all user types are defined user types
+  	cout << "TYPES DEFINED" <<endl;
+  	compat();		
+  	cout << "COMPATIBLE TABLE" <<endl;
 	check_parents(); 							// makes sure every class' parent is declared
   	check_loops(); 								// makes sure no class is a subclass of itself
   	check_parents2(top); 					// modifies each class scope to include its parents' objects
-  	compatible();									//
+  	cout << "CLASSES" <<endl;									//
   	check_implements(); 					// makes sure every class' interfaces are declared
   	check_implements2(top);			// makes sure every class' interfaces' functions are defined in the class scope
-  	type_definition();							// makes sure all user types are defined user types
+  	cout << "IMPLEMENTS" <<endl;
  	functions_mods(top);					// fills in formals code generation numbers
+ 	cout << "FORMAL GENERATE" <<endl;
   	check_main();									// checks for main function
+  	cout << "MAIN" <<endl;
   	LN = 0;
   	for (size_t i=0; i < top->children.size(); i++) {
   		currentClass = nullptr;
   		currentFunc = nullptr;
   		traversing2(top->children[i]);
   }
+  cout << "TRAVERSE2" <<endl;
 }
 
 int main(int argc, char ** argv) { 
