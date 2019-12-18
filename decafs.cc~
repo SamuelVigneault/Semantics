@@ -949,7 +949,7 @@ void EXPR1(ParseTree * tree) {
 			for (size_t i=0; i < F->formals.size(); i++) { out += outputType(F->formals[i]->type); }
 			out +=  ')';
 			if (F->returnType) { out += outputType(F->returnType); NL(); }
-			else { out += "V"; NL();) }}
+			else { out += "V"; NL(); }}
 		else  {
 			out += "   .line" + WS(17) + ITOS(tree->children[0]->children[1]->token->line); NL();
 			EXPR1(tree->children[0]->children[0]);
@@ -968,9 +968,9 @@ void EXPR1(ParseTree * tree) {
 			for (size_t i=0; i < F->formals.size(); i++) { out += outputType(F->formals[i]->type); }
 			out +=  ')';
 			if (F->returnType) { out += outputType(F->returnType); NL(); }
-			else { out += "V"; NL();) }}
-			
-		}}
+			else { out += "V"; NL(); }
+		}	
+	}
 }
 	
 void STMT1(ParseTree * tree) {
