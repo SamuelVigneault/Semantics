@@ -37,6 +37,7 @@ int var0 = 0;
 int TD2 = 100;
 int label = 20;
 string out = "";
+string fname1111;
 string Rname = "";
 ParseTree * TOPPER;
 vector<string> currLABEL;
@@ -926,7 +927,6 @@ void EXPR1(ParseTree * tree) {
 	}
 	else if (tree->description == "call") {
 		if (tree->children[0]->token) {
-			out += "   invokestatic" + WS(10);
 			string Fname = tree->children[0]->token->text;
 			S_function * F;
 			bool found = false;
@@ -935,19 +935,26 @@ void EXPR1(ParseTree * tree) {
 					if (currentClass->functions[i]->name == Fname) { 
 						F = currentClass->functions[i]; 
 						found = true; 
+						break;
 						out += currentClass->name + "/" + Fname + "(";
-			}}}
+				}}
+				if (found) {
+				out += "   aload_0"; NL();
+				for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
+					EXPR1(tree->children[1]->children[i]); }
+				out += "   invokevirtual" + WS(9)+ currentClass->name + "/" + Fname + "("; 
+			}}
 			else if (! found) { 
 				F = dynamic_cast<S_function *>(topSS->local_lookup(Fname));
-				out += Rname + "/" + Fname + "(";
+				for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
+					EXPR1(tree->children[1]->children[i]); }
+				out += "   invokestatic" + WS(10) + Rname + "/" + Fname + "(";
 			}
 			for (size_t i=0; i < F->formals.size(); i++) { out += outputType(F->formals[i]->type); }
 			out +=  ')';
 			if (F->returnType) { out += outputType(F->returnType); NL(); }
 			else { out += "V"; NL(); }}
 		else  {
-			EXPR1(tree->children[0]->children[0]);
-			out += "   invokestatic" + WS(10);
 			S_type * T1 = EXPR(tree->children[0]->children[0]);
 			S_class * C1 = nullptr;
 			string Fname = tree->children[0]->children[1]->token->text;
@@ -955,14 +962,18 @@ void EXPR1(ParseTree * tree) {
 				C1 = dynamic_cast<S_class *>(topSS->local_lookup(T1->name)); }
 			S_function * F;
 			if (C1) { 
+				EXPR1(tree->children[0]->children[0]);
 				for (size_t i=0; i < C1->functions.size(); i++) { 
 					if (C1->functions[i]->name == Fname) { 
-						F = C1->functions[i]; }}}
-			out += C1->name + "/" + Fname + "(";
-			for (size_t i=0; i < F->formals.size(); i++) { out += outputType(F->formals[i]->type); }
-			out +=  ')';
-			if (F->returnType) { out += outputType(F->returnType); NL(); }
-			else { out += "V"; NL(); }
+						F = C1->functions[i]; }}
+				for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
+						EXPR1(tree->children[1]->children[i]); }
+				out += "   invokevirtual" + WS(9)+ C1->name + "/" + Fname + "(";
+				for (size_t i=0; i < F->formals.size(); i++) { out += outputType(F->formals[i]->type); }
+				out +=  ')';
+				if (F->returnType) { out += outputType(F->returnType); NL(); }
+				else { out += "V"; NL(); }}
+			else cout << "WARNING: we cannot code generate interfaces" << endl;
 		}	
 	}
 }
@@ -1036,27 +1047,59 @@ void STMT1(ParseTree * tree) {
 	else { EXPR1(tree); }
 }
 
+void classF(ParseTree * tree) {
+	out += ".method" + WS(18) + "public " + name + "(";
+	for (size_t i=0; i < currentFunc->formals.size(); i++) { out += outputType(currentFunc->formals[i]->type); }
+	out +=  ')';
+	if (currentFunc->returnType->name == "") { out += 'V'; NL(); }
+	else  { out += outputType(currentFunc->returnType); NL(); }
+	
+	out += WS(3) +  ".limit stack" + WS(10) + ITOS(TD2); NL();
+   out += WS(3) + ".limit locals" + WS(9) + ITOS(currentFunc->total); NL();
+   
+   STMT1(tree->children[3]);
+   
+   if (currentFunc->returnType->name == "") { out += "   return"; NL(); }
+   else if (currentFunc->returnType->name == "string" || currentFunc->returnType->array > 0) { 
+   		out += "   aconst_null"; NL();
+   		out += "   areturn"; NL(); }
+   	else if (currentFunc->returnType->name == "int" || currentFunc->returnType->name == "bool") { 
+   		out += "   ldc" + WS(19) + "00 "; NL();
+   		out += "   ireturn"; NL(); }
+   	else if (currentFunc->returnType->name == "double") { 
+   		out += "   ldc2_w" + WS(16) + "00 "; NL();
+   		out += "   dreturn"; NL(); }
+   	else {
+   		out += "   aconst_null"; NL();
+   		out += "   areturn"; NL(); }
+	out += ".end method";
+	NL(); NL(); }
+	
+void classV(S_variable * V, string name) {
+	out +=  ".field" + WS(19) + "protected " + name  + " ";
+	out += outputType(V->type); NL(); NL(); }
+	
 void globalV(S_variable * V, string name) {
 	out +=  ".field" + WS(19) + "public static " + name  + " ";
 	out += outputType(V->type); NL(); NL(); }
 
-void globalF(S_function * F, string name, ParseTree * tree) {
+void globalF(ParseTree * tree) {
 	out += ".method" + WS(18) + "public static " + name + "(";
-	for (size_t i=0; i < F->formals.size(); i++) { out += outputType(F->formals[i]->type); }
+	for (size_t i=0; i < currentFunc->formals.size(); i++) { out += outputType(currentFunc->formals[i]->type); }
 	out +=  ')';
-	if (F->returnType->name == "") { out += 'V'; NL(); }
-	else  { out += outputType(F->returnType); NL(); }
-	out += WS(3) +  ".limit stack" + WS(10) + ITOS(TD2) + '\n';
-   out += WS(3) + ".limit locals" + WS(9) + ITOS(F->total) + '\n';
+	if (currentFunc->returnType->name == "") { out += 'V'; NL(); }
+	else  { out += outputType(currentFunc->returnType); NL(); }
+	out += WS(3) +  ".limit stack" + WS(10) + ITOS(TD2); NL();
+   out += WS(3) + ".limit locals" + WS(9) + ITOS(currentFunc->total); NL();
    STMT1(tree->children[3]);
-   if (F->returnType->name == "") { out += "   return"; NL(); }
-   else if (F->returnType->name == "string" || F->returnType->array > 0) { 
+   if (currentFunc->returnType->name == "") { out += "   return"; NL(); }
+   else if (currentFunc->returnType->name == "string" || currentFunc->returnType->array > 0) { 
    		out += "   aconst_null"; NL();
    		out += "   areturn"; NL(); }
-   	else if (F->returnType->name == "int" || F->returnType->name == "bool") { 
+   	else if (currentFunc->returnType->name == "int" || currentFunc->returnType->name == "bool") { 
    		out += "   ldc" + WS(19) + "00 "; NL();
    		out += "   ireturn"; NL(); }
-   	else if (F->returnType->name == "double") { 
+   	else if (currentFunc->returnType->name == "double") { 
    		out += "   ldc2_w" + WS(16) + "00 "; NL();
    		out += "   dreturn"; NL(); }
    	else {
@@ -1065,39 +1108,88 @@ void globalF(S_function * F, string name, ParseTree * tree) {
 	out += ".end method";
 	NL(); NL(); }
 
+void classesOut(ParseTree * tree) {
+	fstream FILE; 
+   FILE.open(currentClass->name + ".j", ios::out);
+   
+   out += ".source" + WS(18) + fname1111; NL();
+   out += ".class" + WS(19) + currentClass->name; NL();
+   if (currentClass->parentClass) { out += ".super" + WS(19) + currentClass->parentClass; NL();NL();NL(); }
+   else { out += ".super" + WS(19) + "java/lang/Object"; NL();NL();NL();}
+   
+   for (std::map<string, semantics *>::iterator it=tree->Symbtab->dict.begin(); it!=tree->Symbtab->dict.end(); ++it) { 
+   		if  (dynamic_cast<S_variable *>(it->second)) {
+   			S_variable * V = dynamic_cast<S_variable *>(it->second);
+   			for (size_t i=0; i < tree->children[3]->children.size(); i++) {
+    			ParseTree * field = tree->children[3]->children[i];
+    			if (field->description == "variable" && field->children[1]->token->text = V->name) {
+   			  		classV(dynamic_cast<S_variable *>(it->second), it->first); }}}}
+   	
+   out += ".method" + WS(18) + "<init>()V"; NL();
+   out += WS(3) +  ".limit stack" + WS(10) + "1"; NL();
+   out += WS(3) + ".limit locals" + WS(9) + "1"; NL();
+   out += WS(3) +  ".line" + WS(17) + "1"; NL();
+   out += WS(3) + "aload_0"; NL();  
+   out += WS(3) + "invokespecial" + WS(9);
+   if (currentClass->parentClass) out += currentClass->parentClass + "/<init>()V";
+   else out += "java/lang/Object/<init>()V";
+   NL(); out += WS(3) + "return"; NL();
+	out += ".end method"; NL(); NL();
+	
+	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { 
+	 	if  (dynamic_cast<S_function *>(it->second)) {
+	 		currentFunc = dynamic_cast<S_function *>(it->second);
+  			for (size_t i=0; i < tree->children[3]->children.size(); i++) {
+  				if (tree->children[3]->children[i]->description == "functiondecl" && tree->children[i]->children[1]->token->text == it->first)
+  					classF(tree->children[3]->children[i]); }}}
+  	FILE << out;
+  	FILE.close();
+}
+
 void code_gen_file(ParseTree * tree, string fname) {
 	string real = f_name(fname);
 	Rname = real;
-	fstream FILE; 
-	tree = tree;
+	fstream FILE;
    FILE.open(real + ".j", ios::out); 
-   out += ".source" + WS(18) + fname + '\n';
-   out += ".class" + WS(19) + "public " + real + '\n';
-   out += ".super" + WS(19) + "java/lang/Object" + '\n' +'\n'+'\n';
+   
+   
+   out += ".source" + WS(18) + fname; NL();
+   out += ".class" + WS(19) + "public " + real; NL();
+   out += ".super" + WS(19) + "java/lang/Object"; NL(); NL(); NL();
+   
+   
    for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { 
    		if  (dynamic_cast<S_variable *>(it->second)) 
    			globalV(dynamic_cast<S_variable *>(it->second), it->first); }
-   out += ".method" + WS(18) + "public <init>()V" + '\n';
-   out += WS(3) +  ".limit stack" + WS(10) + "1" + '\n';
-   out += WS(3) + ".limit locals" + WS(9) + "1" + '\n';
-   out += WS(3) +  ".line" + WS(17) + "1" +'\n';
-   out += WS(3) + "aload_0" + '\n';   
-   out += WS(3) + "invokespecial" + WS(9) + "java/lang/Object/<init>()V" + '\n';
-   out += WS(3) + "return";
-   out += '\n';
-	out += ".end method";
-	out += '\n';
-	out += '\n';
+   			
+   			
+   out += ".method" + WS(18) + "public <init>()V"; NL();
+   out += WS(3) +  ".limit stack" + WS(10) + "1"; NL();
+   out += WS(3) + ".limit locals" + WS(9) + "1"; NL();
+   out += WS(3) +  ".line" + WS(17) + "1"; NL();
+   out += WS(3) + "aload_0"; NL();  
+   out += WS(3) + "invokespecial" + WS(9) + "java/lang/Object/<init>()V"; NL();
+   out += WS(3) + "return"; NL();
+	out += ".end method";NL();NL();
+	
 	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { 
 	 	if  (dynamic_cast<S_function *>(it->second)) {
 	 		currentFunc = dynamic_cast<S_function *>(it->second);
   			currentClass = nullptr;
-  			ParseTree * F;
   			for (size_t i=0; i < tree->children.size(); i++) {
   				if (tree->children[i]->description == "functiondecl" && tree->children[i]->children[1]->token->text == it->first)
-  					F = tree->children[i]; }
-  			globalF(currentFunc, it->first, F); }}
+  					globalF(tree->children[i]); }}}
+  					
   	FILE << out;
+  	FILE.close();
+  	
+  	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { 
+	 	if  (dynamic_cast<S_class *>(it->second)) {
+	 		currentFunc = nullptr;
+  			currentClass = dynamic_cast<S_class *>(it->second);
+  			for (size_t i=0; i < tree->children.size(); i++) {
+  				if (tree->children[i]->description == "class" && tree->children[i]->children[0]->token->text == it->first)
+  					classesOut(tree->children[i]); }}}
 }
 
 void code_gen(ParseTree * tree, string fname) {
