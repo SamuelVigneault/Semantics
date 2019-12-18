@@ -730,10 +730,10 @@ void EXPR1(ParseTree * tree) {
 			out += "   goto" + WS(18); out += l3; NL();
 			out += l1 + ": "; NL();
 			out += "   pop"; NL();
-			out += "   ldc"+ WS(19) + "0 "; NL();
+			out += "   ldc"+ WS(19) + "00 "; NL();
 			out += "   goto" + WS(18); out += l3; NL();
 			out += l2 + ":"; NL();
-			out += "   ldc"+ WS(19) + "0 "; NL();
+			out += "   ldc"+ WS(19) + "00 "; NL();
 			out += l3 + ":"; out += '\n';
 		}
 		else if (type == 42) {
@@ -744,7 +744,7 @@ void EXPR1(ParseTree * tree) {
 			out += "   if_cmpeq" + WS(14) + l1 + " "; NL();
 			out += "   iconst_1"; NL();
 			out += "   if_cmpeq" + WS(14); out += l2; NL();
-			out += "   ldc"+ WS(19) + "0 "; NL();
+			out += "   ldc"+ WS(19) + "00 "; NL();
 			out += "   goto" + WS(18); out += l3; NL();
 			out += l1 + ": "; NL();
 			out += "   pop"; NL();
@@ -762,7 +762,7 @@ void EXPR1(ParseTree * tree) {
 			out += "   iconst_1"; NL();
 			out += "   goto" + WS(18); out += l2; NL();
 			out += l1 + ": "; NL();
-			out += "   ldc"+ WS(19) + "0 "; NL();
+			out += "   ldc"+ WS(19) + "00 "; NL();
 			out += l2 + ":"; NL();
 		}
 		else if (type > 33 && type < 38) {
@@ -772,7 +772,7 @@ void EXPR1(ParseTree * tree) {
 			if (type == 35) {out += "   if_cmple" + WS(14) + l1 + " "; NL();}
 			if (type == 36) {out += "   if_cmpgt" + WS(14) + l1 + " "; NL();}
 			if (type == 37) {out += "   if_cmpge" + WS(14) + l1 + " "; NL();}
-			out += "   ldc"+ WS(19) + "0 "; NL();
+			out += "   ldc"+ WS(19) + "00 "; NL();
 			out += "   goto" + WS(18); out += l2; NL();
 			out += l1 + ": "; NL();
 			out += "   iconst_1"; NL();
@@ -888,7 +888,7 @@ void EXPR1(ParseTree * tree) {
   		if (tree->token->type == 25 ) { out += "   ldc" + WS(19) + tree->token->text; NL(); }
 		if (tree->token->type == 26) { 
 			if (tree->token->text == "true") { out += "   iconst_1"; NL(); }
-			else {out += "   ldc"+ WS(19) + "0 "; NL(); }}
+			else {out += "   ldc"+ WS(19) + "00 "; NL(); }}
 		if (tree->token->type == 27) { out += "   ldc2_w" + WS(16) + tree->token->text; NL(); }
 		if (tree->token->type == 28) { out += "   ldc" + WS(19) + tree->token->text; NL();  }
 		if (tree->token->type == 9) { out += "   aload_0"; NL();}
@@ -920,7 +920,7 @@ void STMT1(ParseTree * tree) {
    	else if (tree->description == "if") {
    		string l1 = label_generator();
 		EXPR1(tree->children[0]); 
-		out += "   ldc" + WS(19) + "0 "; NL();
+		out += "   ldc" + WS(19) + "00 "; NL();
 		out += "   if_cmpeq" + WS(13)+ l1 + " "; NL();
 		STMT1(tree->children[1]);
 		out += l1 + ": "; NL();
@@ -987,10 +987,10 @@ void globalF(S_function * F, string name, ParseTree * tree) {
    		out += "   aconst_null"; NL();
    		out += "   areturn"; NL(); }
    	else if (F->returnType->name == "int" || F->returnType->name == "bool") { 
-   		out += "   ldc" + WS(19) + "0 "; NL();
+   		out += "   ldc" + WS(19) + "00 "; NL();
    		out += "   ireturn"; NL(); }
    	else if (F->returnType->name == "double") { 
-   		out += "   ldc2_w" + WS(16) + "0 "; NL();
+   		out += "   ldc2_w" + WS(16) + "00 "; NL();
    		out += "   dreturn"; NL(); }
    	else {
    		out += "   aconst_null"; NL();
