@@ -979,7 +979,7 @@ void EXPR1(ParseTree * tree) {
 }
 	
 void STMT1(ParseTree * tree) {
-	cout<< "STMT1 - " << tree->description <<endl;
+	cout<< "STMT1 - "  <<endl;
 	if (tree->description == "print") {
 		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
 			out += "   getstatic" + WS(13) + "java/lang/System/out Ljava/io/PrintStream;"; NL();
