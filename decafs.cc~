@@ -1048,7 +1048,7 @@ void STMT1(ParseTree * tree) {
 }
 
 void classF(ParseTree * tree) {
-	out += ".method" + WS(18) + "public " + name + "(";
+	out += ".method" + WS(18) + "public " + currentFunc->name + "(";
 	for (size_t i=0; i < currentFunc->formals.size(); i++) { out += outputType(currentFunc->formals[i]->type); }
 	out +=  ')';
 	if (currentFunc->returnType->name == "") { out += 'V'; NL(); }
@@ -1084,7 +1084,7 @@ void globalV(S_variable * V, string name) {
 	out += outputType(V->type); NL(); NL(); }
 
 void globalF(ParseTree * tree) {
-	out += ".method" + WS(18) + "public static " + name + "(";
+	out += ".method" + WS(18) + "public static " + currentFunc->name + "(";
 	for (size_t i=0; i < currentFunc->formals.size(); i++) { out += outputType(currentFunc->formals[i]->type); }
 	out +=  ')';
 	if (currentFunc->returnType->name == "") { out += 'V'; NL(); }
