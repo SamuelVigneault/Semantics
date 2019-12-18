@@ -936,6 +936,7 @@ void STMT1(ParseTree * tree) {
 		out += "   if_cmpneq" + WS(13); out += l2; NL();
 		currLABEL.push_back(l2);
 		STMT1(tree->children[3]);
+		cout << "back in loop" << endl;
 		EXPR1(tree->children[2]);
 		out += "   goto" + WS(18); out += l1; NL();
 		out += l2 + ":"; NL();
