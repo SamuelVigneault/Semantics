@@ -700,15 +700,20 @@ void EXPR1(ParseTree * tree) {
 			EXPR1(tree->children[2]);
 			string l1 = label_generator();
 			string l2 = label_generator();
+			string l3 = label_generator();
 			out += "   iconst_1"; NL();
-			out += "   if_icmpne" + WS(13); out += l1; out += '\n';
+			out += "   if_icmpne" + WS(13); out += l1; NL();
 			out += "   iconst_1"; NL();
-			out += "   if_icmpne" + WS(13); out += l1; out += '\n';
+			out += "   if_icmpne" + WS(13); out += l2; NL();
 			out += "   iconst_1"; NL();
 			out += "   goto" + WS(18); out += l2; NL();
-			out += l1 + ":"; out += '\n';
+			out += l1 + ":"; NL();
+			out += "   pop"; NL();
 			out += "   iconst_0"; NL();
-			out += l2 + ":"; out += '\n';
+			out += "   goto" + WS(18); out += l3; NL();
+			out += l2 + ":"; NL();
+			out += "   iconst_0"; NL();
+			out += l3 + ":"; out += '\n';
 		}
 		else if (type == 42) {
 			EXPR1(tree->children[0]);
