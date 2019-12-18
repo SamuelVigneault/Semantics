@@ -753,7 +753,7 @@ void EXPR1(ParseTree * tree) {
 				if (V->var == currentFunc->vars[i] && V->name == currentFunc->locals[i])
 					out += ITOS(currentFunc->nums[i]);
 			}
-			out+= '\n';}
+			NL();}
   		if (tree->token->type == 25 ) { out += "   ldc" + WS(19) + tree->token->text; NL(); }
 		if (tree->token->type == 26) { 
 			if (tree->token->text == "true") { out += "   iconst_1"; NL(); }
@@ -810,8 +810,7 @@ void globalF(S_function * F, string name, ParseTree * tree) {
 	else  { out += outputType(F->returnType); NL(); }
 	out += WS(3) +  ".limit stack" + WS(10) + ITOS(TD2) + '\n';
    out += WS(3) + ".limit locals" + WS(9) + ITOS(F->total) + '\n';
-   out += "fuck";
-   STMT1(tree);
+   STMT1(tree->children[3]);
 	out += ".end method";
 	NL(); NL(); }
 
