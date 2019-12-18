@@ -1142,9 +1142,7 @@ void classesOut(ParseTree * tree) {
 	 		currentFunc = dynamic_cast<S_function *>(it->second);
   			for (size_t i=0; i < tree->children[3]->children.size(); i++) {
   				if (tree->children[3]->children[i]->description == "functiondecl" && tree->children[3]->children[i]->children[1]->token->text == it->first) {
-  					 cout << out;
-  						classF(tree->children[3]->children[i]); }}}}
-  	cout << out;
+  					classF(tree->children[3]->children[i]); }}}}
   	FILE << out;
   	FILE.close();
 }
