@@ -1111,8 +1111,7 @@ void globalF(ParseTree * tree) {
 	NL(); NL(); }
 
 void classesOut(ParseTree * tree) {
-	fstream FILE; 
-	out = "";
+	fstream FILE;
    FILE.open(currentClass->name + ".j", ios::out);
    	cout <<"HEYYYY2" << endl;
    out += ".source" + WS(18) + fname1111; NL();
@@ -1127,7 +1126,6 @@ void classesOut(ParseTree * tree) {
     			ParseTree * field = tree->children[3]->children[i];
     			if (field->description == "variable" && field->children[1]->token->text == V->name) {
    			  		classV(dynamic_cast<S_variable *>(it->second), it->first); }}}}
-   	cout <<"HEYYYY" << endl;
    out += ".method" + WS(18) + "<init>()V"; NL();
    out += WS(3) +  ".limit stack" + WS(10) + "1"; NL();
    out += WS(3) + ".limit locals" + WS(9) + "1"; NL();
@@ -1138,10 +1136,8 @@ void classesOut(ParseTree * tree) {
    else  {out += "java/lang/Object/<init>()V"; }
    NL(); out += WS(3) + "return"; NL();
 	out += ".end method"; NL(); NL();
-	cout <<"HEYYYY" << endl;
 	for (std::map<string, semantics *>::iterator it=tree->symtab->dict.begin(); it!=tree->symtab->dict.end(); ++it) { 
 	 	if  (dynamic_cast<S_function *>(it->second)) {
-	 		cout << it->first << endl;
 	 		currentFunc = dynamic_cast<S_function *>(it->second);
   			for (size_t i=0; i < tree->children[3]->children.size(); i++) {
   				if (tree->children[3]->children[i]->description == "functiondecl" && tree->children[3]->children[i]->children[1]->token->text == it->first) {
@@ -1197,6 +1193,7 @@ void code_gen_file(ParseTree * tree, string fname) {
   			for (size_t i=0; i < tree->children.size(); i++) {
   				if (tree->children[i]->description == "class" && tree->children[i]->children[0]->token->text == it->first)
   					cout <<"HEYYYY5" << endl;
+  					out = "";
   					classesOut(tree->children[i]); }}}
 }
 
