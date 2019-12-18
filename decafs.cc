@@ -1186,17 +1186,13 @@ void code_gen_file(ParseTree * tree, string fname) {
   					
   	FILE << out;
   	FILE.close();
-  	cout <<"HEYYYY" << endl;
-  	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { 
-	 	if  (dynamic_cast<S_class *>(it->second)) {
-	 		currentFunc = nullptr;
-  			currentClass = dynamic_cast<S_class *>(it->second);
-  			cout <<"HEYYYY" << endl;
-  			for (size_t i=0; i < tree->children.size(); i++) {
-  				if (tree->children[i]->description == "class" && tree->children[i]->children[0]->token->text == it->first)
-  					cout <<"HEYYYY5" << endl;
-  					out = "";
-  					classesOut(tree->children[i]); }}}
+  	for (size_t i=0; i < tree->children.size(); i++) {
+  		if (tree->children[i]->description == "class") {
+  			currentClass = dynamic_cast<S_class *>(topSS->local_lookup(tree->children[i]->children[0]->token->text));
+  			out = "";
+  			classesOut(tree->children[i]);
+  		} 
+  	}
 }
 
 void code_gen(ParseTree * tree, string fname) {
