@@ -1138,11 +1138,11 @@ void classesOut(ParseTree * tree) {
    NL(); out += WS(3) + "return"; NL();
 	out += ".end method"; NL(); NL();
 	cout <<"HEYYYY" << endl;
-	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { 
+	for (std::map<string, semantics *>::iterator it=tree->symtab->dict.begin(); it!=tree->symtab->dict.end(); ++it) { 
 	 	if  (dynamic_cast<S_function *>(it->second)) {
 	 		currentFunc = dynamic_cast<S_function *>(it->second);
   			for (size_t i=0; i < tree->children[3]->children.size(); i++) {
-  				if (tree->children[3]->children[i]->description == "functiondecl" && tree->children[i]->children[1]->token->text == it->first)
+  				if (tree->children[3]->children[i]->description == "functiondecl" && tree->children[3]->children[i]->children[1]->token->text == it->first)
   					classF(tree->children[3]->children[i]); }}}
   	FILE << out;
   	FILE.close();
