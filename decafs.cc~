@@ -798,11 +798,11 @@ string outputType(S_type * T) {
 		return out;
 }
 
-string globalV(S_variable * V, string name) {
+void globalV(S_variable * V, string name) {
 	out =  ".field" + WS(19) + "public static " + name  + " ";
 	out += outputType(V->type); NL(); NL(); }
 
-string globalF(S_function * F, string name, ParseTree * tree) {
+void globalF(S_function * F, string name, ParseTree * tree) {
 	out += ".method" + WS(18) + "public static " + name + "(";
 	for (size_t i=0; i < F->formals.size(); i++) { out += outputType(F->formals[i]->type); }
 	out +=  ')';
@@ -813,8 +813,7 @@ string globalF(S_function * F, string name, ParseTree * tree) {
    out += "fuck";
    STMT1(tree);
 	out += ".end method";
-	NL(); NL();
-	return out; }
+	NL(); NL(); }
 
 void code_gen_file(ParseTree * tree, string fname) {
 	string real = f_name(fname);
@@ -846,7 +845,7 @@ void code_gen_file(ParseTree * tree, string fname) {
   			for (size_t i=0; i < tree->children.size(); i++) {
   				if (tree->children[i]->description == "functiondecl" && tree->children[i]->children[1]->token->text == it->first)
   					F = tree->children[i]; }
-  			out += globalF(currentFunc, it->first, F); }}
+  			globalF(currentFunc, it->first, F); }}
   	FILE << out;
 }
 
