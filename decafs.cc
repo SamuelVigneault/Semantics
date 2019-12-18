@@ -39,6 +39,7 @@ int label = 0;
 string out = "";
 string Rname = "";
 ParseTree * TOPPER;
+vector<string> currLABEL;
 
 // ALL ERROR MESSAGES
 string func1 = "Variable redefined in the function's arguments";
@@ -722,9 +723,9 @@ void EXPR1(ParseTree * tree) {
 			string l2 = label_generator();
 			string l3 = label_generator();
 			out += "   iconst_1"; NL();
-			out += "   if_icmpne" + WS(13); out += l1; NL();
+			out += "   if_cmpne" + WS(13); out += l1; NL();
 			out += "   iconst_1"; NL();
-			out += "   if_icmpne" + WS(13); out += l2; NL();
+			out += "   if_cmpne" + WS(13); out += l2; NL();
 			out += "   iconst_1"; NL();
 			out += "   goto" + WS(18); out += l3; NL();
 			out += l1 + ":"; NL();
@@ -740,9 +741,9 @@ void EXPR1(ParseTree * tree) {
 			string l2 = label_generator();
 			string l3 = label_generator();
 			out += "   iconst_1"; NL();
-			out += "   if_icmpeq" + WS(13); out += l1; NL();
+			out += "   if_cmpeq" + WS(13); out += l1; NL();
 			out += "   iconst_1"; NL();
-			out += "   if_icmpeq" + WS(13); out += l2; NL();
+			out += "   if_cmpeq" + WS(13); out += l2; NL();
 			out += "   iconst_0"; NL();
 			out += "   goto" + WS(18); out += l3; NL();
 			out += l1 + ":"; NL();
@@ -756,8 +757,8 @@ void EXPR1(ParseTree * tree) {
 		else if (type == 39 || type == 40) {
 			string l1 = label_generator();
 			string l2 = label_generator();
-			if (type == 39) {out += "   if_icmpne" + WS(13); out += l1; NL();}
-			else {out += "   if_icmpeq" + WS(13); out += l1; NL();}
+			if (type == 39) {out += "   if_cmpne" + WS(13); out += l1; NL();}
+			else {out += "   if_cmpeq" + WS(13); out += l1; NL();}
 			out += "   iconst_1"; NL();
 			out += "   goto" + WS(18); out += l2; NL();
 			out += l1 + ":"; NL();
@@ -767,10 +768,10 @@ void EXPR1(ParseTree * tree) {
 		else if (type > 33 && type < 38) {
 			string l1 = label_generator();
 			string l2 = label_generator();
-			if (type == 34) {out += "   if_icmplt" + WS(13); out += l1; NL();}
-			if (type == 35) {out += "   if_icmple" + WS(13); out += l1; NL();}
-			if (type == 36) {out += "   if_icmpge" + WS(13); out += l1; NL();}
-			if (type == 37) {out += "   if_icmpgt" + WS(13); out += l1; NL();}
+			if (type == 34) {out += "   if_cmplt" + WS(13); out += l1; NL();}
+			if (type == 35) {out += "   if_cmple" + WS(13); out += l1; NL();}
+			if (type == 36) {out += "   if_cmpgt" + WS(13); out += l1; NL();}
+			if (type == 37) {out += "   if_cmpge" + WS(13); out += l1; NL();}
 			out += "   iconst_0"; NL();
 			out += "   goto" + WS(18); out += l2; NL();
 			out += l1 + ":"; NL();
@@ -916,6 +917,34 @@ void STMT1(ParseTree * tree) {
    			else if (currentFunc->returnType->name == "int" || currentFunc->returnType->name == "bool") { out += "   ireturn"; NL(); }
    			else if (currentFunc->returnType->name == "double") { out += "   dreturn"; NL(); }
    			else { out += "   areturn"; NL(); }}}
+   	else if (tree->description == "if") {
+   		string l1 = label_generator();
+		EXPR1(tree->children[0]); 
+		out += "   iconst_0"; NL();
+		out += "   if_cmpeq" + WS(13); out += l1; NL();
+		STMT1(tree->children[1]);
+		out += l1 + ":"; NL();
+		STMT1(tree->children[2]);
+	}
+	else if (tree->description == "for") {
+		string l1 = label_generator();
+		string l2 = label_generator();
+		EXPR1(tree->children[0]);
+		out += l1 + ":"; NL(); 
+		EXPR1(tree->children[1]);
+		out += "   iconst_1"; NL();
+		out += "   if_cmpneq" + WS(13); out += l2; NL();
+		currLABEL.push_back(l2);
+		STMT1(tree->children[3]);
+		EXPR1(tree->children[2]);
+		out += "   goto" + WS(18); out += l1; NL();
+		out += l2 + ":"; NL();
+		currLABEL.pop_back(); 
+	}
+	else if (tree->description == "break") {
+		out += "   .line" + WS(17) + ITOS(tree->children[0]->token->line); NL();
+		out += "   goto" + WS(18) + currLABEL.back(); NL();
+	}
 	else if (tree->description == "stmtblock") { 
 		currentSS = tree->symtab;
       	for (size_t i=0; i < tree->children[1]->children.size(); i++) { STMT1(tree->children[1]->children[i]); }
