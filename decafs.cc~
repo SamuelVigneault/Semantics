@@ -760,16 +760,20 @@ void EXPR1(ParseTree * tree) {
 			string l2 = label_generator();
 			S_type * L = EXPR(tree->children[0]);
 			if (type == 39 && (L->name == "int"|| L->name == "double" || L->name == "bool") && L->array == 0) {
-				out += "   if_icmpneq" + WS(14) + l1 + " "; NL();
+				out += "   if_icmpeq" + WS(14) + l1 + " "; NL();
+				out += "   iconst_0"; NL();
 			}
-			else if (type == 39) { out += "   if_acmpneq" + WS(14) + l1 + " "; NL(); }
+			else if (type == 39) { 
+				out += "   if_acmpeq" + WS(14) + l1 + " "; NL();
+				out += "   iconst_0"; NL(); }
 			else if (type == 40 && (L->name == "int"|| L->name == "double" || L->name == "bool") && L->array == 0) {
 				out += "   if_icmpeq" + WS(14) + l1 + " "; NL();
+				out += "   iconst_1"; NL();
 			}
 			else {
 				out += "   if_acmpeq" + WS(14) + l1 + " "; NL();
+				out += "   iconst_1"; NL();
 			}
-			out += "   iconst_1"; NL();
 			out += "   goto" + WS(18); out += l2; NL();
 			out += l1 + ": "; NL();
 			out += "   ldc"+ WS(19) + "0"; NL();
