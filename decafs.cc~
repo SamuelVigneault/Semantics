@@ -34,7 +34,7 @@ bool ass = false;
 int looper = 0;
 int LN = 0;
 int var0 = 0;
-int TD2 = 0;
+int TD2 = 30;
 int label = 0;
 
 // ALL ERROR MESSAGES
