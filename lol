@@ -21,6 +21,7 @@ class Human {
 	  
 }
 
+<<<<<<< HEAD
 void modifyHuman(Human Prof, Human Sam) {
      string sam = "Sam's turn.. What do you do?";
      string prof = "Prof's turn.. What does he do?";
@@ -28,13 +29,44 @@ void modifyHuman(Human Prof, Human Sam) {
      string kick = "kick";
      string stab = "stab";
      string nice = "be nice";
+=======
+void CompilerBattle(Human Prof, Human Sam) {
+     string sam;
+     string prof;
+     
+     string kick;
+     string stab;
+     string nice;
+>>>>>>> f564e55f17b2d12cef237f967c19fc2ced9b9c59
      
      int counter;
      string reader;
 
+<<<<<<< HEAD
      string sam1 = "Yay, Sam has lot a leg due to Profe Campbell's devasting drop kick!!";
 
      sam = "Sam's turn.. What do you do?";
+=======
+     string sam1; string sam2; string sam3;
+     string prof1; string prof2; string prof3;
+
+     sam = "Sam's turn.. What do you do?";
+     prof = "Prof's turn.. What does he do?";
+     
+     kick = "kick";
+     stab = "stab";
+     nice = "be nice";
+     
+     counter = 0;
+
+     sam1 = "Yay, Sam has lot a leg due to Profe Campbell's devasting drop kick!!";
+     sam2 = "Sam took a knife to the eye and lost an eye :) !!"; 
+     sam3 = "Unfortunately, Sam gets no damage from el Profe.";
+     prof1 = "Sam break Campbell's leg, oh no!"; 
+     prof2 = "Sam stabs Campbell, who loses an eye and can't teach Compilers anymore. Srry not srry Frosh.";
+     prof3 = "Campbell comes out of this round untouched, thank God for his compiler";
+     
+>>>>>>> f564e55f17b2d12cef237f967c19fc2ced9b9c59
      while ( (Prof.death != true) && (Sam.death != true)) {
      	   if (counter %2 == 0) {
 	   Print(sam);
@@ -43,9 +75,30 @@ void modifyHuman(Human Prof, Human Sam) {
 	   {
 	   Print(prof);
 	   }
+<<<<<<< HEAD
 	   
      
 }
+=======
+	   reader = ReadLine();
+	   if (reader == kick && counter %2 == 0) { 
+	   Prof.loseLeg();
+	   Print(prof1); }
+	   if (reader == stab && counter %2 == 0) { 
+	   Prof.loseEye();
+	   Print(prof2); }
+	   if (reader == nice && counter %2 == 0) { 
+	   Print(prof3); }
+	   if (reader == kick && counter %2 == 1) { 
+	   Sam.loseLeg();
+	   Print(sam1); }
+	   if (reader == stab && counter %2 == 1) {
+	   Sam.loseEye();
+	   Print(sam2); }
+	   if (reader == nice && counter %2 == 1) { Print(sam3); }
+	   counter = counter + 1;
+     }
+>>>>>>> f564e55f17b2d12cef237f967c19fc2ced9b9c59
 	if (Prof.death()) {
 	Print("Sam has won, srry!");
 	}
@@ -86,6 +139,10 @@ void main(string[] lol)
 	Sam.set();
 	Prof = New(Human);
 	Prof.set();
+<<<<<<< HEAD
 	
+=======
+	CompilerBattle(Prof, Sam);
+>>>>>>> f564e55f17b2d12cef237f967c19fc2ced9b9c59
 	return;
 }
