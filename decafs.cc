@@ -650,7 +650,12 @@ void functions_mods(ParseTree * tree)  {
 				}}}}}}
 
 void check_main() {
-	if (topSS->local_lookup("main") && dynamic_cast<S_function *>(topSS->local_lookup("main"))) return;
+	if (topSS->local_lookup("main") && dynamic_cast<S_function *>(topSS->local_lookup("main"))) {
+		S_function * M = dynamic_cast<S_function *>(topSS->local_lookup("main"));
+		if (M->returnType->name != "" || M->formals.size() != 0) {
+			semantic_error("Global function main must return void and have no arguments", 1); }
+		return;
+	}
 	else semantic_error("No declaration for the global function main", 1); }
 	
 string f_name(string name1) {
