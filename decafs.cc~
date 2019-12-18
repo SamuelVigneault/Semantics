@@ -789,8 +789,9 @@ void EXPR1(ParseTree * tree) {
 		 	EXPR1(tree->children[2]);
 		 	cout << "ASSIGN" << endl;
 		 	if (tree->children[0]->token) {
+		 		string identi = tree->children[0]->token->text;
 		 		cout << "GLOBAL ASSIGN"<< endl;
-				S_variable * V = dynamic_cast<S_variable *>(currentSS->lookup(tree->token->text));
+				S_variable * V = dynamic_cast<S_variable *>(currentSS->lookup(identi));
 				bool found = false;
 				bool found1 = false;
 				int lol;
@@ -811,22 +812,22 @@ void EXPR1(ParseTree * tree) {
 					if (currentClass) {
 						Symtab * othertab;
 						for (size_t i=0; i < TOPPER->children.size(); i++) {
-	 						if (TOPPER->children[i]->description == "variable") {
-	    						if (TOPPER->children[i]->children[1]->token->text == tree->token->text) {
-	      							othertab = tree->children[i]->symtab;
+	 						if (TOPPER->children[i]->description == "class") {
+	    						if (TOPPER->children[i]->children[0]->token->text == currentClass->name) {
+	      							othertab = TOPPER->children[i]->symtab;
 	      							break;
 	    				}}}
-						if (dynamic_cast<S_variable *>(othertab->local_lookup(tree->token->text))) { 
+						if (dynamic_cast<S_variable *>(othertab->local_lookup(identi))) { 
 							found1 = true;
 							out += "   aload_0"; NL();
-							out += "   putfield" + WS(13) + currentClass->name + "/" + tree->token->text + " ";
-							out += outputType((dynamic_cast<S_variable *>(othertab->local_lookup(tree->token->text)))->type);
+							out += "   putfield" + WS(13) + currentClass->name + "/" + identi + " ";
+							out += outputType((dynamic_cast<S_variable *>(othertab->local_lookup(identi)))->type);
 							NL();
 						}}
 					if (!found1) {
 						 cout << "GLOBAL ASSIGN"<< endl;
-						out += "   putstatic" + WS(13) + Rname + "/" + tree->token->text + " ";
-						out += outputType((dynamic_cast<S_variable *>(topSS->local_lookup(tree->token->text)))->type);
+						out += "   putstatic" + WS(13) + Rname + "/" + identi + " ";
+						out += outputType((dynamic_cast<S_variable *>(topSS->local_lookup(identi)))->type);
 						NL(); 
 					}
 				}
@@ -857,9 +858,9 @@ void EXPR1(ParseTree * tree) {
 				if (currentClass) {
 					Symtab * othertab;
 					for (size_t i=0; i < TOPPER->children.size(); i++) {
-	 					if (TOPPER->children[i]->description == "variable") {
-	    					if (TOPPER->children[i]->children[1]->token->text == tree->token->text) {
-	      						othertab = tree->children[i]->symtab;
+	 					if (TOPPER->children[i]->description == "class") {
+	    					if (TOPPER->children[i]->children[0]->token->text == currentClass->name) {
+	      						othertab = TOPPER->children[i]->symtab;
 	      						break;
 	    			}}}
 					if (dynamic_cast<S_variable *>(othertab->local_lookup(tree->token->text))) { 
