@@ -706,7 +706,7 @@ void EXPR1(ParseTree * tree) {
 			out += "   iconst_1"; NL();
 			out += "   if_icmpne" + WS(13); out += l2; NL();
 			out += "   iconst_1"; NL();
-			out += "   goto" + WS(18); out += l2; NL();
+			out += "   goto" + WS(18); out += l3; NL();
 			out += l1 + ":"; NL();
 			out += "   pop"; NL();
 			out += "   iconst_0"; NL();
