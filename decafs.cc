@@ -825,7 +825,7 @@ void code_gen_file(ParseTree * tree, string fname) {
    out += ".super" + WS(19) + "java/lang/Object" + '\n' +'\n'+'\n';
    for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { 
    		if  (dynamic_cast<S_variable *>(it->second)) 
-   			out += globalV(dynamic_cast<S_variable *>(it->second), it->first); }
+   			globalV(dynamic_cast<S_variable *>(it->second), it->first); }
    out += ".method" + WS(18) + "public <init>()V" + '\n';
    out += WS(3) +  ".limit stack" + WS(10) + "1" + '\n';
    out += WS(3) + ".limit locals" + WS(9) + "1" + '\n';
