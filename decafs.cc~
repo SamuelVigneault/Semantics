@@ -952,7 +952,7 @@ void EXPR1(ParseTree * tree) {
 			}
 			for (size_t i=0; i < F->formals.size(); i++) { out += outputType(F->formals[i]->type); }
 			out +=  ')';
-			if (F->returnType != "") { out += outputType(F->returnType); NL(); }
+			if (F->returnType->name != "") { out += outputType(F->returnType); NL(); }
 			else { out += "V"; NL(); }}
 		else  {
 			S_type * T1 = EXPR(tree->children[0]->children[0]);
