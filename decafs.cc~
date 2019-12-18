@@ -731,10 +731,10 @@ void EXPR1(ParseTree * tree) {
 			out += "   goto" + WS(18); out += l3; NL();
 			out += l1 + ": "; NL();
 			out += "   pop"; NL();
-			out += "   ldc"+ WS(19) + "00 "; NL();
+			out += "   iconst_0"; NL();
 			out += "   goto" + WS(18); out += l3; NL();
 			out += l2 + ":"; NL();
-			out += "   ldc"+ WS(19) + "00 "; NL();
+			out += "   iconst_0"; NL();
 			out += l3 + ":"; out += '\n';
 		}
 		else if (type == 42) {
@@ -745,7 +745,7 @@ void EXPR1(ParseTree * tree) {
 			out += "   if_icmpeq" + WS(14) + l1 + " "; NL();
 			out += "   iconst_1"; NL();
 			out += "   if_icmpeq" + WS(14); out += l2; NL();
-			out += "   ldc"+ WS(19) + "00 "; NL();
+			out += "   iconst_0"; NL();
 			out += "   goto" + WS(18); out += l3; NL();
 			out += l1 + ": "; NL();
 			out += "   pop"; NL();
@@ -890,7 +890,7 @@ void EXPR1(ParseTree * tree) {
   		if (tree->token->type == 25 ) { out += "   ldc" + WS(19) + tree->token->text; NL(); }
 		if (tree->token->type == 26) { 
 			if (tree->token->text == "true") { out += "   iconst_1"; NL(); }
-			else {out += "   ldc"+ WS(19) + "00 "; NL(); }}
+			else {out += "   iconst_0"; NL(); }}
 		if (tree->token->type == 27) { out += "   ldc2_w" + WS(16) + tree->token->text; NL(); }
 		if (tree->token->type == 28) { out += "   ldc" + WS(19) + tree->token->text; NL();  }
 		if (tree->token->type == 9) { out += "   aload_0"; NL();}
@@ -1001,7 +1001,7 @@ void STMT1(ParseTree * tree) {
    	else if (tree->description == "if") {
    		string l1 = label_generator();
 		EXPR1(tree->children[0]); 
-		out += "   ldc" + WS(19) + "00 "; NL();
+		out += "   iconst_0"; NL();
 		out += "   if_icmpeq" + WS(13)+ l1 + " "; NL();
 		STMT1(tree->children[1]);
 		out += l1 + ": "; NL();
@@ -1064,10 +1064,10 @@ void classF(ParseTree * tree) {
    		out += "   aconst_null"; NL();
    		out += "   areturn"; NL(); }
    	else if (currentFunc->returnType->name == "int" || currentFunc->returnType->name == "bool") { 
-   		out += "   ldc" + WS(19) + "00 "; NL();
+   		out += "   iconst_0"; NL();
    		out += "   ireturn"; NL(); }
    	else if (currentFunc->returnType->name == "double") { 
-   		out += "   ldc2_w" + WS(16) + "00 "; NL();
+   		out += "   iconst_0"; NL();
    		out += "   dreturn"; NL(); }
    	else {
    		out += "   aconst_null"; NL();
