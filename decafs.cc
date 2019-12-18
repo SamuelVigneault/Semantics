@@ -1141,6 +1141,7 @@ void classesOut(ParseTree * tree) {
 	cout <<"HEYYYY" << endl;
 	for (std::map<string, semantics *>::iterator it=tree->symtab->dict.begin(); it!=tree->symtab->dict.end(); ++it) { 
 	 	if  (dynamic_cast<S_function *>(it->second)) {
+	 		cout << it->first << endl;
 	 		currentFunc = dynamic_cast<S_function *>(it->second);
   			for (size_t i=0; i < tree->children[3]->children.size(); i++) {
   				if (tree->children[3]->children[i]->description == "functiondecl" && tree->children[3]->children[i]->children[1]->token->text == it->first)
@@ -1150,6 +1151,7 @@ void classesOut(ParseTree * tree) {
 }
 
 void code_gen_file(ParseTree * tree, string fname) {
+	fname1111 = fname;
 	string real = f_name(fname);
 	Rname = real;
 	fstream FILE;
