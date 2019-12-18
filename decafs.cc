@@ -617,7 +617,8 @@ void STMT(ParseTree * tree) {
 			if (V->type->name == "double" && V->type->array == 0) currentFunc->total += 2;
 			else  currentFunc->total++;
       		currentSS->insert(V->name, V); }
-      	for (size_t i=0; i < tree->children[1]->children.size(); i++) { STMT(tree->children[1]->children[i]); }
+      	for (size_t i=0; i < tree->children[1]->children.size(); i++) { STMT(tree->children[1]->children[i]); cout << "Next"<< endl; }
+      	cout << "closing" << endl;
       	closescope(); }
 	else if (tree->description == "nullstmt") { return; }
 	else { EXPR(tree); }
