@@ -764,6 +764,7 @@ void EXPR1(ParseTree * tree) {
 			LN = tree->token->line;
 			S_variable * V = dynamic_cast<S_variable *>(currentSS->lookup(tree->token->text));
 			bool found = false;
+			bool found1 = false;
 			int lol;
 			for (size_t i=0; i < currentFunc->vars.size(); i++) {
 				if (V->var == currentFunc->vars[i] && V->name == currentFunc->locals[i])
@@ -775,7 +776,6 @@ void EXPR1(ParseTree * tree) {
 				else { out += "   aload_"; }
 				out += ITOS(lol); NL();
 			}
-			bool found1 = false;
 			else {
 				if (currentClass) {
 					if (dynamic_cast<S_variable *>(currentClass->symtab->local_lookup(tree->token->text))) { 
