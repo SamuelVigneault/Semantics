@@ -789,7 +789,7 @@ void EXPR1(ParseTree * tree) {
 					if (dynamic_cast<S_variable *>(othertab->local_lookup(tree->token->text))) { 
 						found1 = true; 
 						out += "   getstatic" + WS(13) + currentClass->name + "/" + tree->token->text + " ";
-						out += outputType((dynamic_cast<S_variable *>(othertab->symtab->local_lookup(tree->token->text)))->type);
+						out += outputType((dynamic_cast<S_variable *>(othertab->local_lookup(tree->token->text)))->type);
 						NL();
 					}}
 				if (!found1) { 
