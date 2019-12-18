@@ -689,7 +689,8 @@ string globalV(S_variable * V, string name) {
 	string out; 
 	out =  ".field" + WS(19) + "public static " + name  + " ";
 	out += outputType(V->type);
-	out += '\n' + '\n';
+	out += '\n';
+	out += '\n';
 	return out; }
 
 string globalF(S_function * F, string name) {
@@ -697,7 +698,7 @@ string globalF(S_function * F, string name) {
 	out = ".method" + WS(18) + "public static " + name + "(";
 	for (size_t i=0; i < F->formals.size(); i++) { out += outputType(F->formals[i]->type); }
 	out +=  ')';
-	if (F->returnType->name == "") out += 'V' + '\n';
+	if (F->returnType->name == "") out += 'V'; out += '\n';
 	else  out += outputType(F->returnType) + '\n'; 
 	return out; }
 
@@ -719,7 +720,8 @@ void code_generation(ParseTree * tree, string fname) {
    out += WS(3) + "aload_0" + '\n';   
    out += WS(3) + "invokespecial" + WS(9) + "java/lang/Object/<init>()V" + '\n';
    out += WS(3) + "return" + '\n';
-	out += ".end method" + '\n' + '\n';
+	out += ".end method" + '\n';
+	out += '\n';
 	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { 
 	 	if  (dynamic_cast<S_function *>(it->second)) {
 	 		currentClass = nullptr;
