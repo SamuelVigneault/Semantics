@@ -762,8 +762,8 @@ void EXPR1(ParseTree * tree) {
 			if (type == 39 && (L->name == "int"|| L->name == "double" || L->name == "bool") && L->array == 0) {
 				out += "   if_icmpneq" + WS(14) + l1 + " "; NL();
 			}
-			elif (type == 39) { out += "   if_acmpneq" + WS(14) + l1 + " "; NL(); }
-			elif (type == 40 && (L->name == "int"|| L->name == "double" || L->name == "bool") && L->array == 0) {
+			else if (type == 39) { out += "   if_acmpneq" + WS(14) + l1 + " "; NL(); }
+			else if (type == 40 && (L->name == "int"|| L->name == "double" || L->name == "bool") && L->array == 0) {
 				out += "   if_icmpeq" + WS(14) + l1 + " "; NL();
 			}
 			else {
