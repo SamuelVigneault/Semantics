@@ -608,6 +608,11 @@ void STMT(ParseTree * tree) {
       		V->line = LN;
       		if (!(ensure_type(V->type))) { semantic_error(typevar, V->line); }
       		if (currentSS->dict.count(V->name) == 1) { semantic_error(stmtblock1, LN);  }
+      		currentFunc->locals.push_back(V->name);
+			currentFunc->nums.push_back(currentFunc->total);
+			currentFunc->vars.push_back(V->var);
+			if (V->type->name == "double" && V->type->array == 0) currentFunc->total += 2;
+			else  currentFunc->total++;
       		currentSS->insert(V->name, V); }
       	for (size_t i=0; i < tree->children[1]->children.size(); i++) { STMT(tree->children[1]->children[i]); }
       	closescope(); }
@@ -797,7 +802,9 @@ void EXPR1(ParseTree * tree) {
 				int lol;
 				cout << "GLOBAL ASSIGN"<< endl;
 				for (size_t i=0; i < currentFunc->vars.size(); i++) {
+					cout << "local" << endl;
 					if (V->var == currentFunc->vars[i] && V->name == currentFunc->locals[i])
+						cout << "found" <<endl;
 						lol = currentFunc->nums[i]; found = true;
 				}
 				cout << "GLOBAL ASSIGN"<< endl;
