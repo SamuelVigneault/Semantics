@@ -1112,6 +1112,7 @@ void globalF(ParseTree * tree) {
 
 void classesOut(ParseTree * tree) {
 	fstream FILE; 
+	out = "";
    FILE.open(currentClass->name + ".j", ios::out);
    	cout <<"HEYYYY2" << endl;
    out += ".source" + WS(18) + fname1111; NL();
