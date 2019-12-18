@@ -771,11 +771,11 @@ void EXPR1(ParseTree * tree) {
 		else if (type > 33 && type < 38) {
 			string l1 = label_generator();
 			string l2 = label_generator();
-			if (type == 34) {out += "   if_cmplt" + WS(14) + l1 + " "; NL();}
-			if (type == 35) {out += "   if_cmple" + WS(14) + l1 + " "; NL();}
-			if (type == 36) {out += "   if_cmpgt" + WS(14) + l1 + " "; NL();}
-			if (type == 37) {out += "   if_cmpge" + WS(14) + l1 + " "; NL();}
-			out += "   ldc"+ WS(19) + "00 "; NL();
+			if (type == 34) {out += "   if_cmplt" + WS(14) + l1; NL();}
+			else if (type == 35) {out += "   if_cmple" + WS(14) + l1; NL();}
+			else if (type == 36) {out += "   if_cmpgt" + WS(14) + l1; NL();}
+			else if (type == 37) {out += "   if_cmpge" + WS(14) + l1; NL();}
+			out += "   iconst_0"; NL();
 			out += "   goto" + WS(18); out += l2; NL();
 			out += l1 + ": "; NL();
 			out += "   iconst_1"; NL();
@@ -1014,7 +1014,6 @@ void STMT1(ParseTree * tree) {
 		out += "   if_cmpneq" + WS(13); out += l2; NL();
 		currLABEL.push_back(l2);
 		STMT1(tree->children[3]);
-		cout << "back in loop" << endl;
 		if (tree->children[2]) EXPR1(tree->children[2]);
 		out += "   goto" + WS(18)+ l1 + " "; NL();
 		out += l2 + ":"; NL();
