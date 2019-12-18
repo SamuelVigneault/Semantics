@@ -995,7 +995,7 @@ void EXPR1(ParseTree * tree) {
 }
 	
 void STMT1(ParseTree * tree) {
-	cout<< "STMT1 - " << tree->description <<endl;
+	//cout<< "STMT1 - " << tree->description <<endl;
 	if (tree->description == "print") {
 		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
 			out += "   getstatic" + WS(13) + "java/lang/System/out Ljava/io/PrintStream;"; NL();
@@ -1072,7 +1072,6 @@ void classF(ParseTree * tree) {
 	
 	out += WS(3) +  ".limit stack" + WS(10) + ITOS(TD2); NL();
    out += WS(3) + ".limit locals" + WS(9) + ITOS(currentFunc->total); NL();
-   	cout <<"HEYYYY3" << endl;
    STMT1(tree->children[3]);
    
    if (currentFunc->returnType->name == "") { out += "   return"; NL(); }
@@ -1104,13 +1103,11 @@ void globalF(ParseTree * tree) {
 	out += ".method" + WS(18) + "public static " + currentFunc->name + "(";
 	for (size_t i=0; i < currentFunc->formals.size(); i++) { out += outputType(currentFunc->formals[i]->type); }
 	out +=  ')';
-		cout <<"HEYYYY45" << endl;
 	if (currentFunc->returnType->name == "") { out += 'V'; NL(); }
 	else  { out += outputType(currentFunc->returnType); NL(); }
 	out += WS(3) +  ".limit stack" + WS(10) + ITOS(TD2); NL();
    out += WS(3) + ".limit locals" + WS(9) + ITOS(currentFunc->total); NL();
    STMT1(tree->children[3]);
-   	cout <<"HEYYYY3" << endl;
    if (currentFunc->returnType->name == "") { out += "   return"; NL(); }
    else if (currentFunc->returnType->name == "string" || currentFunc->returnType->array > 0) { 
    		out += "   aconst_null"; NL();
@@ -1130,12 +1127,10 @@ void globalF(ParseTree * tree) {
 void classesOut(ParseTree * tree) {
 	fstream FILE;
    FILE.open(currentClass->name + ".j", ios::out);
-   	cout <<"HEYYYY2" << endl;
    out += ".source" + WS(18) + fname1111; NL();
    out += ".class" + WS(19) + "public " + currentClass->name; NL();
    if (currentClass->parentClass != "") { out += ".super" + WS(19) + currentClass->parentClass; NL();NL();NL(); }
    else { out += ".super" + WS(19) + "java/lang/Object"; NL();NL();NL();}
-   	cout <<"HEYYYY8" << endl;
    for (std::map<string, semantics *>::iterator it=tree->symtab->dict.begin(); it!=tree->symtab->dict.end(); ++it) { 
    		if  (dynamic_cast<S_variable *>(it->second)) {
    			S_variable * V = dynamic_cast<S_variable *>(it->second);
