@@ -36,6 +36,7 @@ int LN = 0;
 int var0 = 0;
 int TD2 = 30;
 int label = 0;
+string out = "";
 
 // ALL ERROR MESSAGES
 string func1 = "Variable redefined in the function's arguments";
@@ -678,6 +679,8 @@ string f_name(string name1) {
 	return real;
 }
 
+void NL() { out += '\n'; }
+
 string WS(size_t L) {
 	string lol =  "";
 	for (size_t i=0; i < L; i++) lol += " ";
@@ -689,13 +692,12 @@ string label_generator() {
 	return "LAB" + ITOS(label);
 }
 
-string EXPR1(ParseTree * tree) {
-	string out = "";
+void EXPR1(ParseTree * tree) {
 	if (tree->description == "binop") {
 		int type = tree->children[1]->token->type;
 		if (type == 41) {
-			out += EXPR1(tree->children[0]);
-			out += EXPR1(tree->children[2]);
+			EXPR1(tree->children[0]);
+			EXPR1(tree->children[2]);
 			string l1 = label_generator();
 			string l2 = label_generator();
 			out += "   iconst_1"; out+= '\n';
@@ -707,11 +709,10 @@ string EXPR1(ParseTree * tree) {
 			out += l1 + ":"; out += '\n';
 			out += "   iconst_0"; out+= '\n';
 			out += l2 + ":"; out += '\n';
-			return out;
 		}
 		else if (type == 42) {
-			out += EXPR1(tree->children[0]);
-			out += EXPR1(tree->children[2]);
+			EXPR1(tree->children[0]);
+			EXPR1(tree->children[2]);
 			string l1 = label_generator();
 			string l2 = label_generator();
 			out += "   iconst_1"; out+= '\n';
@@ -723,11 +724,10 @@ string EXPR1(ParseTree * tree) {
 			out += l1 + ":"; out += '\n';
 			out += "   iconst_1"; out+= '\n';
 			out += l2 + ":"; out += '\n';
-			return out;
 		}
 		else if (type == 39 || type == 40) { 
-			out += EXPR1(tree->children[0]);
-			out += EXPR1(tree->children[2]);
+			EXPR1(tree->children[0]);
+			EXPR1(tree->children[2]);
 			string l1 = label_generator();
 			string l2 = label_generator();
 			if (type == 39) {out += "   if_icmpne" + WS(13); out += l1; out += '\n';}
@@ -737,13 +737,11 @@ string EXPR1(ParseTree * tree) {
 			out += l1 + ":"; out += '\n';
 			out += "   iconst_0"; out+= '\n';
 			out += l2 + ":"; out += '\n';
-			return out;
 		}
 	}
 	else if (tree->token) {	
 		if (tree->token->type == 8) { 
 			out += "   aconst_null"; out+= '\n';
-			return out;
 		}
 		if (tree->token->type == 23) { 
 			LN = tree->token->line;
@@ -755,23 +753,18 @@ string EXPR1(ParseTree * tree) {
 				if (V->var == currentFunc->vars[i] && V->name == currentFunc->locals[i])
 					out += ITOS(currentFunc->nums[i]);
 			}
-			out+= '\n';
-			return out;}
-  		if (tree->token->type == 25 ) { out += "   ldc" + WS(19) + tree->token->text; out+= '\n'; return out; }
+			out+= '\n';}
+  		if (tree->token->type == 25 ) { out += "   ldc" + WS(19) + tree->token->text; NL(); }
 		if (tree->token->type == 26) { 
-			if (tree->token->text == "true") { out += "   iconst_1"; out+= '\n'; return out; }
-			else {out += "   iconst_0"; out+= '\n'; return out; }}
-		if (tree->token->type == 27) { out += "   ldc2_w" + WS(16) + tree->token->text; out+= '\n'; return out; }
-		if (tree->token->type == 28) { out += "   ldc" + WS(19) + tree->token->text; out+= '\n'; return out; }
-		if (tree->token->type == 9) {
-			out += "   aload_0"; out += '\n';
-			return out;
-		}
+			if (tree->token->text == "true") { out += "   iconst_1"; NL(); }
+			else {out += "   iconst_0"; NL(); }}
+		if (tree->token->type == 27) { out += "   ldc2_w" + WS(16) + tree->token->text; NL(); }
+		if (tree->token->type == 28) { out += "   ldc" + WS(19) + tree->token->text; NL();  }
+		if (tree->token->type == 9) { out += "   aload_0"; NL();}
 	}
-	return out;
 }
 	
-string STMT1(ParseTree * tree) {
+void STMT1(ParseTree * tree) {
 	string out = "";
 	if (tree->description == "print") {
 		out += "   .line" + WS(17) + ITOS(tree->children[0]->token->line);
@@ -781,29 +774,18 @@ string STMT1(ParseTree * tree) {
 			out += '\n';
 			out += EXPR1(tree->children[1]->children[i]);
 			S_type * T = EXPR(tree->children[1]->children[i]);
-			if (T->name == "string") { 
-				out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(Ljava/lang/String;)V"; 
-				out += '\n';
-			}
-			if (T->name == "int") { 
-				out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(I)V"; 
-				out += '\n';
-			}
-			if (T->name == "bool") { 
-				out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(Z)V"; 
-				out += '\n';
-			}
+			if (T->name == "string") { out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(Ljava/lang/String;)V"; NL(); }
+			if (T->name == "int") { out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(I)V"; NL();}
+			if (T->name == "bool") { out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(Z)V"; NL();}
 		}
-		return out;
 	}
 	else if (tree->description == "stmtblock") { 
 		currentSS = tree->symtab;
-      	for (size_t i=0; i < tree->children[1]->children.size(); i++) { out += STMT1(tree->children[1]->children[i]); }
+      	for (size_t i=0; i < tree->children[1]->children.size(); i++) { STMT1(tree->children[1]->children[i]); }
       	closescope();
-      	return out;
    }
-	else if (tree->description == "nullstmt") { return out; }
-	else { return EXPR1(tree); }
+	else if (tree->description == "nullstmt") { return;}
+	else { EXPR1(tree); }
 }
 
 
@@ -827,15 +809,15 @@ string globalV(S_variable * V, string name) {
 	return out; }
 
 string globalF(S_function * F, string name, ParseTree * tree) {
-	string out;
-	out = ".method" + WS(18) + "public static " + name + "(";
+	out += ".method" + WS(18) + "public static " + name + "(";
 	for (size_t i=0; i < F->formals.size(); i++) { out += outputType(F->formals[i]->type); }
 	out +=  ')';
 	if (F->returnType->name == "") { out += 'V'; out += '\n'; }
 	else  { out += outputType(F->returnType); out += '\n'; }
 	out += WS(3) +  ".limit stack" + WS(10) + ITOS(TD2) + '\n';
    out += WS(3) + ".limit locals" + WS(9) + ITOS(F->total) + '\n';
-   out += STMT1(tree);
+   out += "fuck";
+   STMT1(tree);
    out += '\n';
 	out += ".end method";
 	out += '\n';
