@@ -786,7 +786,7 @@ void EXPR1(ParseTree * tree) {
 			if (type == 33 && L->name == "double") {out += "   drem"; NL();}
 		 }
 		 else {
-		 	S_type * R = EXPR(tree->children[2]);
+		 	EXPR1(tree->children[2]);
 		 	if (tree->children[0]->token) {
 		 		LN = tree->token->line;
 				S_variable * V = dynamic_cast<S_variable *>(currentSS->lookup(tree->token->text));

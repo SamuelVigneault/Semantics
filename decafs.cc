@@ -709,8 +709,8 @@ void EXPR1(ParseTree * tree) {
 	if (tree->description == "binop") {
 		int type = tree->children[1]->token->type;
 		if (type != 38) {
-			S_type * L = EXPR(tree->children[0]);
-			S_type * R = EXPR(tree->children[2]);
+			EXPR1(tree->children[0]);
+			EXPR1(tree->children[2]);
 		}
 		if (type == 41) {
 			string l1 = label_generator();
@@ -786,7 +786,7 @@ void EXPR1(ParseTree * tree) {
 			if (type == 33 && L->name == "double") {out += "   drem"; NL();}
 		 }
 		 else {
-		 	S_type * R = EXPR(tree->children[2]);
+		 	EXPR1(tree->children[2]);
 		 	if (tree->children[0]->token) {
 		 		LN = tree->token->line;
 				S_variable * V = dynamic_cast<S_variable *>(currentSS->lookup(tree->token->text));
