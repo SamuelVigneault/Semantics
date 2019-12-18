@@ -893,6 +893,30 @@ void EXPR1(ParseTree * tree) {
 		if (tree->token->type == 28) { out += "   ldc" + WS(19) + tree->token->text; NL();  }
 		if (tree->token->type == 9) { out += "   aload_0"; NL();}
 	}
+	else if (tree->description == "new") {
+		out += "   .line" + WS(17) + ITOS(tree->children[0]->token->line); NL();
+		out += "   new" + WS(19) +tree->children[0]->token->text; NL();
+  		out  += "   dup"; NL();
+   		out += "   invokespecial" + WS(9) + tree->children[0]->token->text + "/<init>()V"; NL();
+	}
+	else if (tree->description == "newarray") {
+		EXPR1(tree->children[0]);
+		S_type * R = basetype(tree->children[1]);
+		out += "   newarray" + WS(14) + outputType(R); NL();
+	}
+	else if (tree->description == "readline") { 
+		out += "   new" + WS(19) + "java/io/BufferedReader"; NL();
+  		out  += "   dup"; NL();
+  		out += "   new" + WS(19) + "java/io/InputStreamReader"; NL();
+  		out  += "   dup"; NL();
+  		out += "   getstatic" + WS(13)+ "java/lang/System/in Ljava/io/InputStream;"; NL();
+   		out += "   invokespecial" + WS(9) + "java/io/InputStreamReader/<init>(Ljava/io/InputStream;)V"; NL();
+   		out += "   invokespecial" + WS(9) + "java/io/BufferedReader/<init>(Ljava/io/Reader;)V"; NL(); }
+	else if (tree->description == "readinteger") {
+		out += "   new" + WS(19) + "java/util/Scanner"; NL();
+  		out  += "   dup"; NL();
+  		out += "   getstatic" + WS(13)+ "java/lang/System/in Ljava/io/InputStream;"; NL();
+   		out += "   invokespecial" + WS(9) + "java/util/Scanner/<init>(Ljava/io/InputStream;)V"; NL();}
 }
 	
 void STMT1(ParseTree * tree) {
@@ -967,7 +991,6 @@ void STMT1(ParseTree * tree) {
 	else if (tree->description == "nullstmt") { return;}
 	else { EXPR1(tree); }
 }
-
 
 void globalV(S_variable * V, string name) {
 	out +=  ".field" + WS(19) + "public static " + name  + " ";
