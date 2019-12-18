@@ -767,7 +767,9 @@ string EXPR1(ParseTree * tree) {
 			out += "   aload_0"; out += '\n';
 			return out;
 		}
-	}}
+	}
+	return out;
+}
 	
 string STMT1(ParseTree * tree) {
 	string out = "";
@@ -779,11 +781,23 @@ string STMT1(ParseTree * tree) {
 			out += '\n';
 			out += EXPR1(tree->children[1]->children[i]);
 			S_type * T = EXPR(tree->children[1]->children[i]);
-			if (T->name = "string") { out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(Ljava/lang/String;)V"; out += '\n';}
-			if (T->name = "int") { out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(I)V"; out += '\n';}
-			if (T->name = "bool") { out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(Z)V"; out += '\n';}}
+			if (T->name = "string") { 
+				out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(Ljava/lang/String;)V"; 
+				out += '\n';
+			}
+			if (T->name = "int") { 
+				out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(I)V"; 
+				out += '\n';
+			}
+			if (T->name = "bool") { 
+				out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(Z)V"; 
+				out += '\n';
+			}
+		}
 		return out;
-	}}
+	}
+	return out;
+	}
 
 
 string outputType(S_type * T) {
