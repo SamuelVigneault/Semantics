@@ -896,7 +896,7 @@ void EXPR1(ParseTree * tree) {
 }
 	
 void STMT1(ParseTree * tree) {
-	cout<< "STMT1" <<endl;
+	cout<< "STMT1 - " << tree->description <<endl;
 	if (tree->description == "print") {
 		out += "   .line" + WS(17) + ITOS(tree->children[0]->token->line); NL();
 		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
