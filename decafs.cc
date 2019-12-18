@@ -762,22 +762,34 @@ void EXPR1(ParseTree * tree) {
 			if (type == 39 && (L->name == "int"|| L->name == "double" || L->name == "bool") && L->array == 0) {
 				out += "   if_icmpeq" + WS(14) + l1 + " "; NL();
 				out += "   iconst_0"; NL();
+				out += "   goto" + WS(18); out += l2; NL();
+				out += l1 + ": "; NL();
+				out += "   iconst_1"; NL();
+				out += l2 + ":"; NL();
 			}
 			else if (type == 39) { 
-				out += "   if_icmpeq" + WS(14) + l1 + " "; NL();
-				out += "   iconst_0"; NL(); }
+				out += "   if_acmpeq" + WS(14) + l1 + " "; NL();
+				out += "   iconst_0"; NL();
+				out += "   goto" + WS(18); out += l2; NL();
+				out += l1 + ": "; NL();
+				out += "   iconst_1"; NL();
+				out += l2 + ":"; NL(); }
 			else if (type == 40 && (L->name == "int"|| L->name == "double" || L->name == "bool") && L->array == 0) {
 				out += "   if_icmpeq" + WS(14) + l1 + " "; NL();
 				out += "   iconst_1"; NL();
-			}
-			else {
-				out += "   if_icmpeq" + WS(14) + l1 + " "; NL();
-				out += "   iconst_1"; NL();
-			}
-			out += "   goto" + WS(18); out += l2; NL();
+				out += "   goto" + WS(18); out += l2; NL();
 			out += l1 + ": "; NL();
 			out += "   ldc"+ WS(19) + "0"; NL();
 			out += l2 + ":"; NL();
+			}
+			else {
+				out += "   if_acmpeq" + WS(14) + l1 + " "; NL();
+				out += "   iconst_1"; NL();
+				out += "   goto" + WS(18); out += l2; NL();
+			out += l1 + ": "; NL();
+			out += "   ldc"+ WS(19) + "0"; NL();
+			out += l2 + ":"; NL();
+			}
 		}	
 		else if (type > 33 && type < 38) {
 			string l1 = label_generator();
