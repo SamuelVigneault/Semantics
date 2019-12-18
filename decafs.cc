@@ -1127,7 +1127,7 @@ void classesOut(ParseTree * tree) {
     			ParseTree * field = tree->children[3]->children[i];
     			if (field->description == "variable" && field->children[1]->token->text == V->name) {
    			  		classV(dynamic_cast<S_variable *>(it->second), it->first); }}}}
-   out += ".method" + WS(18) + "<init>()V"; NL();
+   out += ".method" + WS(18) + "public <init>()V"; NL();
    out += WS(3) +  ".limit stack" + WS(10) + "1"; NL();
    out += WS(3) + ".limit locals" + WS(9) + "1"; NL();
    out += WS(3) +  ".line" + WS(17) + "1"; NL();
