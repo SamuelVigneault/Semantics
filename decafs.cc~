@@ -865,7 +865,7 @@ void EXPR1(ParseTree * tree) {
 					 {lol = currentFunc->nums[i]; found = true;}
 			}
 			if (found) {
-				if ((V->type->name == "bool" || V->type->name == "int") && V->type->array == 0) { out += "   iload_"; }
+				if ((V->type->name == "bool" || V->type->name == "int") && V->type->array == 0) { out += "   iload "; }
 				else if ( V->type->name == "double" && V->type->array == 0) { out += "   dload_"; }
 				else { out += "   aload_"; }
 				out += ITOS(lol); NL();
