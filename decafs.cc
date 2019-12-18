@@ -803,9 +803,11 @@ void EXPR1(ParseTree * tree) {
 				cout << "GLOBAL ASSIGN"<< endl;
 				for (size_t i=0; i < currentFunc->vars.size(); i++) {
 					cout << "local" << endl;
-					if (V->var == currentFunc->vars[i] && V->name == currentFunc->locals[i])
+					if (V->var == currentFunc->vars[i] && V->name == currentFunc->locals[i]) {
 						cout << "found" <<endl;
-						lol = currentFunc->nums[i]; found = true;
+						lol = currentFunc->nums[i]; 
+						found = true;
+					}
 				}
 				cout << "GLOBAL ASSIGN"<< endl;
 				if (found) {
@@ -853,7 +855,7 @@ void EXPR1(ParseTree * tree) {
 			int lol;
 			for (size_t i=0; i < currentFunc->vars.size(); i++) {
 				if (V->var == currentFunc->vars[i] && V->name == currentFunc->locals[i])
-					lol = currentFunc->nums[i]; found = true;
+					 {lol = currentFunc->nums[i]; found = true;}
 			}
 			if (found) {
 				if ((V->type->name == "bool" || V->type->name == "int") && V->type->array == 0) { out += "   iload_"; }
