@@ -38,6 +38,7 @@ int TD2 = 30;
 int label = 0;
 string out = "";
 string Rname = "";
+ParseTree * TOPPER;
 
 // ALL ERROR MESSAGES
 string func1 = "Variable redefined in the function's arguments";
@@ -778,10 +779,17 @@ void EXPR1(ParseTree * tree) {
 			}
 			else {
 				if (currentClass) {
-					if (dynamic_cast<S_variable *>(currentClass->symtab->local_lookup(tree->token->text))) { 
+					Symtab * othertab;
+					for (size_t i=0; i < TOPPER->children.size(); i++) {
+	 					if (TOPPER->children[i]->description == "variable") {
+	    					if (TOPPER->children[i]->children[1]->token->text == tree->token->text) {
+	      						othertab = tree->children[i]->symtab;
+	      						break;
+	    			}}}
+					if (dynamic_cast<S_variable *>(othertab->local_lookup(tree->token->text))) { 
 						found1 = true; 
 						out += "   getstatic" + WS(13) + currentClass->name + "/" + tree->token->text + " ";
-						out += outputType((dynamic_cast<S_variable *>(currentClass->symtab->local_lookup(tree->token->text)))->type);
+						out += outputType((dynamic_cast<S_variable *>(othertab->symtab->local_lookup(tree->token->text)))->type);
 						NL();
 					}}
 				if (!found1) { 
@@ -945,6 +953,7 @@ int main(int argc, char ** argv) {
   openscope();  // create original scope
   topSS = currentSS;
   top = parse_decaf(yyin);
+  TOPPER = top;
   cout << "PARSED" <<endl;
   check_semantics(top);
   cout << "SEMANTICS" <<endl;
