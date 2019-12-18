@@ -37,6 +37,7 @@ int var0 = 0;
 int TD2 = 30;
 int label = 0;
 string out = "";
+string Rname = "";
 
 // ALL ERROR MESSAGES
 string func1 = "Variable redefined in the function's arguments";
@@ -670,12 +671,12 @@ void check_main() {
 	else semantic_error("No declaration for the global function main", 1); }
 	
 string f_name(string name1) {
-	string real = "";
+	string real = "_";
 	for (size_t i=0; i < name1.length(); i++) { 
 		if (name1[i] == '.') { break; }
 		else { real = real + name1[i]; }
 	}
-	if (topSS->local_lookup(real) && dynamic_cast<S_class *>(topSS->local_lookup(real))) { semantic_error("Classes cannot have the same name as the file", 1); }
+	// if (topSS->local_lookup(real) && dynamic_cast<S_class *>(topSS->local_lookup(real))) { semantic_error("Classes cannot have the same name as the file", 1); }
 	return real;
 }
 
@@ -692,9 +693,25 @@ string label_generator() {
 	return "LAB" + ITOS(label);
 }
 
+string outputType(S_type * T) {
+		string newer = "";
+		for (int i=0; i < T->array; i++) { newer  += "["; }
+		if (T->name == "int") newer += "I" ;
+		else if (T->name == "bool") newer += "Z";
+		else if (T->name == "double") newer +="D";
+		else if (T->name == "string") newer += "Ljava/lang/String;";
+		else newer += "L" + T->name + ";";
+		return newer;
+}
+
 void EXPR1(ParseTree * tree) {
 	if (tree->description == "binop") {
 		int type = tree->children[1]->token->type;
+		f (type == 38) {
+			S_type * L = EXPR(tree->children[0]);
+			S_type * R = EXPR(tree->children[2]);
+			return out;
+		}
 		if (type == 41) {
 			EXPR1(tree->children[0]);
 			EXPR1(tree->children[2]);
@@ -751,14 +768,33 @@ void EXPR1(ParseTree * tree) {
 		if (tree->token->type == 23) { 
 			LN = tree->token->line;
 			S_variable * V = dynamic_cast<S_variable *>(currentSS->lookup(tree->token->text));
-			if ((V->type->name == "bool" || V->type->name == "int") && V->type->array == 0) { out += "   iload_"; }
-			else if ( V->type->name == "double" && V->type->array == 0) { out += "   dload_"; }
-			else { out += "   aload_"; }
+			bool found = false;
+			int lol;
 			for (size_t i=0; i < currentFunc->vars.size(); i++) {
 				if (V->var == currentFunc->vars[i] && V->name == currentFunc->locals[i])
-					out += ITOS(currentFunc->nums[i]);
+					lol = currentFunc->nums[i]; found = true;
 			}
-			NL();}
+			if (found) {
+				if ((V->type->name == "bool" || V->type->name == "int") && V->type->array == 0) { out += "   iload_"; }
+				else if ( V->type->name == "double" && V->type->array == 0) { out += "   dload_"; }
+				else { out += "   aload_"; }
+				out += ITOS(lol); NL();
+			}
+			bool found1 = false;
+			else {
+				if (currentClass) {
+					if (dynamic_cast<S_variable *>(currentClass->symtab->local_lookup(tree->token->text))) { 
+						found1 = true; 
+						out += "   getstatic" + WS(13) + currentClass->name + "/" + tree->token->text + " ";
+						out += outputType((dynamic_cast<S_variable *>(currentClass->symtab->local_lookup(tree->token->text)))->type);
+						NL();
+					}}
+				if (!found1) { 
+					out += "   getstatic" + WS(13) + Rname + "/" + tree->token->text + " ";
+					out += outputType((dynamic_cast<S_variable *>(topSS->local_lookup(tree->token->text)))->type);
+					NL(); }}
+				
+		}
   		if (tree->token->type == 25 ) { out += "   ldc" + WS(19) + tree->token->text; NL(); }
 		if (tree->token->type == 26) { 
 			if (tree->token->text == "true") { out += "   iconst_1"; NL(); }
@@ -791,17 +827,6 @@ void STMT1(ParseTree * tree) {
 }
 
 
-string outputType(S_type * T) {
-		string newer = "";
-		for (int i=0; i < T->array; i++) { newer  += "["; }
-		if (T->name == "int") newer += "I" ;
-		else if (T->name == "bool") newer += "Z";
-		else if (T->name == "double") newer +="D";
-		else if (T->name == "string") newer += "Ljava/lang/String;";
-		else newer += "L" + T->name + ";";
-		return newer;
-}
-
 void globalV(S_variable * V, string name) {
 	out +=  ".field" + WS(19) + "public static " + name  + " ";
 	out += outputType(V->type); NL(); NL(); }
@@ -833,6 +858,7 @@ void globalF(S_function * F, string name, ParseTree * tree) {
 
 void code_gen_file(ParseTree * tree, string fname) {
 	string real = f_name(fname);
+	Rname = real;
 	fstream FILE; 
 	tree = tree;
    FILE.open(real + ".j", ios::out); 
