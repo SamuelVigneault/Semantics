@@ -991,7 +991,7 @@ void STMT1(ParseTree * tree) {
 		}
 	}
 	else if (tree->description == "return") {
-		if (currentFunc->returnType == "") { out += "   return"; NL(); }
+		if (currentFunc->returnType->name == "") { out += "   return"; NL(); }
 		else {
 			EXPR1(tree->children[1]);
    			if (currentFunc->returnType->name == "string" || currentFunc->returnType->array > 0) { out += "   areturn"; NL(); }
