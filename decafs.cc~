@@ -1087,11 +1087,13 @@ void globalF(ParseTree * tree) {
 	out += ".method" + WS(18) + "public static " + currentFunc->name + "(";
 	for (size_t i=0; i < currentFunc->formals.size(); i++) { out += outputType(currentFunc->formals[i]->type); }
 	out +=  ')';
+		cout <<"HEYYYY45" << endl;
 	if (currentFunc->returnType->name == "") { out += 'V'; NL(); }
 	else  { out += outputType(currentFunc->returnType); NL(); }
 	out += WS(3) +  ".limit stack" + WS(10) + ITOS(TD2); NL();
    out += WS(3) + ".limit locals" + WS(9) + ITOS(currentFunc->total); NL();
    STMT1(tree->children[3]);
+   	cout <<"HEYYYY3" << endl;
    if (currentFunc->returnType->name == "") { out += "   return"; NL(); }
    else if (currentFunc->returnType->name == "string" || currentFunc->returnType->array > 0) { 
    		out += "   aconst_null"; NL();
