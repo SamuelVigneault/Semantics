@@ -5,7 +5,6 @@
 .field                   protected lol Z
 .field                   public static lol1 Z
 .field                   public static lol2 Ltest;
-.field                   public static lol3 Llol;
 .field                   public static lol4 Ljava/lang/String;
 
 .method                  public <init>()V

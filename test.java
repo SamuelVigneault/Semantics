@@ -38,7 +38,6 @@ public class test {
     protected boolean lol;
     public static boolean lol1;
     public static test lol2;
-    public static lol lol3;
     public static String lol4;
 
 }

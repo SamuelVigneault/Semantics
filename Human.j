@@ -22,36 +22,36 @@
    aload_0
    getfield              Human/eyes I
    ldc                   0
-   if_icmpeq              LABEL34 
+   if_icmpeq              LABEL102 
    iconst_0
-   goto                  LABEL35
-LABEL34: 
-   ldc                   1
-LABEL35:
+   goto                  LABEL103
+LABEL102: 
+   iconst_1
+LABEL103:
    aload_0
    getfield              Human/legs I
    ldc                   0
-   if_icmpeq              LABEL36 
+   if_icmpeq              LABEL104 
    iconst_0
-   goto                  LABEL37
-LABEL36: 
-   ldc                   1
-LABEL37:
+   goto                  LABEL105
+LABEL104: 
    iconst_1
-   if_icmpeq              LABEL38 
+LABEL105:
    iconst_1
-   if_icmpeq              LABEL39
-   ldc                   00 
-   goto                  LABEL40
-LABEL38: 
+   if_icmpeq              LABEL106 
+   iconst_1
+   if_icmpeq              LABEL107
+   iconst_0
+   goto                  LABEL108
+LABEL106: 
    pop
    iconst_1
-   goto                  LABEL40
-LABEL39:
+   goto                  LABEL108
+LABEL107:
    iconst_1
-LABEL40:
+LABEL108:
    ireturn
-   ldc                   00 
+   iconst_0
    ireturn
 .end method
 
@@ -79,7 +79,7 @@ LABEL40:
    return
 .end method
 
-.method                  public set()V
+.method                  public settt()V
    .limit stack          100
    .limit locals         1
    ldc                   3

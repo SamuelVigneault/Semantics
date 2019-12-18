@@ -2,7 +2,7 @@ class Human {
       int legs;
       int eyes;
 
-      	  void set() {
+      	  void settt() {
       	       legs = 3;
 	       eyes = 3;
 	  }
@@ -21,32 +21,17 @@ class Human {
 	  
 }
 
-<<<<<<< HEAD
-void modifyHuman(Human Prof, Human Sam) {
-     string sam = "Sam's turn.. What do you do?";
-     string prof = "Prof's turn.. What does he do?";
-     
-     string kick = "kick";
-     string stab = "stab";
-     string nice = "be nice";
-=======
-void CompilerBattle(Human Prof, Human Sam) {
+void Battle(Human Prof, Human Sam) {
      string sam;
      string prof;
      
      string kick;
      string stab;
      string nice;
->>>>>>> f564e55f17b2d12cef237f967c19fc2ced9b9c59
      
      int counter;
      string reader;
 
-<<<<<<< HEAD
-     string sam1 = "Yay, Sam has lot a leg due to Profe Campbell's devasting drop kick!!";
-
-     sam = "Sam's turn.. What do you do?";
-=======
      string sam1; string sam2; string sam3;
      string prof1; string prof2; string prof3;
 
@@ -66,20 +51,14 @@ void CompilerBattle(Human Prof, Human Sam) {
      prof2 = "Sam stabs Campbell, who loses an eye and can't teach Compilers anymore. Srry not srry Frosh.";
      prof3 = "Campbell comes out of this round untouched, thank God for his compiler";
      
->>>>>>> f564e55f17b2d12cef237f967c19fc2ced9b9c59
-     while ( (Prof.death != true) && (Sam.death != true)) {
-     	   if (counter %2 == 0) {
+     while ( (Prof.death() != true) && (Sam.death() != true)) {
+     	   if (counter % 2 != 1) {
 	   Print(sam);
 	   }
 	   if (counter % 2 == 1)
 	   {
 	   Print(prof);
 	   }
-<<<<<<< HEAD
-	   
-     
-}
-=======
 	   reader = ReadLine();
 	   if (reader == kick && counter %2 == 0) { 
 	   Prof.loseLeg();
@@ -98,26 +77,19 @@ void CompilerBattle(Human Prof, Human Sam) {
 	   if (reader == nice && counter %2 == 1) { Print(sam3); }
 	   counter = counter + 1;
      }
->>>>>>> f564e55f17b2d12cef237f967c19fc2ced9b9c59
-	if (Prof.death()) {
-	Print("Sam has won, srry!");
-	}
-	if (Sam.death()) {
-	Print("Prof Cambpell has killed Sam and saved the world!");
-	}
+	if (Prof.death()) { Print("Sam has won, srry!"); }
+	if (Sam.death()) { Print("Prof Cambpell has killed Sam and saved the world!"); }
 	return;
 
 }
 
-int FIB( int N) {
-    if (N == 1) {
-        return 0;
-	} 
-    if (N==2) { 
-        return 1;
-	} 
+int FIB(int N) {
+    if (N == 0) { return 0; }
+    if (N == 1) { return 0; } 
+    if (N == 2) { return 1; } 
     return FIB(N-1)+FIB(N-2);
 }
+
 
 void main(string[] lol)
 {
@@ -128,21 +100,14 @@ void main(string[] lol)
 	welcome = "Hey fellow compilers!";
 	Print(welcome);
 	
+	F=0;
+	for (; F < 34; F = F + 1) {
+	    if (F % 2 == 0) {
+	    Print(F);
+	   }
+	 }
+	
 	F = FIB(20);
 	Print(F);
-	
-	for (F=0; F < 34; F = F +1) {
-	    if (F % 2 == 0) {
-	       Print(F); } }
-	}
-	Sam = New(Human);
-	Sam.set();
-	Prof = New(Human);
-	Prof.set();
-<<<<<<< HEAD
-	
-=======
-	CompilerBattle(Prof, Sam);
->>>>>>> f564e55f17b2d12cef237f967c19fc2ced9b9c59
 	return;
 }

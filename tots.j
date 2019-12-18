@@ -6,7 +6,7 @@
 .method                  <init>()V
    .limit stack          1
    .limit locals         1
-   .line                 47
+   .line                 46
    aload_0               
    invokespecial         java/lang/Object/<init>()V
    return                
