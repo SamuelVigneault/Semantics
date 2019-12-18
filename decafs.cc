@@ -707,11 +707,6 @@ string outputType(S_type * T) {
 void EXPR1(ParseTree * tree) {
 	if (tree->description == "binop") {
 		int type = tree->children[1]->token->type;
-		f (type == 38) {
-			S_type * L = EXPR(tree->children[0]);
-			S_type * R = EXPR(tree->children[2]);
-			return out;
-		}
 		if (type == 41) {
 			EXPR1(tree->children[0]);
 			EXPR1(tree->children[2]);
