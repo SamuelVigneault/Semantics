@@ -790,20 +790,24 @@ void EXPR1(ParseTree * tree) {
 		 	cout << "ASSIGN" << endl;
 		 	if (tree->children[0]->token) {
 		 		LN = tree->token->line;
+		 		cout << "GLOBAL ASSIGN"<< endl;
 				S_variable * V = dynamic_cast<S_variable *>(currentSS->lookup(tree->token->text));
 				bool found = false;
 				bool found1 = false;
 				int lol;
+				cout << "GLOBAL ASSIGN"<< endl;
 				for (size_t i=0; i < currentFunc->vars.size(); i++) {
 					if (V->var == currentFunc->vars[i] && V->name == currentFunc->locals[i])
 						lol = currentFunc->nums[i]; found = true;
 				}
+				cout << "GLOBAL ASSIGN"<< endl;
 				if (found) {
 					if ((V->type->name == "bool" || V->type->name == "int") && V->type->array == 0) { out += "   istore" + WS(16); }
 					else if ( V->type->name == "double" && V->type->array == 0) { out += "   dstore" + WS(16); }
 					else { out += "   astore" + WS(16); }
 					out += ITOS(lol); NL();
 				}
+				cout << "GLOBAL ASSIGN"<< endl;
 				else {
 					if (currentClass) {
 						Symtab * othertab;
@@ -820,7 +824,8 @@ void EXPR1(ParseTree * tree) {
 							out += outputType((dynamic_cast<S_variable *>(othertab->local_lookup(tree->token->text)))->type);
 							NL();
 						}}
-					if (!found1) { 
+					if (!found1) {
+						 cout << "GLOBAL ASSIGN"<< endl;
 						out += "   putstatic" + WS(13) + Rname + "/" + tree->token->text + " ";
 						out += outputType((dynamic_cast<S_variable *>(topSS->local_lookup(tree->token->text)))->type);
 						NL(); 
