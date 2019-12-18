@@ -1077,7 +1077,7 @@ void classF(ParseTree * tree) {
 	}
 	
 void classV(S_variable * V, string name) {
-	out +=  ".field" + WS(19) + "protected " + name  + " ";
+	out +=  ".field" + WS(19) + "public " + name  + " ";
 	out += outputType(V->type); NL(); NL(); }
 	
 void globalV(S_variable * V, string name) {
@@ -1116,7 +1116,7 @@ void classesOut(ParseTree * tree) {
    FILE.open(currentClass->name + ".j", ios::out);
    	cout <<"HEYYYY2" << endl;
    out += ".source" + WS(18) + fname1111; NL();
-   out += ".class" + WS(19) + currentClass->name; NL();
+   out += ".class" + WS(19) + "public " + currentClass->name; NL();
    if (currentClass->parentClass != "") { out += ".super" + WS(19) + currentClass->parentClass; NL();NL();NL(); }
    else { out += ".super" + WS(19) + "java/lang/Object"; NL();NL();NL();}
    	cout <<"HEYYYY8" << endl;
