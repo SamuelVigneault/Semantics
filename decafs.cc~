@@ -723,9 +723,9 @@ void EXPR1(ParseTree * tree) {
 			string l2 = label_generator();
 			string l3 = label_generator();
 			out += "   iconst_1"; NL();
-			out += "   if_cmpne" + WS(13); out += l1; NL();
+			out += "   if_cmpne" + WS(14); out += l1; NL();
 			out += "   iconst_1"; NL();
-			out += "   if_cmpne" + WS(13); out += l2; NL();
+			out += "   if_cmpne" + WS(14); out += l2; NL();
 			out += "   iconst_1"; NL();
 			out += "   goto" + WS(18); out += l3; NL();
 			out += l1 + ":"; NL();
@@ -741,9 +741,9 @@ void EXPR1(ParseTree * tree) {
 			string l2 = label_generator();
 			string l3 = label_generator();
 			out += "   iconst_1"; NL();
-			out += "   if_cmpeq" + WS(13); out += l1; NL();
+			out += "   if_cmpeq" + WS(14); out += l1; NL();
 			out += "   iconst_1"; NL();
-			out += "   if_cmpeq" + WS(13); out += l2; NL();
+			out += "   if_cmpeq" + WS(14); out += l2; NL();
 			out += "   iconst_0"; NL();
 			out += "   goto" + WS(18); out += l3; NL();
 			out += l1 + ":"; NL();
@@ -757,8 +757,8 @@ void EXPR1(ParseTree * tree) {
 		else if (type == 39 || type == 40) {
 			string l1 = label_generator();
 			string l2 = label_generator();
-			if (type == 39) {out += "   if_cmpne" + WS(13); out += l1; NL();}
-			else {out += "   if_cmpeq" + WS(13); out += l1; NL();}
+			if (type == 39) {out += "   if_cmpne" + WS(14); out += l1; NL();}
+			else {out += "   if_cmpeq" + WS(14); out += l1; NL();}
 			out += "   iconst_1"; NL();
 			out += "   goto" + WS(18); out += l2; NL();
 			out += l1 + ":"; NL();
@@ -768,10 +768,10 @@ void EXPR1(ParseTree * tree) {
 		else if (type > 33 && type < 38) {
 			string l1 = label_generator();
 			string l2 = label_generator();
-			if (type == 34) {out += "   if_cmplt" + WS(13); out += l1; NL();}
-			if (type == 35) {out += "   if_cmple" + WS(13); out += l1; NL();}
-			if (type == 36) {out += "   if_cmpgt" + WS(13); out += l1; NL();}
-			if (type == 37) {out += "   if_cmpge" + WS(13); out += l1; NL();}
+			if (type == 34) {out += "   if_cmplt" + WS(14); out += l1; NL();}
+			if (type == 35) {out += "   if_cmple" + WS(14); out += l1; NL();}
+			if (type == 36) {out += "   if_cmpgt" + WS(14); out += l1; NL();}
+			if (type == 37) {out += "   if_cmpge" + WS(14); out += l1; NL();}
 			out += "   iconst_0"; NL();
 			out += "   goto" + WS(18); out += l2; NL();
 			out += l1 + ":"; NL();
@@ -830,7 +830,7 @@ void EXPR1(ParseTree * tree) {
 						if (dynamic_cast<S_variable *>(othertab->local_lookup(identi))) { 
 							found1 = true;
 							out += "   aload_0"; NL();
-							out += "   putfield" + WS(13) + currentClass->name + "/" + identi + " ";
+							out += "   putfield" + WS(14) + currentClass->name + "/" + identi + " ";
 							out += outputType((dynamic_cast<S_variable *>(othertab->local_lookup(identi)))->type);
 							NL();
 						}}
@@ -876,7 +876,7 @@ void EXPR1(ParseTree * tree) {
 					if (dynamic_cast<S_variable *>(othertab->local_lookup(tree->token->text))) { 
 						found1 = true;
 						out += "   aload_0"; NL();
-						out += "   getfield" + WS(13) + currentClass->name + "/" + tree->token->text + " ";
+						out += "   getfield" + WS(14) + currentClass->name + "/" + tree->token->text + " ";
 						out += outputType((dynamic_cast<S_variable *>(othertab->local_lookup(tree->token->text)))->type);
 						NL();
 					}}
@@ -900,7 +900,7 @@ void STMT1(ParseTree * tree) {
 	if (tree->description == "print") {
 		out += "   .line" + WS(17) + ITOS(tree->children[0]->token->line); NL();
 		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
-			out += "   getstatic" + WS(12) + "java/lang/System/out Ljava/io/PrintStream;"; NL();
+			out += "   getstatic" + WS(13) + "java/lang/System/out Ljava/io/PrintStream;"; NL();
 			EXPR1(tree->children[1]->children[i]);
 			S_type * T = EXPR(tree->children[1]->children[i]);
 			if (T->name == "string") { out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(Ljava/lang/String;)V"; NL(); }
