@@ -708,9 +708,11 @@ string outputType(S_type * T) {
 void EXPR1(ParseTree * tree) {
 	if (tree->description == "binop") {
 		int type = tree->children[1]->token->type;
+		if (type != 38) {
+			S_type * L = EXPR(tree->children[0]);
+			S_type * R = EXPR(tree->children[2]);
+		}
 		if (type == 41) {
-			EXPR1(tree->children[0]);
-			EXPR1(tree->children[2]);
 			string l1 = label_generator();
 			string l2 = label_generator();
 			string l3 = label_generator();
@@ -729,23 +731,24 @@ void EXPR1(ParseTree * tree) {
 			out += l3 + ":"; out += '\n';
 		}
 		else if (type == 42) {
-			EXPR1(tree->children[0]);
-			EXPR1(tree->children[2]);
 			string l1 = label_generator();
 			string l2 = label_generator();
+			string l3 = label_generator();
 			out += "   iconst_1"; NL();
-			out += "   if_icmpeq" + WS(13); out += l1; out += '\n';
+			out += "   if_icmpeq" + WS(13); out += l1; NL();
 			out += "   iconst_1"; NL();
-			out += "   if_icmpeq" + WS(13); out += l1; out += '\n';
+			out += "   if_icmpeq" + WS(13); out += l2; NL();
 			out += "   iconst_0"; NL();
-			out += "   goto" + WS(18); out += l2; NL();
-			out += l1 + ":"; out += '\n';
+			out += "   goto" + WS(18); out += l3; NL();
+			out += l1 + ":"; NL();
+			out += "   pop"; NL();
 			out += "   iconst_1"; NL();
-			out += l2 + ":"; out += '\n';
+			out += "   goto" + WS(18); out += l3; NL();
+			out += l2 + ":"; NL();
+			out += "   iconst_1"; NL();
+			out += l3 + ":"; out += '\n';
 		}
-		else if (type == 39 || type == 40) { 
-			EXPR1(tree->children[0]);
-			EXPR1(tree->children[2]);
+		else if (type == 39 || type == 40) {
 			string l1 = label_generator();
 			string l2 = label_generator();
 			if (type == 39) {out += "   if_icmpne" + WS(13); out += l1; NL();}
@@ -756,6 +759,74 @@ void EXPR1(ParseTree * tree) {
 			out += "   iconst_0"; NL();
 			out += l2 + ":"; NL();
 		}
+		else if (type > 33 && type < 38) {
+			string l1 = label_generator();
+			string l2 = label_generator();
+			if (type == 34) {out += "   if_icmplt" + WS(13); out += l1; NL();}
+			if (type == 35) {out += "   if_icmple" + WS(13); out += l1; NL();}
+			if (type == 36) {out += "   if_icmpge" + WS(13); out += l1; NL();}
+			if (type == 37) {out += "   if_icmpgt" + WS(13); out += l1; NL();}
+			out += "   iconst_0"; NL();
+			out += "   goto" + WS(18); out += l2; NL();
+			out += l1 + ":"; NL();
+			out += "   iconst_1"; NL();
+			out += l2 + ":"; NL();
+		}
+		else if (type > 28 && type < 34) {
+			S_type * L = EXPR(tree->children[0]);
+			if (type == 29 && L->name == "int") {out += "   iadd"; NL();}
+			if (type == 29 && L->name == "double") {out += "   dadd"; NL();}
+			if (type == 30 && L->name == "int") {out += "   isub"; NL();}
+			if (type == 30 && L->name == "double") {out += "   dsub"; NL();}
+			if (type == 31 && L->name == "int") {out += "   imul"; NL();}
+			if (type == 31 && L->name == "double") {out += "   dmul"; NL();}
+			if (type == 32 && L->name == "int") {out += "   idiv"; NL();}
+			if (type == 32 && L->name == "double") {out += "   ddiv"; NL();}
+			if (type == 33 && L->name == "int") {out += "   irem"; NL();}
+			if (type == 33 && L->name == "double") {out += "   drem"; NL();}
+		 }
+		 else {
+		 	S_type * R = EXPR(tree->children[2]);
+		 	if (tree->children[0]->token) {
+		 		LN = tree->token->line;
+				S_variable * V = dynamic_cast<S_variable *>(currentSS->lookup(tree->token->text));
+				bool found = false;
+				bool found1 = false;
+				int lol;
+				for (size_t i=0; i < currentFunc->vars.size(); i++) {
+					if (V->var == currentFunc->vars[i] && V->name == currentFunc->locals[i])
+						lol = currentFunc->nums[i]; found = true;
+				}
+				if (found) {
+					if ((V->type->name == "bool" || V->type->name == "int") && V->type->array == 0) { out += "   istore" + WS(16); }
+					else if ( V->type->name == "double" && V->type->array == 0) { out += "   dstore" + WS(16); }
+					else { out += "   astore" + WS(16); }
+					out += ITOS(lol); NL();
+				}
+				else {
+					if (currentClass) {
+						Symtab * othertab;
+						for (size_t i=0; i < TOPPER->children.size(); i++) {
+	 						if (TOPPER->children[i]->description == "variable") {
+	    						if (TOPPER->children[i]->children[1]->token->text == tree->token->text) {
+	      							othertab = tree->children[i]->symtab;
+	      							break;
+	    				}}}
+						if (dynamic_cast<S_variable *>(othertab->local_lookup(tree->token->text))) { 
+							found1 = true;
+							out += "   aload_0"; NL();
+							out += "   putfield" + WS(13) + currentClass->name + "/" + tree->token->text + " ";
+							out += outputType((dynamic_cast<S_variable *>(othertab->local_lookup(tree->token->text)))->type);
+							NL();
+						}}
+					if (!found1) { 
+						out += "   putstatic" + WS(13) + Rname + "/" + tree->token->text + " ";
+						out += outputType((dynamic_cast<S_variable *>(topSS->local_lookup(tree->token->text)))->type);
+						NL(); 
+					}
+				}
+		 	}
+		}	
 	}
 	else if (tree->token) {	
 		if (tree->token->type == 8) { 
@@ -787,8 +858,9 @@ void EXPR1(ParseTree * tree) {
 	      						break;
 	    			}}}
 					if (dynamic_cast<S_variable *>(othertab->local_lookup(tree->token->text))) { 
-						found1 = true; 
-						out += "   getstatic" + WS(13) + currentClass->name + "/" + tree->token->text + " ";
+						found1 = true;
+						out += "   aload_0"; NL();
+						out += "   getfield" + WS(13) + currentClass->name + "/" + tree->token->text + " ";
 						out += outputType((dynamic_cast<S_variable *>(othertab->local_lookup(tree->token->text)))->type);
 						NL();
 					}}
@@ -796,7 +868,6 @@ void EXPR1(ParseTree * tree) {
 					out += "   getstatic" + WS(13) + Rname + "/" + tree->token->text + " ";
 					out += outputType((dynamic_cast<S_variable *>(topSS->local_lookup(tree->token->text)))->type);
 					NL(); }}
-				
 		}
   		if (tree->token->type == 25 ) { out += "   ldc" + WS(19) + tree->token->text; NL(); }
 		if (tree->token->type == 26) { 
