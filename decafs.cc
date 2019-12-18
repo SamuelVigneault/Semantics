@@ -5,6 +5,7 @@
 #include <vector>
 #include <cassert>
 #include <typeinfo>
+#include <sstream>
 #include "parsetree.h"
 #include "semantics.h"  // for variable scopes and semantics objects
 
@@ -33,6 +34,7 @@ bool ass = false;
 int looper = 0;
 int LN = 0;
 int var0 = 0;
+int TD2 = 0;
 
 // ALL ERROR MESSAGES
 string func1 = "Variable redefined in the function's arguments";
@@ -64,6 +66,13 @@ string def1 = " does not match the definition";
 
 ParseTree * parse_decaf(FILE *);
 
+
+string ITOS ( int I ){
+	std::ostringstream ss;
+   ss << I;
+   return ss.str();
+}
+  
 S_type* basetype(ParseTree *type_tree, int arr = 0) {
   if (type_tree->description=="arraytype")
     return basetype(type_tree->children[0], arr + 1);
@@ -620,7 +629,7 @@ else if (tree->description == "class") {
 		        STMT(tree->children[3]->children[i]->children[3]);}}}}
 		
 void functions_mods(ParseTree * tree)  {
-	for (size_t i=0; i < top->children.size(); i++) {
+	for (size_t i=0; i < tree->children.size(); i++) {
   		currentClass = nullptr;
   		currentFunc = nullptr;
   		if (tree->children[i]->description == "functiondecl") {
@@ -674,6 +683,77 @@ string WS(size_t L) {
 	return lol;
 }
 
+
+string STMT1(ParseTree * tree) {
+	string out = "";
+	if (tree->description == "print") {
+		out += "   .line" + WS(17) + ITOS(tree->children[0]->token->line);
+		out += '\n';
+		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
+			out += "   getstatic" + WS(12) + "java/lang/System/out Ljava/io/PrintStream;";
+			out += '\n';
+			out += EXPR1(tree->children[1]->children[i]);
+			S_type * T = EXPR(tree->children[1]->children[i]);
+			if (T->name = "string") { out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(Ljava/lang/String;)V"; out += '\n';}
+			if (T->name = "int") { out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(I)V"; out += '\n';}
+			if (T->name = "bool") { out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(Z)V"; out += '\n';}
+		}}
+	return " ";}
+/*	else if (tree->description == "while") {
+		looper++;
+		S_type * mustbool = EXPR(tree->children[0]); 
+		if (!(mustbool->name == "bool" && mustbool->array == 0)) {semantic_error(while1, LN); } 
+		STMT(tree->children[1]);
+		looper--;
+	}
+	else if (tree->description == "for") {
+		looper++;
+		EXPR(tree->children[0]); 
+		S_type * mustbool = EXPR(tree->children[1]); 
+		if (!(mustbool->name == "bool" && mustbool->array == 0)) {semantic_error(for1, LN); }
+		EXPR(tree->children[2]); 
+		STMT(tree->children[3]);
+		looper--;
+	}
+	else if (tree->description == "break") {
+		LN = tree->children[0]->token->line;
+		if (looper == 0){ semantic_error(break1, LN); }}
+	else if (tree->description == "return") {
+		LN = tree->children[0]->token->line;
+		if (tree->children.size() == 1 && currentFunc->returnType == NULL) { return; }
+		else if (tree->children.size() == 1) { semantic_error(return1, LN); }
+		else {
+		S_type * returnT = EXPR(tree->children[1]);
+		if (!currentFunc->returnType) {semantic_error(return1, LN); }
+		else if (returnT->array == currentFunc->returnType->array && returnT->name == currentFunc->returnType->name)  { return; }
+		else if (compatibles(currentFunc->returnType, returnT)) { return; }
+		else { semantic_error(return1, LN); }}}
+	else if (tree->description == "if") {
+		S_type * mustbool = EXPR(tree->children[0]); 
+		if (!(mustbool->name == "bool" && mustbool->array == 0)) { semantic_error(ifstmt1, LN); }
+		if (tree->children.size() == 2) { STMT(tree->children[1]);}
+		if (tree->children.size() == 3) { STMT(tree->children[1]); STMT(tree->children[2]); }}
+	else if (tree->description == "stmtblock") { 
+		openscope();
+		tree->symtab = currentSS;
+		for (size_t i=0; i < tree->children[0]->children.size(); i++) {
+			S_variable * V = new S_variable();
+			V->var = var0; var0++;
+      		V->name = tree->children[0]->children[i]->children[1]->token->text;
+      		V->type = basetype(tree->children[0]->children[i]->children[0]);
+      		LN = tree->children[0]->children[i]->children[1]->token->line;
+      		V->line = LN;
+      		if (!(ensure_type(V->type))) { semantic_error(typevar, V->line); }
+      		if (currentSS->dict.count(V->name) == 1) { semantic_error(stmtblock1, LN);  }
+      		currentSS->insert(V->name, V); }
+      	for (size_t i=0; i < tree->children[1]->children.size(); i++) { STMT(tree->children[1]->children[i]); }
+      	closescope(); }
+	else if (tree->description == "nullstmt") { return; }
+	else { EXPR(tree); }
+}
+*/
+
+
 string outputType(S_type * T) {
 		string out = "";
 		for (int i=0; i < T->array; i++) { out += "["; }
@@ -693,13 +773,20 @@ string globalV(S_variable * V, string name) {
 	out += '\n';
 	return out; }
 
-string globalF(S_function * F, string name) {
+string globalF(S_function * F, string name, ParseTree * tree) {
 	string out;
 	out = ".method" + WS(18) + "public static " + name + "(";
 	for (size_t i=0; i < F->formals.size(); i++) { out += outputType(F->formals[i]->type); }
 	out +=  ')';
 	if (F->returnType->name == "") { out += 'V'; out += '\n'; }
-	else  out += outputType(F->returnType) + '\n'; 
+	else  { out += outputType(F->returnType); out += '\n'; }
+	out += WS(3) +  ".limit stack" + WS(10) + ITOS(TD2) + '\n';
+   out += WS(3) + ".limit locals" + WS(9) + ITOS(F->total) + '\n';
+   out += STMT1(tree)
+   out += '\n';
+	out += ".end method";
+	out += '\n';
+	out += '\n';
 	return out; }
 
 void code_gen_file(ParseTree * tree, string fname) {
@@ -728,7 +815,11 @@ void code_gen_file(ParseTree * tree, string fname) {
 	 	if  (dynamic_cast<S_function *>(it->second)) {
 	 		currentClass = nullptr;
   			currentFunc = nullptr;
-  			out += globalF(dynamic_cast<S_function *>(it->second), it->first); }}
+  			ParseTree * F;
+  			for (size_t i=0; i < tree->children.size(); i++) {
+  				if (tree->children[i]->description == "functiondecl" && tree->children[i]->children[1]->token->text == it->first)
+  					F = tree->children[i]; }
+  			out += globalF(dynamic_cast<S_function *>(it->second), it->first, F); }}
   	FILE << out;
 }
 
