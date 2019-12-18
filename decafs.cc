@@ -907,6 +907,15 @@ void STMT1(ParseTree * tree) {
 			if (T->name == "bool") { out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(Z)V"; NL();}
 		}
 	}
+	else if (tree->description == "return") {
+		out += "   .line" + WS(17) + ITOS(tree->children[0]->token->line); NL();
+		if (currentFunc->returnType == NULL) { out += "   return"; NL(); }
+		else {
+			EXPR1(tree->children[1]);
+   			if (F->returnType->name == "string" || F->returnType->array > 0) { out += "   areturn"; NL(); }
+   			else if (F->returnType->name == "int" || F->returnType->name == "bool") { out += "   ireturn"; NL(); }
+   			else if (F->returnType->name == "double") { out += "   dreturn"; NL(); }
+   			else { out += "   areturn"; NL(); }}}
 	else if (tree->description == "stmtblock") { 
 		currentSS = tree->symtab;
       	for (size_t i=0; i < tree->children[1]->children.size(); i++) { STMT1(tree->children[1]->children[i]); }
