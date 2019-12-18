@@ -895,7 +895,6 @@ void EXPR1(ParseTree * tree) {
 		if (tree->token->type == 9) { out += "   aload_0"; NL();}
 	}
 	else if (tree->description == "new") {
-		out += "   .line" + WS(17) + ITOS(tree->children[0]->token->line); NL();
 		out += "   new" + WS(19) +tree->children[0]->token->text; NL();
   		out  += "   dup"; NL();
    		out += "   invokespecial" + WS(9) + tree->children[0]->token->text + "/<init>()V"; NL();
@@ -918,8 +917,7 @@ void EXPR1(ParseTree * tree) {
   		out  += "   dup"; NL();
   		out += "   getstatic" + WS(13)+ "java/lang/System/in Ljava/io/InputStream;"; NL();
    		out += "   invokespecial" + WS(9) + "java/util/Scanner/<init>(Ljava/io/InputStream;)V"; NL();}
-   	else if (tree->description == "field_access") { 
-		out += "   .line" + WS(17) + ITOS(tree->children[1]->token->line); NL();
+   	else if (tree->description == "field_access") {
 		EXPR1(tree->children[0]);
 		out += "   getfield" + WS(13)+ currentClass->name + "/" + tree->children[1]->token->text;
 		string name1 = tree->children[1]->token->text;
@@ -928,7 +926,6 @@ void EXPR1(ParseTree * tree) {
 	}
 	else if (tree->description == "call") {
 		if (tree->children[0]->token) {
-			out += "   .line" + WS(17) + ITOS(tree->children[0]->token->line); NL();
 			out += "   invokestatic" + WS(10);
 			string Fname = tree->children[0]->token->text;
 			S_function * F;
@@ -949,7 +946,6 @@ void EXPR1(ParseTree * tree) {
 			if (F->returnType) { out += outputType(F->returnType); NL(); }
 			else { out += "V"; NL(); }}
 		else  {
-			out += "   .line" + WS(17) + ITOS(tree->children[0]->children[1]->token->line); NL();
 			EXPR1(tree->children[0]->children[0]);
 			out += "   invokestatic" + WS(10);
 			S_type * T1 = EXPR(tree->children[0]->children[0]);
@@ -974,7 +970,6 @@ void EXPR1(ParseTree * tree) {
 void STMT1(ParseTree * tree) {
 	cout<< "STMT1 - " << tree->description <<endl;
 	if (tree->description == "print") {
-		out += "   .line" + WS(17) + ITOS(tree->children[0]->token->line); NL();
 		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
 			out += "   getstatic" + WS(13) + "java/lang/System/out Ljava/io/PrintStream;"; NL();
 			EXPR1(tree->children[1]->children[i]);
@@ -985,7 +980,6 @@ void STMT1(ParseTree * tree) {
 		}
 	}
 	else if (tree->description == "return") {
-		out += "   .line" + WS(17) + ITOS(tree->children[0]->token->line); NL();
 		if (currentFunc->returnType == NULL) { out += "   return"; NL(); }
 		else {
 			EXPR1(tree->children[1]);
@@ -1031,7 +1025,6 @@ void STMT1(ParseTree * tree) {
 		currLABEL.pop_back();
 	}
 	else if (tree->description == "break") {
-		out += "   .line" + WS(17) + ITOS(tree->children[0]->token->line); NL();
 		out += "   goto" + WS(18) + currLABEL.back(); NL();
 	}
 	else if (tree->description == "stmtblock") { 
