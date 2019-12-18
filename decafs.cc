@@ -924,7 +924,7 @@ void STMT1(ParseTree * tree) {
 		out += "   if_cmpeq" + WS(13); out += l1; NL();
 		STMT1(tree->children[1]);
 		out += l1 + ":"; NL();
-		STMT1(tree->children[2]);
+		if (tree->children.size() == 3) STMT1(tree->children[2]);
 	}
 	else if (tree->description == "for") {
 		string l1 = label_generator();
