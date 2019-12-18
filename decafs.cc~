@@ -944,7 +944,7 @@ void EXPR1(ParseTree * tree) {
 					EXPR1(tree->children[1]->children[i]); }
 				out += "   invokevirtual" + WS(9)+ currentClass->name + "/" + Fname + "("; 
 			}}
-			else if (! found) { 
+			if (! found) { 
 				F = dynamic_cast<S_function *>(topSS->local_lookup(Fname));
 				for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
 					EXPR1(tree->children[1]->children[i]); }
@@ -952,7 +952,7 @@ void EXPR1(ParseTree * tree) {
 			}
 			for (size_t i=0; i < F->formals.size(); i++) { out += outputType(F->formals[i]->type); }
 			out +=  ')';
-			if (F->returnType) { out += outputType(F->returnType); NL(); }
+			if (F->returnType != "") { out += outputType(F->returnType); NL(); }
 			else { out += "V"; NL(); }}
 		else  {
 			S_type * T1 = EXPR(tree->children[0]->children[0]);
