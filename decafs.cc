@@ -702,7 +702,7 @@ string globalF(S_function * F, string name) {
 	else  out += outputType(F->returnType) + '\n'; 
 	return out; }
 
-void code_generation(ParseTree * tree, string fname) {
+void code_gen_file(ParseTree * tree, string fname) {
 	string real = f_name(fname);
 	fstream FILE; 
 	tree = tree;
@@ -719,8 +719,10 @@ void code_generation(ParseTree * tree, string fname) {
    out += WS(3) +  ".line" + WS(17) + "1" +'\n';
    out += WS(3) + "aload_0" + '\n';   
    out += WS(3) + "invokespecial" + WS(9) + "java/lang/Object/<init>()V" + '\n';
-   out += WS(3) + "return" + '\n';
-	out += ".end method" + '\n';
+   out += WS(3) + "return";
+   out += '\n';
+	out += ".end method";
+	out += '\n';
 	out += '\n';
 	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { 
 	 	if  (dynamic_cast<S_function *>(it->second)) {
@@ -730,6 +732,10 @@ void code_generation(ParseTree * tree, string fname) {
   	FILE << out;
 }
 
+void code_gen(ParseTree * tree, string fname) {
+	code_gen_file(tree, fname);
+
+}
 
 void check_semantics(ParseTree * top) {
 	top->symtab = topSS;
@@ -789,7 +795,7 @@ int main(int argc, char ** argv) {
   check_semantics(top);
   cout << "SEMANTICS" <<endl;
   string filename = argv[1];
-  code_generation(top, filename);
+  code_gen(top, filename);
   cout << "GENERATED" <<endl;
   traverseTree(top, 0, 1);
   return 0;

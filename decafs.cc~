@@ -698,7 +698,7 @@ string globalF(S_function * F, string name) {
 	out = ".method" + WS(18) + "public static " + name + "(";
 	for (size_t i=0; i < F->formals.size(); i++) { out += outputType(F->formals[i]->type); }
 	out +=  ')';
-	if (F->returnType->name == "") out += 'V'; out += '\n';
+	if (F->returnType->name == "") { out += 'V'; out += '\n'; }
 	else  out += outputType(F->returnType) + '\n'; 
 	return out; }
 
