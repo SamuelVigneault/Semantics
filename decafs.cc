@@ -1027,7 +1027,7 @@ void STMT1(ParseTree * tree) {
 		out += "   iconst_1"; NL();
 		out += "   if_cmpneq" + WS(13); out += l2; NL();
 		currLABEL.push_back(l2);
-		STMT(tree->children[1]);
+		STMT1(tree->children[1]);
 		out += "   goto" + WS(18) + l1 + " "; NL();
 		out += l2 + ":"; NL();
 		currLABEL.pop_back();
