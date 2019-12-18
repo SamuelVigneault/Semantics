@@ -738,24 +738,7 @@ string EXPR1(ParseTree * tree) {
 			out += "   iconst_0"; out+= '\n';
 			out += l2 + ":"; out += '\n';
 			return out;
-		}/*
-		if (type == 38) {
-			S_type * L = EXPR(tree->children[0]);
-			S_type * R = EXPR(tree->children[2]);
-			return out;
 		}
-		else if (type > 33 && type < 38) { 
-			S_type * L = EXPR(tree->children[0]);
-			S_type * R = EXPR(tree->children[2]); 
-			if (L->name == R->name && (L->name == "int" || L->name == "double") && L->array == 0 && R->array == 0) { return type_creator("bool"); }
-			else { semantic_error("arithmetic comparaison", LN); }
-		}
-		else if (type > 28 && type < 34) { 
-			S_type * L = EXPR(tree->children[0]);
-			S_type * R = EXPR(tree->children[2]); 
-			if (L->name == R->name && (L->name == "int" || L->name == "double") && L->array == 0 && R->array == 0) { return L; }
-			else { semantic_error("math equations symbols", LN); }
-		 }*/
 	}
 	else if (tree->token) {	
 		if (tree->token->type == 8) { 
@@ -785,132 +768,7 @@ string EXPR1(ParseTree * tree) {
 			return out;
 		}
 	}}
-/*
-	else if (tree->description == "uop") {
-		if (tree->children[0]->token->type == 30) {
-			S_type * T = EXPR(tree->children[1]);
-			if (!((T->name == "int" || T->name == "double") && T->array == 0)) { semantic_error("negation operator", LN); }
-			return T;
-		}
-		if (tree->children[0]->token->type == 43) {
-			S_type * T = EXPR(tree->children[1]);
-			if (!((T->name == "bool") && T->array == 0)) { semantic_error("! - not unary", LN); }
-			return T;
-		}
-	}
-	else if (tree->description == "aref") {
-		S_type * L = EXPR(tree->children[0]);
-		S_type * R = EXPR(tree->children[1]); 
-		if (!(R->name == "int" && R->array == 0)) { semantic_error(aref2, LN); }
-		else if (!(L->array > 0)) { semantic_error(aref1, LN); }
-		else { L->array--; return L; }} 	
-	else if (tree->description == "call") {
-		if (tree->children[0]->token) {
-			string Fname = tree->children[0]->token->text;
-			LN = tree->children[0]->token->line;
-			S_function * F;
-			bool found = false;
-			if (currentClass) {
-				for (size_t i=0; i < currentClass->functions.size(); i++) { 
-					if (currentClass->functions[i]->name == Fname) { F = currentClass->functions[i]; found = true; }}
-			}
-			else if (! found) {
-				if (topSS->local_lookup(Fname) && dynamic_cast<S_function *>(topSS->local_lookup(Fname))) {
-					F = dynamic_cast<S_function *>(topSS->local_lookup(Fname)); }
-				else { semantic_error("No method of the current class or function called" + Fname + " is defined", LN); }
-			}
-    		if (tree->children[1]->children.size() != F->formals.size()) { semantic_error("Num. of arguments in function " + Fname + def1, LN); }
-    		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
-				S_type * T1 = EXPR(tree->children[1]->children[i]); 
-				S_type * T2 = F->formals[i]->type;
-				if (! compatibles(T2, T1)) { semantic_error("Type of the arguments of the function " + Fname + " don't match", LN); }}
-			if (F->returnType) { return F->returnType; }
-			else { return type_creator("");; }}
-		else  {
-			S_class * C1 = nullptr;
-			S_interface * I1 = nullptr;
-			S_type * T1 = EXPR(tree->children[0]->children[0]);
-			string Fname = tree->children[0]->children[1]->token->text;
-			LN = tree->children[0]->children[1]->token->line;
-			
-			if (T1->array > 0 && Fname == "length" && tree->children[1]->children.size() == 0) { return type_creator("int"); }
-			else if (!(T1->array == 0)) { semantic_error("Arrays do not have methods ", LN); } 
-			else if (topSS->local_lookup(T1->name) && dynamic_cast<S_class *>(topSS->local_lookup(T1->name))) {
-				C1 = dynamic_cast<S_class *>(topSS->local_lookup(T1->name)); }
-			else if (topSS->local_lookup(T1->name) && dynamic_cast<S_interface *>(topSS->local_lookup(T1->name))) {
-				I1 = dynamic_cast<S_interface *>(topSS->local_lookup(T1->name)); }
-			else { semantic_error("Objects of primitive types or objects with no types do not have methods", LN); }
-			S_function * F;
-			bool found = false;
-			
-			if (C1) { 
-				for (size_t i=0; i < C1->functions.size(); i++) { 
-					if (C1->functions[i]->name == Fname) { F = C1->functions[i]; found = true; }}}
-			else if (I1) { 
-				for (size_t i=0; i < I1->functions.size(); i++) { 
-					if (I1->functions[i]->name == Fname) { F = I1->functions[i]; found = true; }}}
-			
-    		if (!found) { semantic_error("Method " + Fname + " is not defined in that user-defined object type", LN); }
-    		if (tree->children[1]->children.size() != F->formals.size()) { semantic_error("Num. of arguments in method " + Fname + def1, LN); }
-    		
-    		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
-				S_type * T1 = EXPR(tree->children[1]->children[i]); 
-				S_type * T2 = F->formals[i]->type;
-				if (! compatibles(T2, T1)) { semantic_error("Type of the arguments of the method " + Fname + " don't match", LN); }
-			}
-			if (F->returnType) { return F->returnType; }
-			else { return type_creator(""); }
-		}}
-	else if (tree->description == "new") {
-		ass = false;
-		string name = tree->children[0]->token->text;
-		LN = tree->children[0]->token->line;
-		if (topSS->local_lookup(name) && dynamic_cast<S_class *>(topSS->local_lookup(name))) { return type_creator(name); }
-    	else { semantic_error(new1, LN); }
-	}
-	else if (tree->description == "newarray") {
-		ass = false;
-		S_type * L = EXPR(tree->children[0]);
-		if (!(L->name == "int" &&  L->array == 0)) { semantic_error("Newarray's first argument must be of type int", LN); }
-		S_type * R = basetype(tree->children[1]);
-		if (!(ensure_type(R))) { semantic_error("Type undefined in new array", LN); }
-		R->array++;
-		return R;
-	}
-	else if (tree->description == "readline") { return type_creator("string"); }
-	else if (tree->description == "readinteger") { return type_creator("int"); }
-	else if (tree->description == "field_access") { 
-		LN = tree->children[1]->token->line;
-		if (!currentClass) {semantic_error("Cannot access class variables outside class scope", LN); }
-		S_type * T = EXPR(tree->children[0]);
-		if (T->array != 0) {semantic_error("Cannot access class variables of an array object", LN);}
-		if (T->name != currentClass->name) {semantic_error("Cannot access class variables outside of class scope", LN);}
-		string name1 = tree->children[1]->token->text;
-		for (unsigned int k=0; k <  currentClass->variables.size(); k++) {
-    		if (name1 == currentClass->variables[k]->name) { return currentClass->variables[k]->type; }}
-	semantic_error("Variable undefined in the current class", LN);
-	}
-	else if (tree->token) {	
-		if (tree->token->type == 8) { LN = tree->token->line; return type_creator("null"); }
-		if (tree->token->type == 23) { 
-			LN = tree->token->line; 
-			if (currentSS->lookup(tree->token->text)){
-				semantics * S = currentSS->lookup(tree->token->text);
-				if (dynamic_cast<S_variable *>(S)) { S_type* temp = dynamic_cast<S_variable *>(S)->type; return type_creator(temp->name, temp->array); }
-    			else  { semantic_error("Identifier is not a variable", LN);}}
-			else { semantic_error("Identifier is not defined in this scope", LN);}}
-		if (tree->token->type == 25) { LN = tree->token->line; return type_creator("int"); }
-		if (tree->token->type == 26) { LN = tree->token->line; return type_creator("bool"); }
-		if (tree->token->type == 27) { LN = tree->token->line; return type_creator("double"); }
-		if (tree->token->type == 28) { LN = tree->token->line; return type_creator("string"); }
-		if (tree->token->type == 9) {
-			if (currentClass) { LN = tree->token->line; return type_creator(currentClass->name); }
-			else { semantic_error("This cannot be used outside of a class scope", LN);}
-			}
-	}
-	return one;
-}*/
-
+	
 string STMT1(ParseTree * tree) {
 	string out = "";
 	if (tree->description == "print") {
@@ -926,59 +784,6 @@ string STMT1(ParseTree * tree) {
 			if (T->name = "bool") { out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(Z)V"; out += '\n';}}
 		return out;
 	}}
-/*	else if (tree->description == "while") {
-		looper++;
-		S_type * mustbool = EXPR(tree->children[0]); 
-		if (!(mustbool->name == "bool" && mustbool->array == 0)) {semantic_error(while1, LN); } 
-		STMT(tree->children[1]);
-		looper--;
-	}
-	else if (tree->description == "for") {
-		looper++;
-		EXPR(tree->children[0]); 
-		S_type * mustbool = EXPR(tree->children[1]); 
-		if (!(mustbool->name == "bool" && mustbool->array == 0)) {semantic_error(for1, LN); }
-		EXPR(tree->children[2]); 
-		STMT(tree->children[3]);
-		looper--;
-	}
-	else if (tree->description == "break") {
-		LN = tree->children[0]->token->line;
-		if (looper == 0){ semantic_error(break1, LN); }}
-	else if (tree->description == "return") {
-		LN = tree->children[0]->token->line;
-		if (tree->children.size() == 1 && currentFunc->returnType == NULL) { return; }
-		else if (tree->children.size() == 1) { semantic_error(return1, LN); }
-		else {
-		S_type * returnT = EXPR(tree->children[1]);
-		if (!currentFunc->returnType) {semantic_error(return1, LN); }
-		else if (returnT->array == currentFunc->returnType->array && returnT->name == currentFunc->returnType->name)  { return; }
-		else if (compatibles(currentFunc->returnType, returnT)) { return; }
-		else { semantic_error(return1, LN); }}}
-	else if (tree->description == "if") {
-		S_type * mustbool = EXPR(tree->children[0]); 
-		if (!(mustbool->name == "bool" && mustbool->array == 0)) { semantic_error(ifstmt1, LN); }
-		if (tree->children.size() == 2) { STMT(tree->children[1]);}
-		if (tree->children.size() == 3) { STMT(tree->children[1]); STMT(tree->children[2]); }}
-	else if (tree->description == "stmtblock") { 
-		openscope();
-		tree->symtab = currentSS;
-		for (size_t i=0; i < tree->children[0]->children.size(); i++) {
-			S_variable * V = new S_variable();
-			V->var = var0; var0++;
-      		V->name = tree->children[0]->children[i]->children[1]->token->text;
-      		V->type = basetype(tree->children[0]->children[i]->children[0]);
-      		LN = tree->children[0]->children[i]->children[1]->token->line;
-      		V->line = LN;
-      		if (!(ensure_type(V->type))) { semantic_error(typevar, V->line); }
-      		if (currentSS->dict.count(V->name) == 1) { semantic_error(stmtblock1, LN);  }
-      		currentSS->insert(V->name, V); }
-      	for (size_t i=0; i < tree->children[1]->children.size(); i++) { STMT(tree->children[1]->children[i]); }
-      	closescope(); }
-	else if (tree->description == "nullstmt") { return; }
-	else { EXPR(tree); }
-}
-*/
 
 
 string outputType(S_type * T) {
