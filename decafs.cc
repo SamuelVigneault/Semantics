@@ -397,7 +397,8 @@ S_type * EXPR(ParseTree * tree) {
 	if (tree->description == "binop") {
 		int type = tree->children[1]->token->type;
 		if (type == 38) {
-			ass =true;
+			cout << "ASSIGN - PASS 2 "  << LN << endl;
+			ass = true;
 			S_type * L = EXPR(tree->children[0]);
 			if (!ass) { semantic_error("Cannot have New or NewArray on left side of assignment", LN); }
 			S_type * R = EXPR(tree->children[2]);
