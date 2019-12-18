@@ -765,7 +765,6 @@ void EXPR1(ParseTree * tree) {
 }
 	
 void STMT1(ParseTree * tree) {
-	string out = "";
 	if (tree->description == "print") {
 		out += "   .line" + WS(17) + ITOS(tree->children[0]->token->line); NL();
 		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
@@ -788,18 +787,18 @@ void STMT1(ParseTree * tree) {
 
 
 string outputType(S_type * T) {
-		string out = "";
-		for (int i=0; i < T->array; i++) { out += "["; }
-		if (T->name == "int") out += "I" ;
-		else if (T->name == "bool") out += "Z";
-		else if (T->name == "double")out +="D";
-		else if (T->name == "string") out += "Ljava/lang/String;";
-		else out += "L" + T->name + ";";
-		return out;
+		string newer = "";
+		for (int i=0; i < T->array; i++) { newer  += "["; }
+		if (T->name == "int") newer += "I" ;
+		else if (T->name == "bool") newer += "Z";
+		else if (T->name == "double") newer +="D";
+		else if (T->name == "string") newer += "Ljava/lang/String;";
+		else newer += "L" + T->name + ";";
+		return newer;
 }
 
 void globalV(S_variable * V, string name) {
-	out =  ".field" + WS(19) + "public static " + name  + " ";
+	out +=  ".field" + WS(19) + "public static " + name  + " ";
 	out += outputType(V->type); NL(); NL(); }
 
 void globalF(S_function * F, string name, ParseTree * tree) {
