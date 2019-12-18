@@ -771,7 +771,7 @@ void EXPR1(ParseTree * tree) {
 			if (type == 34) {out += "   if_cmplt" + WS(14) + l1 + " "; NL();}
 			if (type == 35) {out += "   if_cmple" + WS(14) + l1 + " "; NL();}
 			if (type == 36) {out += "   if_cmpgt" + WS(14) + l1 + " "; NL();}
-			if (type == 37) {out += "   if_cmpge" + WS(14); + l1 + " "; NL();}
+			if (type == 37) {out += "   if_cmpge" + WS(14) + l1 + " "; NL();}
 			out += "   ldc"+ WS(19) + "0 "; NL();
 			out += "   goto" + WS(18); out += l2; NL();
 			out += l1 + ": "; NL();
