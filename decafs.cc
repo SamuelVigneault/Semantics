@@ -585,11 +585,11 @@ void STMT(ParseTree * tree) {
 		if (looper == 0){ semantic_error(break1, LN); }}
 	else if (tree->description == "return") {
 		LN = tree->children[0]->token->line;
-		if (tree->children.size() == 1 && currentFunc->returnType == NULL) { return; }
+		if (tree->children.size() == 1 && currentFunc->returnType->name == "") { return; }
 		else if (tree->children.size() == 1) { semantic_error(return1, LN); }
 		else {
 		S_type * returnT = EXPR(tree->children[1]);
-		if (!currentFunc->returnType) {semantic_error(return1, LN); }
+		if (currentFunc->returnType->name == "") {semantic_error(return1, LN); }
 		else if (returnT->array == currentFunc->returnType->array && returnT->name == currentFunc->returnType->name)  { return; }
 		else if (compatibles(currentFunc->returnType, returnT)) { return; }
 		else { semantic_error(return1, LN); }}}
