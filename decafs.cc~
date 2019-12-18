@@ -920,6 +920,57 @@ void EXPR1(ParseTree * tree) {
   		out  += "   dup"; NL();
   		out += "   getstatic" + WS(13)+ "java/lang/System/in Ljava/io/InputStream;"; NL();
    		out += "   invokespecial" + WS(9) + "java/util/Scanner/<init>(Ljava/io/InputStream;)V"; NL();}
+   	else if (tree->description == "field_access") { 
+		out += "   .line" + WS(17) + ITOS(tree->children[1]->token->line); NL();
+		EXPR1(tree->children[0]);
+		out += "   getfield" + WS(13)+ currentClass->name + "/" + tree->children[1]->token->text;
+		string name1 = tree->children[1]->token->text;
+		for (unsigned int k=0; k <  currentClass->variables.size(); k++) {
+    		if (name1 == currentClass->variables[k]->name) { out += outputType(currentClass->variables[k]->type); NL();}}
+	}
+	else if (tree->description == "call") {
+		if (tree->children[0]->token) {
+			out += "   .line" + WS(17) + ITOS(tree->children[0]->token->line); NL();
+			out += "   invokestatic" + WS(10);
+			string Fname = tree->children[0]->token->text;
+			S_function * F;
+			bool found = false;
+			if (currentClass) {
+				for (size_t i=0; i < currentClass->functions.size(); i++) { 
+					if (currentClass->functions[i]->name == Fname) { 
+						F = currentClass->functions[i]; 
+						found = true; 
+						out += currentClass->name + "/" + Fname + "(";
+			}}}
+			else if (! found) { 
+				F = dynamic_cast<S_function *>(topSS->local_lookup(Fname));
+				out += Rname + "/" + Fname + "(";
+			}
+			for (size_t i=0; i < F->formals.size(); i++) { out += outputType(F->formals[i]->type); }
+			out +=  ')';
+			if (F->returnType) { out += outputType(F->returnType); NL(); }
+			else { out += "V"; NL();) }}
+		else  {
+			out += "   .line" + WS(17) + ITOS(tree->children[0]->children[1]->token->line); NL();
+			EXPR1(tree->children[0]->children[0]);
+			out += "   invokestatic" + WS(10);
+			S_type * T1 = EXPR(tree->children[0]->children[0]);
+			S_class * C1 = nullptr;
+			string Fname = tree->children[0]->children[1]->token->text;
+			if (topSS->local_lookup(T1->name) && dynamic_cast<S_class *>(topSS->local_lookup(T1->name))) {
+				C1 = dynamic_cast<S_class *>(topSS->local_lookup(T1->name)); }
+			S_function * F;
+			if (C1) { 
+				for (size_t i=0; i < C1->functions.size(); i++) { 
+					if (C1->functions[i]->name == Fname) { 
+						F = C1->functions[i]; }}}
+			out += C1->name + "/" + Fname + "(";
+			for (size_t i=0; i < F->formals.size(); i++) { out += outputType(F->formals[i]->type); }
+			out +=  ')';
+			if (F->returnType) { out += outputType(F->returnType); NL(); }
+			else { out += "V"; NL();) }}
+			
+		}}
 }
 	
 void STMT1(ParseTree * tree) {
