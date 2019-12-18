@@ -1111,12 +1111,12 @@ void globalF(ParseTree * tree) {
 void classesOut(ParseTree * tree) {
 	fstream FILE; 
    FILE.open(currentClass->name + ".j", ios::out);
-   
+   	cout <<"HEYYYY2" << endl;
    out += ".source" + WS(18) + fname1111; NL();
    out += ".class" + WS(19) + currentClass->name; NL();
    if (currentClass->parentClass != "") { out += ".super" + WS(19) + currentClass->parentClass; NL();NL();NL(); }
    else { out += ".super" + WS(19) + "java/lang/Object"; NL();NL();NL();}
-   
+   	cout <<"HEYYYY8" << endl;
    for (std::map<string, semantics *>::iterator it=tree->symtab->dict.begin(); it!=tree->symtab->dict.end(); ++it) { 
    		if  (dynamic_cast<S_variable *>(it->second)) {
    			S_variable * V = dynamic_cast<S_variable *>(it->second);
@@ -1182,13 +1182,15 @@ void code_gen_file(ParseTree * tree, string fname) {
   					
   	FILE << out;
   	FILE.close();
-  	
+  	cout <<"HEYYYY" << endl;
   	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { 
 	 	if  (dynamic_cast<S_class *>(it->second)) {
 	 		currentFunc = nullptr;
   			currentClass = dynamic_cast<S_class *>(it->second);
+  			cout <<"HEYYYY" << endl;
   			for (size_t i=0; i < tree->children.size(); i++) {
   				if (tree->children[i]->description == "class" && tree->children[i]->children[0]->token->text == it->first)
+  					cout <<"HEYYYY5" << endl;
   					classesOut(tree->children[i]); }}}
 }
 
