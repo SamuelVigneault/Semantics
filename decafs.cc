@@ -757,7 +757,7 @@ string EXPR1(ParseTree * tree) {
 			}
 			out+= '\n';
 			return out;}
-  		if (tree->token->type == 25 || ) { out += "   ldc" + WS(19) + tree->token->text; out+= '\n'; return out; }
+  		if (tree->token->type == 25 ) { out += "   ldc" + WS(19) + tree->token->text; out+= '\n'; return out; }
 		if (tree->token->type == 26) { 
 			if (tree->token->text == "true") { out += "   iconst_1"; out+= '\n'; return out; }
 			else {out += "   iconst_0"; out+= '\n'; return out; }}
@@ -781,15 +781,15 @@ string STMT1(ParseTree * tree) {
 			out += '\n';
 			out += EXPR1(tree->children[1]->children[i]);
 			S_type * T = EXPR(tree->children[1]->children[i]);
-			if (T->name = "string") { 
+			if (T->name == "string") { 
 				out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(Ljava/lang/String;)V"; 
 				out += '\n';
 			}
-			if (T->name = "int") { 
+			if (T->name == "int") { 
 				out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(I)V"; 
 				out += '\n';
 			}
-			if (T->name = "bool") { 
+			if (T->name == "bool") { 
 				out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(Z)V"; 
 				out += '\n';
 			}
