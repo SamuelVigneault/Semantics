@@ -807,8 +807,8 @@ void EXPR1(ParseTree * tree) {
 					else { out += "   astore" + WS(16); }
 					out += ITOS(lol); NL();
 				}
-				cout << "GLOBAL ASSIGN"<< endl;
 				else {
+					cout << "GLOBAL ASSIGN"<< endl;
 					if (currentClass) {
 						Symtab * othertab;
 						for (size_t i=0; i < TOPPER->children.size(); i++) {
