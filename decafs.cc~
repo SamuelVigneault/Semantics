@@ -697,7 +697,7 @@ string WS(size_t L) {
 
 string label_generator() {
 	label++;
-	return "LAB" + ITOS(label);
+	return "LABEL" + ITOS(label);
 }
 
 string outputType(S_type * T) {
@@ -941,6 +941,19 @@ void STMT1(ParseTree * tree) {
 		out += "   goto" + WS(18); out += l1; NL();
 		out += l2 + ":"; NL();
 		currLABEL.pop_back(); 
+	}
+	else if (tree->description == "while") {
+		string l1 = label_generator();
+		string l2 = label_generator();
+		out += l1 + ":"; NL(); 
+		EXPR1(tree->children[0);
+		out += "   iconst_1"; NL();
+		out += "   if_cmpneq" + WS(13); out += l2; NL();
+		currLABEL.push_back(l2);
+		STMT(tree->children[1]);
+		out += "   goto" + WS(18); out += l1; NL();
+		out += l2 + ":"; NL();
+		currLABEL.pop_back();
 	}
 	else if (tree->description == "break") {
 		out += "   .line" + WS(17) + ITOS(tree->children[0]->token->line); NL();
