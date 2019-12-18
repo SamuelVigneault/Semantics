@@ -946,7 +946,7 @@ void STMT1(ParseTree * tree) {
 		string l1 = label_generator();
 		string l2 = label_generator();
 		out += l1 + ":"; NL(); 
-		EXPR1(tree->children[0);
+		EXPR1(tree->children[0]);
 		out += "   iconst_1"; NL();
 		out += "   if_cmpneq" + WS(13); out += l2; NL();
 		currLABEL.push_back(l2);
