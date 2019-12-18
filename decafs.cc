@@ -799,6 +799,7 @@ string STMT1(ParseTree * tree) {
 	else if (tree->description == "stmtblock") { 
 		currentSS = tree->symtab;
       	for (size_t i=0; i < tree->children[1]->children.size(); i++) { out += STMT1(tree->children[1]->children[i]); }
+      	closescope();
       	return out;
    }
 	else if (tree->description == "nullstmt") { return out; }
