@@ -979,7 +979,7 @@ void EXPR1(ParseTree * tree) {
 }
 	
 void STMT1(ParseTree * tree) {
-	cout<< "STMT1 - "  <<endl;
+	cout<< "STMT1 - " << tree->description <<endl;
 	if (tree->description == "print") {
 		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
 			out += "   getstatic" + WS(13) + "java/lang/System/out Ljava/io/PrintStream;"; NL();
@@ -1073,7 +1073,8 @@ void classF(ParseTree * tree) {
    		out += "   aconst_null"; NL();
    		out += "   areturn"; NL(); }
 	out += ".end method";
-	NL(); NL(); }
+	NL(); NL(); 
+	}
 	
 void classV(S_variable * V, string name) {
 	out +=  ".field" + WS(19) + "protected " + name  + " ";
