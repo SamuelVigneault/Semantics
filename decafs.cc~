@@ -912,9 +912,9 @@ void STMT1(ParseTree * tree) {
 		if (currentFunc->returnType == NULL) { out += "   return"; NL(); }
 		else {
 			EXPR1(tree->children[1]);
-   			if (F->returnType->name == "string" || F->returnType->array > 0) { out += "   areturn"; NL(); }
-   			else if (F->returnType->name == "int" || F->returnType->name == "bool") { out += "   ireturn"; NL(); }
-   			else if (F->returnType->name == "double") { out += "   dreturn"; NL(); }
+   			if (currentFunc->returnType->name == "string" || currentFunc->returnType->array > 0) { out += "   areturn"; NL(); }
+   			else if (currentFunc->returnType->name == "int" || currentFunc->returnType->name == "bool") { out += "   ireturn"; NL(); }
+   			else if (currentFunc->returnType->name == "double") { out += "   dreturn"; NL(); }
    			else { out += "   areturn"; NL(); }}}
 	else if (tree->description == "stmtblock") { 
 		currentSS = tree->symtab;
