@@ -971,7 +971,7 @@ void EXPR1(ParseTree * tree) {
 				out += "   invokevirtual" + WS(9)+ C1->name + "/" + Fname + "(";
 				for (size_t i=0; i < F->formals.size(); i++) { out += outputType(F->formals[i]->type); }
 				out +=  ')';
-				if (F->returnType) { out += outputType(F->returnType); NL(); }
+				if (F->returnType->name != "") { out += outputType(F->returnType); NL(); }
 				else { out += "V"; NL(); }}
 			else cout << "WARNING: we cannot code generate interfaces" << endl;
 		}	
