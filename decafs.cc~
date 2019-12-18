@@ -810,6 +810,19 @@ void globalF(S_function * F, string name, ParseTree * tree) {
 	out += WS(3) +  ".limit stack" + WS(10) + ITOS(TD2) + '\n';
    out += WS(3) + ".limit locals" + WS(9) + ITOS(F->total) + '\n';
    STMT1(tree->children[3]);
+   if (F->returnType->name == "") { out += "   return"; NL(); }
+   else if (F->returnType->name == "string" || F->returnType->array > 0) { 
+   		out += "   aconst_null"; NL();
+   		out += "   areturn"; NL(); }
+   	else if (F->returnType->name == "int" || F->returnType->name == "bool") { 
+   		out += "   iconst_0"; NL();
+   		out += "   ireturn"; NL(); }
+   	else if (F->returnType->name == "double") { 
+   		out += "   ldc2_w" + WS(16) + "0"; NL();
+   		out += "   dreturn"; NL(); }
+   	else {
+   		out += "   aconst_null"; NL();
+   		out += "   areturn"; NL(); }
 	out += ".end method";
 	NL(); NL(); }
 
