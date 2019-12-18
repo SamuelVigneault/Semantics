@@ -675,10 +675,10 @@ void check_main() {
 	if (topSS->local_lookup("main") && dynamic_cast<S_function *>(topSS->local_lookup("main"))) {
 		S_function * M = dynamic_cast<S_function *>(topSS->local_lookup("main"));
 		if (M->returnType->name != "" || M->formals.size() != 1 || M->formals[0]->type->name != "string" || M->formals[0]->type->array != 1) {
-			semantic_error("Global function main must return void and have no arguments", 1); }
+			cout << "WARNING: Global function main must return void and have no arguments" << endl; }
 		return;
 	}
-	else semantic_error("No declaration for the global function main", 1); }
+	else cout << "WARNING: No main function" << endl; }
 	
 string f_name(string name1) {
 	string real = "_";
@@ -796,24 +796,18 @@ void EXPR1(ParseTree * tree) {
 		 }
 		 else {
 		 	EXPR1(tree->children[2]);
-		 	cout << "ASSIGN" << endl;
 		 	if (tree->children[0]->token) {
 		 		string identi = tree->children[0]->token->text;
-		 		cout << "GLOBAL ASSIGN"<< endl;
 				S_variable * V = dynamic_cast<S_variable *>(currentSS->lookup(identi));
 				bool found = false;
 				bool found1 = false;
 				int lol;
-				cout << "GLOBAL ASSIGN"<< endl;
 				for (size_t i=0; i < currentFunc->vars.size(); i++) {
-					cout << "local" << endl;
 					if (V->var == currentFunc->vars[i] && V->name == currentFunc->locals[i]) {
-						cout << "found" <<endl;
 						lol = currentFunc->nums[i]; 
 						found = true;
 					}
 				}
-				cout << "GLOBAL ASSIGN"<< endl;
 				if (found) {
 					if ((V->type->name == "bool" || V->type->name == "int") && V->type->array == 0) { out += "   istore" + WS(16); }
 					else if ( V->type->name == "double" && V->type->array == 0) { out += "   dstore" + WS(16); }
@@ -821,7 +815,6 @@ void EXPR1(ParseTree * tree) {
 					out += ITOS(lol); NL();
 				}
 				else {
-					cout << "GLOBAL ASSIGN"<< endl;
 					if (currentClass) {
 						Symtab * othertab;
 						for (size_t i=0; i < TOPPER->children.size(); i++) {
@@ -838,7 +831,6 @@ void EXPR1(ParseTree * tree) {
 							NL();
 						}}
 					if (!found1) {
-						 cout << "GLOBAL ASSIGN"<< endl;
 						out += "   putstatic" + WS(13) + Rname + "/" + identi + " ";
 						out += outputType((dynamic_cast<S_variable *>(topSS->local_lookup(identi)))->type);
 						NL(); 
@@ -1117,29 +1109,21 @@ void code_gen(ParseTree * tree, string fname) {
 void check_semantics(ParseTree * top) {
 	top->symtab = topSS;
 	for (size_t i=0; i < top->children.size(); i++) traversing1(top->children[i]);
-	cout << "TRAVERSE1" <<endl;
 	type_definition();							// makes sure all user types are defined user types
-  	cout << "TYPES DEFINED" <<endl;
-  	compat1();		
-  	cout << "COMPATIBLE TABLE" <<endl;
+  	compat1();
 	check_parents(); 							// makes sure every class' parent is declared
   	check_loops(); 								// makes sure no class is a subclass of itself
-  	check_parents2(top); 					// modifies each class scope to include its parents' objects
-  	cout << "CLASSES" <<endl;									//
+  	check_parents2(top); 					// modifies each class scope to include its parents' objects									//
   	check_implements(); 					// makes sure every class' interfaces are declared
   	check_implements2(top);			// makes sure every class' interfaces' functions are defined in the class scope
-  	cout << "IMPLEMENTS" <<endl;
  	functions_mods(top);					// fills in formals code generation numbers
- 	cout << "FORMAL GENERATE" <<endl;
   	check_main();									// checks for main function
-  	cout << "MAIN" <<endl;
   	LN = 0;
   	for (size_t i=0; i < top->children.size(); i++) {
   		currentClass = nullptr;
   		currentFunc = nullptr;
   		traversing2(top->children[i]);
   }
-  cout << "TRAVERSE2" <<endl;
 }
 
 int main(int argc, char ** argv) { 
@@ -1175,7 +1159,7 @@ int main(int argc, char ** argv) {
   string filename = argv[1];
   code_gen(top, filename);
   cout << "GENERATED" <<endl;
-  traverseTree(top, 0, 1);
+  //traverseTree(top, 0, 1);
   return 0;
 #endif
 }
