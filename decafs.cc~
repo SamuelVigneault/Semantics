@@ -1056,7 +1056,7 @@ void classF(ParseTree * tree) {
 	
 	out += WS(3) +  ".limit stack" + WS(10) + ITOS(TD2); NL();
    out += WS(3) + ".limit locals" + WS(9) + ITOS(currentFunc->total); NL();
-   
+   	cout <<"HEYYYY3" << endl;
    STMT1(tree->children[3]);
    
    if (currentFunc->returnType->name == "") { out += "   return"; NL(); }
@@ -1124,7 +1124,7 @@ void classesOut(ParseTree * tree) {
     			ParseTree * field = tree->children[3]->children[i];
     			if (field->description == "variable" && field->children[1]->token->text == V->name) {
    			  		classV(dynamic_cast<S_variable *>(it->second), it->first); }}}}
-   	
+   	cout <<"HEYYYY" << endl;
    out += ".method" + WS(18) + "<init>()V"; NL();
    out += WS(3) +  ".limit stack" + WS(10) + "1"; NL();
    out += WS(3) + ".limit locals" + WS(9) + "1"; NL();
@@ -1135,7 +1135,7 @@ void classesOut(ParseTree * tree) {
    else  {out += "java/lang/Object/<init>()V"; }
    NL(); out += WS(3) + "return"; NL();
 	out += ".end method"; NL(); NL();
-	
+	cout <<"HEYYYY" << endl;
 	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { 
 	 	if  (dynamic_cast<S_function *>(it->second)) {
 	 		currentFunc = dynamic_cast<S_function *>(it->second);
