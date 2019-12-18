@@ -772,7 +772,7 @@ void STMT1(ParseTree * tree) {
 		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
 			out += "   getstatic" + WS(12) + "java/lang/System/out Ljava/io/PrintStream;";
 			out += '\n';
-			out += EXPR1(tree->children[1]->children[i]);
+			EXPR1(tree->children[1]->children[i]);
 			S_type * T = EXPR(tree->children[1]->children[i]);
 			if (T->name == "string") { out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(Ljava/lang/String;)V"; NL(); }
 			if (T->name == "int") { out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(I)V"; NL();}
