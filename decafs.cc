@@ -574,10 +574,10 @@ void STMT(ParseTree * tree) {
 	}
 	else if (tree->description == "for") {
 		looper++;
-		EXPR(tree->children[0]); 
+		if (tree->children[0]) EXPR(tree->children[0]); 
 		S_type * mustbool = EXPR(tree->children[1]); 
 		if (!(mustbool->name == "bool" && mustbool->array == 0)) {semantic_error(for1, LN); }
-		EXPR(tree->children[2]); 
+		if (tree->children[2]) EXPR(tree->children[2]); 
 		STMT(tree->children[3]);
 		looper--;
 	}
@@ -956,7 +956,7 @@ void STMT1(ParseTree * tree) {
 	else if (tree->description == "for") {
 		string l1 = label_generator();
 		string l2 = label_generator();
-		EXPR1(tree->children[0]);
+		if (tree->children[0]) EXPR1(tree->children[0]);
 		out += l1 + ": "; NL(); 
 		EXPR1(tree->children[1]);
 		out += "   iconst_1"; NL();
@@ -964,7 +964,7 @@ void STMT1(ParseTree * tree) {
 		currLABEL.push_back(l2);
 		STMT1(tree->children[3]);
 		cout << "back in loop" << endl;
-		EXPR1(tree->children[2]);
+		if (tree->children[2]) EXPR1(tree->children[2]);
 		out += "   goto" + WS(18)+ l1 + " "; NL();
 		out += l2 + ":"; NL();
 		currLABEL.pop_back(); 
