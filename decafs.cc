@@ -789,7 +789,6 @@ void EXPR1(ParseTree * tree) {
 		 	EXPR1(tree->children[2]);
 		 	cout << "ASSIGN" << endl;
 		 	if (tree->children[0]->token) {
-		 		LN = tree->token->line;
 		 		cout << "GLOBAL ASSIGN"<< endl;
 				S_variable * V = dynamic_cast<S_variable *>(currentSS->lookup(tree->token->text));
 				bool found = false;
