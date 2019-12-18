@@ -466,7 +466,7 @@ S_type * EXPR(ParseTree * tree) {
 				S_type * T2 = F->formals[i]->type;
 				if (! compatibles(T2, T1)) { semantic_error("Type of the arguments of the function " + Fname + " don't match", LN); }}
 			if (F->returnType) { return F->returnType; }
-			else { return type_creator("");; }}
+			else { return type_creator(""); }}
 		else  {
 			S_class * C1 = nullptr;
 			S_interface * I1 = nullptr;
@@ -700,14 +700,14 @@ void EXPR1(ParseTree * tree) {
 			EXPR1(tree->children[2]);
 			string l1 = label_generator();
 			string l2 = label_generator();
-			out += "   iconst_1"; out+= '\n';
+			out += "   iconst_1"; NL();
 			out += "   if_icmpne" + WS(13); out += l1; out += '\n';
-			out += "   iconst_1"; out+= '\n';
+			out += "   iconst_1"; NL();
 			out += "   if_icmpne" + WS(13); out += l1; out += '\n';
-			out += "   iconst_1"; out+= '\n';
-			out += "   goto" + WS(18); out += l2; out+= '\n';
+			out += "   iconst_1"; NL();
+			out += "   goto" + WS(18); out += l2; NL();
 			out += l1 + ":"; out += '\n';
-			out += "   iconst_0"; out+= '\n';
+			out += "   iconst_0"; NL();
 			out += l2 + ":"; out += '\n';
 		}
 		else if (type == 42) {
@@ -715,14 +715,14 @@ void EXPR1(ParseTree * tree) {
 			EXPR1(tree->children[2]);
 			string l1 = label_generator();
 			string l2 = label_generator();
-			out += "   iconst_1"; out+= '\n';
+			out += "   iconst_1"; NL();
 			out += "   if_icmpeq" + WS(13); out += l1; out += '\n';
-			out += "   iconst_1"; out+= '\n';
+			out += "   iconst_1"; NL();
 			out += "   if_icmpeq" + WS(13); out += l1; out += '\n';
-			out += "   iconst_0"; out+= '\n';
-			out += "   goto" + WS(18); out += l2; out+= '\n';
+			out += "   iconst_0"; NL();
+			out += "   goto" + WS(18); out += l2; NL();
 			out += l1 + ":"; out += '\n';
-			out += "   iconst_1"; out+= '\n';
+			out += "   iconst_1"; NL();
 			out += l2 + ":"; out += '\n';
 		}
 		else if (type == 39 || type == 40) { 
@@ -730,18 +730,18 @@ void EXPR1(ParseTree * tree) {
 			EXPR1(tree->children[2]);
 			string l1 = label_generator();
 			string l2 = label_generator();
-			if (type == 39) {out += "   if_icmpne" + WS(13); out += l1; out += '\n';}
-			else {out += "   if_icmpeq" + WS(13); out += l1; out += '\n';}
-			out += "   iconst_1"; out+= '\n';
-			out += "   goto" + WS(18); out += l2; out+= '\n';
-			out += l1 + ":"; out += '\n';
-			out += "   iconst_0"; out+= '\n';
-			out += l2 + ":"; out += '\n';
+			if (type == 39) {out += "   if_icmpne" + WS(13); out += l1; NL();}
+			else {out += "   if_icmpeq" + WS(13); out += l1; NL();}
+			out += "   iconst_1"; NL();
+			out += "   goto" + WS(18); out += l2; NL();
+			out += l1 + ":"; NL();
+			out += "   iconst_0"; NL();
+			out += l2 + ":"; NL();
 		}
 	}
 	else if (tree->token) {	
 		if (tree->token->type == 8) { 
-			out += "   aconst_null"; out+= '\n';
+			out += "   aconst_null"; NL();
 		}
 		if (tree->token->type == 23) { 
 			LN = tree->token->line;
@@ -767,11 +767,9 @@ void EXPR1(ParseTree * tree) {
 void STMT1(ParseTree * tree) {
 	string out = "";
 	if (tree->description == "print") {
-		out += "   .line" + WS(17) + ITOS(tree->children[0]->token->line);
-		out += '\n';
+		out += "   .line" + WS(17) + ITOS(tree->children[0]->token->line); NL();
 		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
-			out += "   getstatic" + WS(12) + "java/lang/System/out Ljava/io/PrintStream;";
-			out += '\n';
+			out += "   getstatic" + WS(12) + "java/lang/System/out Ljava/io/PrintStream;"; NL();
 			EXPR1(tree->children[1]->children[i]);
 			S_type * T = EXPR(tree->children[1]->children[i]);
 			if (T->name == "string") { out += "   invokevirtual" + WS(9) + "java/io/PrintStream/println(Ljava/lang/String;)V"; NL(); }
@@ -801,27 +799,21 @@ string outputType(S_type * T) {
 }
 
 string globalV(S_variable * V, string name) {
-	string out; 
 	out =  ".field" + WS(19) + "public static " + name  + " ";
-	out += outputType(V->type);
-	out += '\n';
-	out += '\n';
-	return out; }
+	out += outputType(V->type); NL(); NL(); }
 
 string globalF(S_function * F, string name, ParseTree * tree) {
 	out += ".method" + WS(18) + "public static " + name + "(";
 	for (size_t i=0; i < F->formals.size(); i++) { out += outputType(F->formals[i]->type); }
 	out +=  ')';
-	if (F->returnType->name == "") { out += 'V'; out += '\n'; }
-	else  { out += outputType(F->returnType); out += '\n'; }
+	if (F->returnType->name == "") { out += 'V'; NL(); }
+	else  { out += outputType(F->returnType); NL(); }
 	out += WS(3) +  ".limit stack" + WS(10) + ITOS(TD2) + '\n';
    out += WS(3) + ".limit locals" + WS(9) + ITOS(F->total) + '\n';
    out += "fuck";
    STMT1(tree);
-   out += '\n';
 	out += ".end method";
-	out += '\n';
-	out += '\n';
+	NL(); NL();
 	return out; }
 
 void code_gen_file(ParseTree * tree, string fname) {
@@ -829,7 +821,7 @@ void code_gen_file(ParseTree * tree, string fname) {
 	fstream FILE; 
 	tree = tree;
    FILE.open(real + ".j", ios::out); 
-   string out = ".source" + WS(18) + fname + '\n';
+   out += ".source" + WS(18) + fname + '\n';
    out += ".class" + WS(19) + "public " + real + '\n';
    out += ".super" + WS(19) + "java/lang/Object" + '\n' +'\n'+'\n';
    for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { 
