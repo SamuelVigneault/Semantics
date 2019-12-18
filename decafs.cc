@@ -35,6 +35,7 @@ int looper = 0;
 int LN = 0;
 int var0 = 0;
 int TD2 = 0;
+int label = 0;
 
 // ALL ERROR MESSAGES
 string func1 = "Variable redefined in the function's arguments";
@@ -683,30 +684,65 @@ string WS(size_t L) {
 	return lol;
 }
 
-string EXPR(ParseTree * tree) {
+string label_generator() {
+	label++;
+	return "LAB" + ITOS(label);
+}
+
+string EXPR1(ParseTree * tree) {
 	string out = "";
 	if (tree->description == "binop") {
 		int type = tree->children[1]->token->type;
-		if (type == 38) {
-			ass =true;
-			S_type * L = EXPR(tree->children[0]);
-			if (!ass) { semantic_error("Cannot have New or NewArray on left side of assignment", LN); }
-			S_type * R = EXPR(tree->children[2]);
-			if (compatibles(L, R)) { return type_creator(""); }
-			else { semantic_error("Assignment failed", LN); }
+		if (type == 41) {
+			out += EXPR1(tree->children[0]);
+			out += EXPR1(tree->children[2]);
+			string l1 = label_generator();
+			string l2 = label_generator();
+			out += "   iconst_1"; out+= '\n';
+			out += "   if_icmpne" + WS(13); out += l1; out += '\n';
+			out += "   iconst_1"; out+= '\n';
+			out += "   if_icmpne" + WS(13); out += l1; out += '\n';
+			out += "   iconst_1"; out+= '\n';
+			out += "   goto" + WS(18); out += l2; out+= '\n';
+			out += l1 + ":"; out += '\n';
+			out += "   iconst_0"; out+= '\n';
+			out += l2 + ":"; out += '\n';
+			return out;
 		}
-		else if (type == 41 || type == 42) { 
-			S_type * L = EXPR(tree->children[0]);
-			S_type * R = EXPR(tree->children[2]);
-			if (L->name == "bool" && R->name == "bool" && L->array == 0 && R->array == 0) { return L; }
-			else { semantic_error("and and ors over here", LN); }
+		else if (type == 42) {
+			out += EXPR1(tree->children[0]);
+			out += EXPR1(tree->children[2]);
+			string l1 = label_generator();
+			string l2 = label_generator();
+			out += "   iconst_1"; out+= '\n';
+			out += "   if_icmpeq" + WS(13); out += l1; out += '\n';
+			out += "   iconst_1"; out+= '\n';
+			out += "   if_icmpeq" + WS(13); out += l1; out += '\n';
+			out += "   iconst_0"; out+= '\n';
+			out += "   goto" + WS(18); out += l2; out+= '\n';
+			out += l1 + ":"; out += '\n';
+			out += "   iconst_1"; out+= '\n';
+			out += l2 + ":"; out += '\n';
+			return out;
 		}
 		else if (type == 39 || type == 40) { 
+			out += EXPR1(tree->children[0]);
+			out += EXPR1(tree->children[2]);
+			string l1 = label_generator();
+			string l2 = label_generator();
+			if (type == 39) {out += "   if_icmpne" + WS(13); out += l1; out += '\n';}
+			else {out += "   if_icmpeq" + WS(13); out += l1; out += '\n';}
+			out += "   iconst_1"; out+= '\n';
+			out += "   goto" + WS(18); out += l2; out+= '\n';
+			out += l1 + ":"; out += '\n';
+			out += "   iconst_0"; out+= '\n';
+			out += l2 + ":"; out += '\n';
+			return out;
+		}/*
+		if (type == 38) {
 			S_type * L = EXPR(tree->children[0]);
 			S_type * R = EXPR(tree->children[2]);
-			if (compatibles(L, R)) { return type_creator("bool"); }
-			else if (compatibles(R, L)) { return type_creator("bool"); }
-			else { semantic_error("comparaison == or !=", LN); }
+			return out;
 		}
 		else if (type > 33 && type < 38) { 
 			S_type * L = EXPR(tree->children[0]);
@@ -719,8 +755,37 @@ string EXPR(ParseTree * tree) {
 			S_type * R = EXPR(tree->children[2]); 
 			if (L->name == R->name && (L->name == "int" || L->name == "double") && L->array == 0 && R->array == 0) { return L; }
 			else { semantic_error("math equations symbols", LN); }
-		 }
+		 }*/
 	}
+	else if (tree->token) {	
+		if (tree->token->type == 8) { 
+			out += "   aconst_null"; out+= '\n';
+			return out;
+		}
+		if (tree->token->type == 23) { 
+			LN = tree->token->line;
+			S_variable * V = dynamic_cast<S_variable *>(currentSS->lookup(tree->token->text));
+			if ((V->type->name == "bool" || V->type->name == "int") && V->type->array == 0) { out += "   iload_"; }
+			else if ( V->type->name == "double" && V->type->array == 0) { out += "   dload_"; }
+			else { out += "   aload_"; }
+			for (size_t i=0; i < currentFunc->vars.size(); i++) {
+				if (V->var == currentFunc->vars[i] && V->name == currentFunc->locals[i])
+					out += ITOS(currentFunc->nums[i]);
+			}
+			out+= '\n';
+			return out;}
+  		if (tree->token->type == 25 || ) { out += "   ldc" + WS(19) + tree->token->text; out+= '\n'; return out; }
+		if (tree->token->type == 26) { 
+			if (tree->token->text == "true") { out += "   iconst_1"; out+= '\n'; return out; }
+			else {out += "   iconst_0"; out+= '\n'; return out; }}
+		if (tree->token->type == 27) { out += "   ldc2_w" + WS(16) + tree->token->text; out+= '\n'; return out; }
+		if (tree->token->type == 28) { out += "   ldc" + WS(19) + tree->token->text; out+= '\n'; return out; }
+		if (tree->token->type == 9) {
+			out += "   aload_0"; out += '\n';
+			return out;
+		}
+	}}
+/*
 	else if (tree->description == "uop") {
 		if (tree->children[0]->token->type == 30) {
 			S_type * T = EXPR(tree->children[1]);
@@ -844,7 +909,7 @@ string EXPR(ParseTree * tree) {
 			}
 	}
 	return one;
-}
+}*/
 
 string STMT1(ParseTree * tree) {
 	string out = "";
@@ -944,7 +1009,7 @@ string globalF(S_function * F, string name, ParseTree * tree) {
 	else  { out += outputType(F->returnType); out += '\n'; }
 	out += WS(3) +  ".limit stack" + WS(10) + ITOS(TD2) + '\n';
    out += WS(3) + ".limit locals" + WS(9) + ITOS(F->total) + '\n';
-   out += STMT1(tree)
+   out += STMT1(tree);
    out += '\n';
 	out += ".end method";
 	out += '\n';
@@ -975,13 +1040,13 @@ void code_gen_file(ParseTree * tree, string fname) {
 	out += '\n';
 	for (std::map<string, semantics *>::iterator it=topSS->dict.begin(); it!=topSS->dict.end(); ++it) { 
 	 	if  (dynamic_cast<S_function *>(it->second)) {
-	 		currentClass = nullptr;
-  			currentFunc = nullptr;
+	 		currentFunc = dynamic_cast<S_function *>(it->second);
+  			currentClass = nullptr;
   			ParseTree * F;
   			for (size_t i=0; i < tree->children.size(); i++) {
   				if (tree->children[i]->description == "functiondecl" && tree->children[i]->children[1]->token->text == it->first)
   					F = tree->children[i]; }
-  			out += globalF(dynamic_cast<S_function *>(it->second), it->first, F); }}
+  			out += globalF(currentFunc, it->first, F); }}
   	FILE << out;
 }
 
