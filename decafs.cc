@@ -1114,15 +1114,15 @@ void classesOut(ParseTree * tree) {
    
    out += ".source" + WS(18) + fname1111; NL();
    out += ".class" + WS(19) + currentClass->name; NL();
-   if (currentClass->parentClass) { out += ".super" + WS(19) + currentClass->parentClass; NL();NL();NL(); }
+   if (currentClass->parentClass != "") { out += ".super" + WS(19) + currentClass->parentClass; NL();NL();NL(); }
    else { out += ".super" + WS(19) + "java/lang/Object"; NL();NL();NL();}
    
-   for (std::map<string, semantics *>::iterator it=tree->Symbtab->dict.begin(); it!=tree->Symbtab->dict.end(); ++it) { 
+   for (std::map<string, semantics *>::iterator it=tree->symtab->dict.begin(); it!=tree->symtab->dict.end(); ++it) { 
    		if  (dynamic_cast<S_variable *>(it->second)) {
    			S_variable * V = dynamic_cast<S_variable *>(it->second);
    			for (size_t i=0; i < tree->children[3]->children.size(); i++) {
     			ParseTree * field = tree->children[3]->children[i];
-    			if (field->description == "variable" && field->children[1]->token->text = V->name) {
+    			if (field->description == "variable" && field->children[1]->token->text == V->name) {
    			  		classV(dynamic_cast<S_variable *>(it->second), it->first); }}}}
    	
    out += ".method" + WS(18) + "<init>()V"; NL();
@@ -1131,8 +1131,8 @@ void classesOut(ParseTree * tree) {
    out += WS(3) +  ".line" + WS(17) + "1"; NL();
    out += WS(3) + "aload_0"; NL();  
    out += WS(3) + "invokespecial" + WS(9);
-   if (currentClass->parentClass) out += currentClass->parentClass + "/<init>()V";
-   else out += "java/lang/Object/<init>()V";
+   if (currentClass->parentClass != "") { out += currentClass->parentClass + "/<init>()V"; }
+   else  {out += "java/lang/Object/<init>()V"; }
    NL(); out += WS(3) + "return"; NL();
 	out += ".end method"; NL(); NL();
 	
