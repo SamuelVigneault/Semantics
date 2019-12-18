@@ -397,7 +397,6 @@ S_type * EXPR(ParseTree * tree) {
 	if (tree->description == "binop") {
 		int type = tree->children[1]->token->type;
 		if (type == 38) {
-			cout << "ASSIGN - PASS 2 "  << LN << endl;
 			ass = true;
 			S_type * L = EXPR(tree->children[0]);
 			if (!ass) { semantic_error("Cannot have New or NewArray on left side of assignment", LN); }
@@ -557,7 +556,6 @@ S_type * EXPR(ParseTree * tree) {
 }
   
 void STMT(ParseTree * tree) {
-	cout << "WHERE AT - " << 	LN << endl;
 	if (tree->description == "print") {
 		LN = tree->children[0]->token->line;
 		for (size_t i=0; i < tree->children[1]->children.size(); i++) { 
@@ -617,8 +615,7 @@ void STMT(ParseTree * tree) {
 			if (V->type->name == "double" && V->type->array == 0) currentFunc->total += 2;
 			else  currentFunc->total++;
       		currentSS->insert(V->name, V); }
-      	for (size_t i=0; i < tree->children[1]->children.size(); i++) { STMT(tree->children[1]->children[i]); cout << "Next"<< endl; }
-      	cout << "closing" << endl;
+      	for (size_t i=0; i < tree->children[1]->children.size(); i++) { STMT(tree->children[1]->children[i]); }
       	closescope(); }
 	else if (tree->description == "nullstmt") { return; }
 	else { EXPR(tree); }
